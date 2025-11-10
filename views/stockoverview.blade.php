@@ -89,7 +89,7 @@
 		</div>
 	</div>
 </div>
-<div class="row collapse d-md-flex"
+<div class="row collapse show d-md-flex"
 	id="table-filter-row">
 	<div class="col-12 col-md-6 col-xl-3">
 		<div class="input-group">
@@ -100,6 +100,13 @@
 				id="search"
 				class="form-control"
 				placeholder="{{ $__t('Search') }}">
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary"
+					type="button"
+					id="barcodescanner-start-button">
+					<i class="fa-solid fa-barcode"></i>
+				</button>
+			</div>
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
