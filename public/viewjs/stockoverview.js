@@ -116,16 +116,17 @@ $(document).on("Grocy.BarcodeScanned", function(e, barcode, target)
 	if (target === "#search")
 	{
 		$("#search").val(barcode);
-		stockOverviewTable.search(barcode).draw();
+		setTimeout(function()
+		{
+			$("#search").keyup();
+		}, 50);
 	}
 });
 
-$("#barcodescanner-start-button").on("click", function (e)
+setTimeout(function()
 {
-	e.preventDefault();
-	Grocy.Components.BarcodeScanner.Show();
-	Grocy.Components.BarcodeScanner.SetTarget("#search");
-});
+	Grocy.Components.CameraBarcodeScanner.Init();
+}, 50);
 
 $(document).on('click', '.product-grocycode-label-print', function(e)
 {
