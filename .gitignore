@@ -3,3 +3,4 @@ embedded.txt
 /.release
 /packages
 /public/packages
+php_server.log
