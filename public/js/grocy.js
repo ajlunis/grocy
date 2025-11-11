@@ -583,6 +583,12 @@ $(document).on("shown.bs.modal", function(e)
 $(document).on("hidden.bs.modal", function(e)
 {
 	$("body").removeClass("fullscreen-card");
+  
+	if ($(".modal.show").length)
+	{
+		$("body").addClass("modal-open");
+		$("body").css("overflow", "hidden");
+	}
 });
 $("body").children().each(function(index, child)
 {
