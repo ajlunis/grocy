@@ -1,3 +1,4 @@
+
 Grocy.Components.ProductCard = {};
 
 Grocy.Components.ProductCard.Refresh = function(productId)
@@ -9,7 +10,23 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			var stockValue = productDetails.stock_value || '0';
 			var stockAmountOpened = productDetails.stock_amount_opened || '0';
 			$('#productcard-product-name').text(productDetails.product.name);
+
+			if (productDetails.product.parent_product_id) {
+				Grocy.Api.Get('objects/products/' + productDetails.product.parent_product_id, function(parentProduct) {
+					$('#productcard-parent-product-name').html('<strong>' + __t('Parent product') + ':</strong> <a href="#" class="productcard-trigger" data-product-id="' + parentProduct.id + '">' + parentProduct.name + '</a>');
+				});
+			} else {
+				$('#productcard-parent-product-name').html('');
+			}
+
 			$('#productcard-product-description').html(productDetails.product.description);
+
+			if (productDetails.product_group) {
+				$('#productcard-product-group').text(productDetails.product_group.name);
+			} else {
+				$('#productcard-product-group').text(__t('None'));
+			}
+
 			$('#productcard-product-stock-amount').text(stockAmount);
 			$('#productcard-product-stock-qu-name').text(__n(stockAmount, productDetails.quantity_unit_stock.name, productDetails.quantity_unit_stock.name_plural, true));
 			$('#productcard-product-stock-value').text(stockValue);
@@ -21,7 +38,6 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			{
 				$('#productcard-product-location').text(productDetails.location.name);
 			}
-			$('#productcard-product-spoil-rate').text((productDetails.spoil_rate_percent / 100).toLocaleString(undefined, { style: "percent" }));
 
 			if (productDetails.is_aggregated_amount == 1)
 			{
@@ -115,6 +131,73 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			{
 				$("#productcard-product-picture").addClass("d-none");
 			}
+
+			// Grocycode
+			$('#productcard-grocycode-img').html('<img src="' + U('/product/' + productDetails.product.id + '/grocycode?size=60') + '">');
+			$('#productcard-grocycode-buttons').html('<a class="btn btn-outline-primary btn-sm" href="' + U('/product/' + productDetails.product.id + '/grocycode?download=true') + '">' + __t('Download') + '</a>' +
+				'<a class="btn btn-outline-primary btn-sm ml-1 product-grocycode-label-print" data-product-id="' + productDetails.product.id + '" href="#">' + __t('Print on label printer') + '</a>');
+
+			// Barcodes
+			var barcodes = productDetails.product_barcodes;
+			var barcodeHtml = '';
+			if (barcodes && barcodes.length > 0) {
+				barcodeHtml += '<div class="mt-3"><strong>' + __t('Barcodes') + ':</strong><ul class="list-unstyled">';
+				barcodes.forEach(function(barcode) {
+					barcodeHtml += '<li>' + barcode.barcode + '</li>';
+				});
+				barcodeHtml += '</ul></div>';
+			}
+			$('#productcard-barcodes').html(barcodeHtml);
+
+			// Userfields
+			var userfields = productDetails.userfields;
+			var userfieldsHtml = '';
+			if (userfields) {
+				userfieldsHtml += '<div class="mt-3"><strong>' + __t('Userfields') + ':</strong><dl class="row">';
+				Object.keys(userfields).forEach(function(key) {
+					var userfield = userfields[key];
+					if (userfield.value) {
+						userfieldsHtml += '<dt class="col-sm-3">' + userfield.caption + '</dt><dd class="col-sm-9">';
+						switch (userfield.type) {
+							case 'checkbox':
+								userfieldsHtml += userfield.value == 1 ? __t('Yes') : __t('No');
+								break;
+							case 'date':
+								userfieldsHtml += moment(userfield.value).format('YYYY-MM-DD');
+								break;
+							case 'datetime':
+								userfieldsHtml += moment(userfield.value).format('YYYY-MM-DD HH:mm:ss');
+								break;
+							case 'number-integral':
+								userfieldsHtml += Number.parseInt(userfield.value).toLocaleString();
+								break;
+							case 'number-decimal':
+								userfieldsHtml += Number.parseFloat(userfield.value).toLocaleString();
+								break;
+							case 'number-currency':
+								userfieldsHtml += Number.parseFloat(userfield.value).toLocaleString(undefined, { style: "currency", currency: Grocy.Currency });
+								break;
+							case 'file':
+							case 'image':
+								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value)) + '" target="_blank">' + userfield.value.split('_').slice(1).join('_') + '</a>';
+								break;
+							case 'link':
+								userfieldsHtml += '<a href="' + userfield.value + '" target="_blank">' + userfield.value + '</a>';
+								break;
+							case 'link-with-title':
+								var link = JSON.parse(userfield.value);
+								userfieldsHtml += '<a href="' + link.url + '" target="_blank">' + link.title + '</a>';
+								break;
+							default:
+								userfieldsHtml += userfield.value;
+						}
+						userfieldsHtml += '</dd>';
+					}
+				});
+				userfieldsHtml += '</dl></div>';
+			}
+			$('#productcard-userfields-wrapper').html(userfieldsHtml);
+
 
 			$("#productcard-product-stock-amount-wrapper").removeClass("d-none");
 			$("#productcard-aggregated-amounts").addClass("pl-2");
@@ -307,10 +390,31 @@ $("#productcard-product-description").on("hidden.bs.collapse", function()
 
 $(document).on("click", ".productcard-trigger", function(e)
 {
+	e.preventDefault();
 	var productId = $(e.currentTarget).attr("data-product-id");
 	if (productId != "")
 	{
+		var modal = $("#productcard-modal");
+		if(modal.hasClass("show")) {
+			var newModal = modal.clone().attr("id", "productcard-modal-" + productId);
+			newModal.find(".modal-dialog").on("hidden.bs.modal", function() {
+				$(this).closest(".modal").remove();
+			});
+			newModal.modal("show");
+			modal = newModal;
+		} else {
+			modal.modal("show");
+		}
+
 		Grocy.Components.ProductCard.Refresh(productId);
-		$("#productcard-modal").modal("show");
 	}
+});
+
+$(document).on('click', '.product-grocycode-label-print', function(e)
+{
+	e.preventDefault();
+	var productId = $(e.currentTarget).attr('data-product-id');
+	Grocy.Api.Get('stock/products/' + productId + '/printlabel', function(labelData) {
+		// Nothing to do, is a fire and forget request
+	});
 });
