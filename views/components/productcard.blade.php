@@ -99,7 +99,6 @@
 						@endif
 
 						@if(GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)<strong>{{ $__t('Average shelf life') }}:</strong> <span id="productcard-product-average-shelf-life"></span><br>@endif
-						<strong>{{ $__t('Spoil rate') }}:</strong> <span id="productcard-product-spoil-rate"></span>
 
 						<p class="w-75 mt-3 mx-auto">
 							<img id="productcard-product-picture"
