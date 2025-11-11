@@ -52,7 +52,7 @@
 	</div>
 </div>
 
-<div class="row collapse d-md-flex"
+<div class="row collapse d-md-flex show"
 	id="table-filter-row">
 	<div class="col-12 col-md-6 col-xl-3">
 		<div class="input-group">
