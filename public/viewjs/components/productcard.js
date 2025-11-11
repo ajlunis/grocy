@@ -8,7 +8,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 		{
 			var stockAmount = productDetails.stock_amount || '0';
 			var stockValue = productDetails.stock_value || '0';
-			if (isNaN(stockValue)) {
+			if (isNaN(parseFloat(stockValue))) {
 				stockValue = '0';
 			}
 			var stockAmountOpened = productDetails.stock_amount_opened || '0';
@@ -25,9 +25,11 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 			modal.find('#productcard-product-description').html(productDetails.product.description);
 
 			if (productDetails.product_group) {
-				modal.find('#productcard-product-group').text(productDetails.product_group.name).parent().removeClass('d-none');
+				modal.find('#productcard-product-group').text(productDetails.product_group.name);
+				modal.find('#productcard-product-group').parent().removeClass('d-none');
 			} else {
-				modal.find('#productcard-product-group').text('').parent().addClass('d-none');
+				modal.find('#productcard-product-group').text('');
+				modal.find('#productcard-product-group').parent().addClass('d-none');
 			}
 
 			modal.find('#productcard-product-stock-amount').text(stockAmount);
@@ -182,7 +184,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 								break;
 							case 'file':
 							case 'image':
-								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value) + '?force_serve_as=picture') + '" target="_blank">' + userfield.value.split('_').slice(1).join('_') + '</a>';
+								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value)) + '" target="_blank">' + userfield.value.substring(userfield.value.indexOf('_') + 1) + '</a>';
 								break;
 							case 'link':
 								userfieldsHtml += '<a href="' + userfield.value + '" target="_blank">' + userfield.value + '</a>';
@@ -424,6 +426,13 @@ $(document).on("click", ".productcard-trigger", function(e)
         Grocy.Components.ProductCard.Refresh(productId, targetModal);
         targetModal.modal("show");
     }
+});
+
+$(document).on('shown.bs.modal', '.show-as-dialog-link', function(e) {
+	var modal = $(e.currentTarget);
+	modal.on('hidden.bs.modal', function (e) {
+		$('body').addClass('modal-open');
+	});
 });
 
 

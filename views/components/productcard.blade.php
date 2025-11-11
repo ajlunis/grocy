@@ -114,7 +114,7 @@
 								loading="lazy">
 						</p>
 
-						<div id="productcard-grocycode-img"></div>
+						<div id="productcard-grocycode-img" class="mb-2"></div>
 						<div id="productcard-grocycode-buttons" class="d-flex justify-content-center"></div>
 						<div id="productcard-barcodes" class="d-flex flex-column align-items-center"></div>
 
