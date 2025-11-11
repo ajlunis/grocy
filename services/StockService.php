@@ -780,7 +780,7 @@ class StockService extends BaseService
 		$quPrice = $this->getDatabase()->quantity_units($product->qu_id_price);
 		$location = $this->getDatabase()->locations($product->location_id);
 		$productGroup = $this->getDatabase()->product_groups($product->product_group_id);
-		$userfields = $this->getUserfieldsService()->GetValues('products', $product->id);
+		$userfields = (new UserfieldsService())->GetValues('products', $product->id);
 
 		$defaultConsumeLocation = null;
 		if (!empty($product->default_consume_location_id))
