@@ -14,7 +14,12 @@
 	tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content text-center">
-			<div class="modal-body">
+			<div class="modal-header border-0 pb-0">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{{ $__t('Close') }}">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+			</div>
+			<div class="modal-body pt-0">
 				@endif
 
 				<div class="card productcard">
@@ -119,10 +124,10 @@
 
 				@if($asModal)
 			</div>
-			<div class="modal-footer">
-				<button type="button"
-					class="btn btn-secondary"
-					data-dismiss="modal">{{ $__t('Close') }}</button>
+			<div class="modal-footer border-0 pt-0">
+				<button type="button" class="close" data-dismiss="modal" aria-label="{{ $__t('Close') }}">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
 			</div>
 		</div>
 	</div>
