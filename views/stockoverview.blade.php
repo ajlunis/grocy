@@ -114,9 +114,15 @@
 			</div>
 			<input type="text"
 				id="search"
-				class="form-control barcodescanner-input"
-				placeholder="{{ $__t('Search') }}"
-				data-target="#search">
+				class="form-control"
+				placeholder="{{ $__t('Search') }}">
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary"
+					type="button"
+					id="barcodescanner-start-button">
+					<i class="fa-solid fa-barcode"></i>
+				</button>
+			</div>
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
@@ -468,7 +474,7 @@
 							data-trigger="hover click"
 							data-html="true"
 							title="{!! $__t('%1$s per %2$s', '<span class=\'locale-number locale-number-currency\'>' . $currentStockEntry->average_price . '</span>', $currentStockEntry->qu_stock_name) !!}">
-							{!! $__t('%1$s per %2$s', '<span class="locale-number locale-number-currency">' . $currentStockEntry->average_.price * $currentStockEntry->product_qu_factor_price_to_stock . '</span>', $currentStockEntry->qu_price_name) !!}
+							{!! $__t('%1$s per %2$s', '<span class="locale-number locale-number-currency">' . $currentStockEntry->average_price * $currentStockEntry->product_qu_factor_price_to_stock . '</span>', $currentStockEntry->qu_price_name) !!}
 						</span>
 						@endif
 					</td>

@@ -223,3 +223,7 @@ Grocy.Components.CameraBarcodeScanner.Init = function()
 	});
 }
 
+setTimeout(function()
+{
+	Grocy.Components.CameraBarcodeScanner.Init();
+}, 50);
