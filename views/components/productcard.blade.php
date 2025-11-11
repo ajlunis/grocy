@@ -13,16 +13,13 @@
 	id="productcard-modal"
 	tabindex="-1">
 	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">{{ $__t('Product overview') }}</h5>
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">{{ $__t('Close') }}</button>
-			</div>
-			<div class="modal-body text-center">
+		<div class="modal-content text-center">
+			<div class="modal-body">
 				@endif
 
 				<div class="card productcard">
 					<div class="card-header">
+						<span class="float-left">{{ $__t('Product overview') }}</span>
 						<a id="productcard-product-edit-button"
 							class="btn btn-sm btn-outline-secondary py-0 float-right disabled"
 							href="#"
@@ -54,7 +51,6 @@
 					</div>
 					<div class="card-body">
 						<h3><span id="productcard-product-name"></span></h3>
-						<div id="productcard-parent-product-name" class="small"></div>
 
 						<div id="productcard-product-description-wrapper"
 							class="expandable-text mb-2 d-none">
@@ -65,7 +61,6 @@
 								href="#productcard-product-description">{{ $__t('Show more') }}</a>
 						</div>
 
-						<strong>{{ $__t('Product group') }}:</strong> <span id="productcard-product-group"></span><br>
 						<strong>{{ $__t('Stock amount') }}:</strong>
 						<span id="productcard-product-stock-amount-wrapper">
 							<span id="productcard-product-stock-amount"
@@ -104,8 +99,7 @@
 						@endif
 
 						@if(GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)<strong>{{ $__t('Average shelf life') }}:</strong> <span id="productcard-product-average-shelf-life"></span><br>@endif
-
-						<div id="productcard-userfields-wrapper"></div>
+						<strong>{{ $__t('Spoil rate') }}:</strong> <span id="productcard-product-spoil-rate"></span>
 
 						<p class="w-75 mt-3 mx-auto">
 							<img id="productcard-product-picture"
@@ -113,10 +107,6 @@
 								src=""
 								loading="lazy">
 						</p>
-
-						<div id="productcard-grocycode-img"></div>
-						<div id="productcard-grocycode-buttons" class="d-flex justify-content-center"></div>
-						<div id="productcard-barcodes" class="d-flex flex-column align-items-center"></div>
 
 						@if(GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 						<h5 class="mt-3">{{ $__t('Price history') }}</h5>
