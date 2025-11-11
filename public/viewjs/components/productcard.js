@@ -12,7 +12,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 			modal.find('#productcard-product-name').text(productDetails.product.name);
 
 			if (productDetails.product.parent_product_id) {
-				Grocy.Api.Get('objects/products/' in productDetails.product.parent_product_id, function(parentProduct) {
+				Grocy.Api.Get('objects/products/' + productDetails.product.parent_product_id, function(parentProduct) {
 					modal.find('#productcard-parent-product-name').html('<strong>' + __t('Parent product') + ':</strong> <a href="#" class="productcard-trigger" data-product-id="' + parentProduct.id + '">' + parentProduct.name + '</a>');
 				});
 			} else {
