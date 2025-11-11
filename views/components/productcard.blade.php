@@ -19,10 +19,13 @@
 
 				<div class="card productcard">
 					<div class="card-header">
-						<span class="float-left">{{ $__t('Product overview') }}</span>
-						<button type="button" class="btn btn-sm btn-outline-secondary py-0 float-right" data-dismiss="modal">{{ $__t('Close') }}</button>
+						<div class="d-flex mb-1">
+							<span class="float-left">{{ $__t('Product overview') }}</span>
+							<button type="button" class="btn btn-secondary btn-sm ml-auto" data-dismiss="modal">{{ $__t('Close') }}</button>
+						</div>
+						<hr class="my-1">
 						<a id="productcard-product-edit-button"
-							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-right disabled"
+							class="btn btn-sm btn-outline-secondary py-0 float-right disabled"
 							href="#"
 							data-toggle="tooltip"
 							title="{{ $__t('Edit product') }}">
