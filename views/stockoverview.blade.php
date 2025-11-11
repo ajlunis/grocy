@@ -8,6 +8,22 @@
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
 @endpush
 
+@push('pageStyles')
+<style>
+@media (max-width: 767.98px) {
+    #barcodescanner-start-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+}
+</style>
+@endpush
+
 @section('content')
 <div class="row">
 	<div class="col">
@@ -481,4 +497,6 @@
 @include('components.productcard', [
 'asModal' => true
 ])
+
+@include('components.camerabarcodescanner')
 @stop
