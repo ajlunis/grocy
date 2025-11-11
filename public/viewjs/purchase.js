@@ -222,7 +222,7 @@ $('#save-purchase-button').on('click', function(e)
 								Grocy.Components.ShoppingLocationPicker.SetValue('');
 							}
 							Grocy.Components.ProductPicker.GetInputElement().focus();
-							Grocy.Components.ProductCard.Refresh(jsonForm.product_id);
+							Grocy.Components.ProductCard.Refresh(jsonForm.product_id, $("#productcard-modal"));
 							if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_LABEL_PRINTER)
 							{
 								$("#stock_label_type").val(0);

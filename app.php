@@ -63,6 +63,7 @@ if (!file_exists($viewcachePath))
 // GROCY_BASE_URL OR GROCY_BASE_PATH changed
 $hash = hash('sha256', file_get_contents(__DIR__ . '/version.json') . GROCY_BASE_URL . GROCY_BASE_PATH);
 $hashCacheFile = $viewcachePath . "/$hash.txt";
+echo "Checking for migrations...";
 if (!file_exists($hashCacheFile))
 {
 	EmptyFolder($viewcachePath);

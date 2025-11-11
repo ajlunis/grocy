@@ -6,6 +6,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 	Grocy.Api.Get('stock/products/' + productId,
 		function(productDetails)
 		{
+			console.log(productDetails);
 			var stockAmount = productDetails.stock_amount || '0';
 			var stockValue = productDetails.stock_value || '0';
 			if (isNaN(parseFloat(stockValue))) {
@@ -24,12 +25,15 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 
 			modal.find('#productcard-product-description').html(productDetails.product.description);
 
-			if (productDetails.product_group) {
+			if (productDetails.product_group)
+			{
 				modal.find('#productcard-product-group').text(productDetails.product_group.name);
-				modal.find('#productcard-product-group').parent().removeClass('d-none');
-			} else {
+				modal.find('#productcard-product-group-name').removeClass('d-none');
+			}
+			else
+			{
 				modal.find('#productcard-product-group').text('');
-				modal.find('#productcard-product-group').parent().addClass('d-none');
+				modal.find('#productcard-product-group-name').addClass('d-none');
 			}
 
 			modal.find('#productcard-product-stock-amount').text(stockAmount);
@@ -184,7 +188,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 								break;
 							case 'file':
 							case 'image':
-								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value)) + '" target="_blank">' + userfield.value.substring(userfield.value.indexOf('_') + 1) + '</a>';
+								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + userfield.value) + '" target="_blank">' + userfield.value.substring(userfield.value.indexOf('_') + 1) + '</a>';
 								break;
 							case 'link':
 								userfieldsHtml += '<a href="' + userfield.value + '" target="_blank">' + userfield.value + '</a>';
@@ -412,11 +416,6 @@ $(document).on("click", ".productcard-trigger", function(e)
                 .addClass("productcard-modal-sub")
                 .attr("id", "productcard-modal-" + productId)
                 .appendTo("body");
-
-            targetModal.on('hidden.bs.modal', function (e) {
-                $('body').addClass('modal-open');
-                $(e.currentTarget).remove();
-            });
         }
         else
         {
@@ -428,11 +427,10 @@ $(document).on("click", ".productcard-trigger", function(e)
     }
 });
 
-$(document).on('shown.bs.modal', '.show-as-dialog-link', function(e) {
-	var modal = $(e.currentTarget);
-	modal.on('hidden.bs.modal', function (e) {
-		$('body').addClass('modal-open');
-	});
+$(document).on('hidden.bs.modal', function (e) {
+    if ($('.modal.show').length) {
+        $('body').addClass('modal-open');
+    }
 });
 
 
