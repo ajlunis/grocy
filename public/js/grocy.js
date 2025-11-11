@@ -582,7 +582,10 @@ $(document).on("shown.bs.modal", function(e)
 });
 $(document).on("hidden.bs.modal", function(e)
 {
-	$("body").removeClass("fullscreen-card");
+	if ($(".modal.show").length === 0)
+	{
+		$("body").removeClass("fullscreen-card");
+	}
 });
 $("body").children().each(function(index, child)
 {
