@@ -8,23 +8,26 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 		{
 			var stockAmount = productDetails.stock_amount || '0';
 			var stockValue = productDetails.stock_value || '0';
+			if (isNaN(stockValue)) {
+				stockValue = '0';
+			}
 			var stockAmountOpened = productDetails.stock_amount_opened || '0';
 			modal.find('#productcard-product-name').text(productDetails.product.name);
 
 			if (productDetails.product.parent_product_id) {
 				Grocy.Api.Get('objects/products/' + productDetails.product.parent_product_id, function(parentProduct) {
-					modal.find('#productcard-parent-product-name').html('<strong>' + __t('Parent product') + ':</strong> <a href="#" class="productcard-trigger" data-product-id="' + parentProduct.id + '">' + parentProduct.name + '</a>');
+					modal.find('#productcard-parent-product-name').html('<strong>' + __t('Parent product') + ':</strong> <a href="#" class="productcard-trigger" data-product-id="' + parentProduct.id + '">' + parentProduct.name + '</a>').addClass('mb-2').find('a').addClass('text-primary');
 				});
 			} else {
-				modal.find('#productcard-parent-product-name').html('');
+				modal.find('#productcard-parent-product-name').html('').removeClass('mb-2');
 			}
 
 			modal.find('#productcard-product-description').html(productDetails.product.description);
 
 			if (productDetails.product_group) {
-				modal.find('#productcard-product-group').text(productDetails.product_group.name);
+				modal.find('#productcard-product-group').text(productDetails.product_group.name).parent().removeClass('d-none');
 			} else {
-				modal.find('#productcard-product-group').text(__t('None'));
+				modal.find('#productcard-product-group').text('').parent().addClass('d-none');
 			}
 
 			modal.find('#productcard-product-stock-amount').text(stockAmount);
@@ -179,7 +182,7 @@ Grocy.Components.ProductCard.Refresh = function(productId, modal)
 								break;
 							case 'file':
 							case 'image':
-								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value)) + '" target="_blank">' + userfield.value.split('_').slice(1).join('_') + '</a>';
+								userfieldsHtml += '<a href="' + U('/api/files/userfiles/' + btoa(userfield.value) + '?force_serve_as=picture') + '" target="_blank">' + userfield.value.split('_').slice(1).join('_') + '</a>';
 								break;
 							case 'link':
 								userfieldsHtml += '<a href="' + userfield.value + '" target="_blank">' + userfield.value + '</a>';
@@ -409,6 +412,7 @@ $(document).on("click", ".productcard-trigger", function(e)
                 .appendTo("body");
 
             targetModal.on('hidden.bs.modal', function (e) {
+                $('body').addClass('modal-open');
                 $(e.currentTarget).remove();
             });
         }
