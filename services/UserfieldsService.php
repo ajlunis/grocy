@@ -89,11 +89,19 @@ class UserfieldsService extends BaseService
 			$value = FindObjectInArrayByPropertyValue($userfieldValues, 'name', $userfield->name);
 			if ($value)
 			{
-				$userfieldKeyValuePairs[$userfield->name] = $value->value;
+				$userfieldKeyValuePairs[$userfield->name] = [
+					'caption' => $userfield->caption,
+					'value' => $value->value,
+					'type' => $userfield->type
+				];
 			}
 			else
 			{
-				$userfieldKeyValuePairs[$userfield->name] = null;
+				$userfieldKeyValuePairs[$userfield->name] = [
+					'caption' => $userfield->caption,
+					'value' => null,
+					'type' => $userfield->type
+				];
 			}
 		}
 
