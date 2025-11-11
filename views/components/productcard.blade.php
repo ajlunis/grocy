@@ -13,17 +13,16 @@
 	id="productcard-modal"
 	tabindex="-1">
 	<div class="modal-dialog">
-		<div class="modal-content text-center">
-			<div class="modal-body">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">{{ $__t('Product overview') }}</h5>
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">{{ $__t('Close') }}</button>
+			</div>
+			<div class="modal-body text-center">
 				@endif
 
 				<div class="card productcard">
 					<div class="card-header">
-						<div class="d-flex mb-1">
-							<span class="float-left">{{ $__t('Product overview') }}</span>
-							<button type="button" class="btn btn-secondary btn-sm ml-auto" data-dismiss="modal">{{ $__t('Close') }}</button>
-						</div>
-						<hr class="my-1">
 						<a id="productcard-product-edit-button"
 							class="btn btn-sm btn-outline-secondary py-0 float-right disabled"
 							href="#"
@@ -106,6 +105,8 @@
 
 						@if(GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)<strong>{{ $__t('Average shelf life') }}:</strong> <span id="productcard-product-average-shelf-life"></span><br>@endif
 
+						<div id="productcard-userfields-wrapper"></div>
+
 						<p class="w-75 mt-3 mx-auto">
 							<img id="productcard-product-picture"
 								class="img-fluid img-thumbnail d-none"
@@ -124,8 +125,6 @@
 						<span id="productcard-no-price-data-hint"
 							class="font-italic d-none">{{ $__t('No price history available') }}</span>
 						@endif
-
-						<div id="productcard-userfields-wrapper"></div>
 					</div>
 				</div>
 
