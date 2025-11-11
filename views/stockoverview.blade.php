@@ -8,6 +8,22 @@
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
 @endpush
 
+@push('pageStyles')
+<style>
+@media (max-width: 767.98px) {
+    #barcodescanner-start-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+}
+</style>
+@endpush
+
 @section('content')
 <div class="row">
 	<div class="col">
@@ -89,7 +105,7 @@
 		</div>
 	</div>
 </div>
-<div class="row collapse d-md-flex"
+<div class="row collapse show d-md-flex"
 	id="table-filter-row">
 	<div class="col-12 col-md-6 col-xl-3">
 		<div class="input-group">
@@ -98,8 +114,9 @@
 			</div>
 			<input type="text"
 				id="search"
-				class="form-control"
-				placeholder="{{ $__t('Search') }}">
+				class="form-control barcodescanner-input"
+				placeholder="{{ $__t('Search') }}"
+				data-target="#search">
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
@@ -474,4 +491,6 @@
 @include('components.productcard', [
 'asModal' => true
 ])
+
+@include('components.camerabarcodescanner')
 @stop
