@@ -8,6 +8,31 @@
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
 @endpush
 
+@push('pageStyles')
+<style>
+	.input-group-barcode-scanner {
+		position: relative;
+	}
+
+	.input-group-barcode-scanner .barcodescanner-input {
+		padding-right: 40px
+	}
+
+	.input-group-barcode-scanner .barcodescanner-camera-button {
+		position: absolute;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		height: 100%;
+		padding: 0 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 10
+	}
+</style>
+@endpush
+
 @section('content')
 
 @include('components.camerabarcodescanner')
@@ -95,7 +120,7 @@
 <div class="row collapse d-md-flex show"
 	id="table-filter-row">
 	<div class="col-12 col-md-6 col-xl-3">
-		<div class="input-group">
+		<div class="input-group input-group-barcode-scanner">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-search"></i></span>
 			</div>
@@ -104,8 +129,6 @@
 				class="form-control barcodescanner-input"
 				data-target="@stockoverview-search"
 				placeholder="{{ $__t('Search') }}">
-			<div class="input-group-append">
-			</div>
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
