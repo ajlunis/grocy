@@ -14,19 +14,13 @@
 	tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content text-center">
-			<div class="modal-header border-0 pb-0">
-				<button type="button" class="close" data-dismiss="modal" aria-label="{{ $__t('Close') }}">
-					<i class="fa-solid fa-xmark"></i>
-				</button>
-			</div>
 			<div class="modal-body pt-0">
 				@endif
 
 				<div class="card productcard">
 					<div class="card-header">
-						<span class="float-left">{{ $__t('Product overview') }}</span>
 						<a id="productcard-product-edit-button"
-							class="btn btn-sm btn-outline-secondary py-0 float-right disabled"
+							class="btn btn-sm btn-outline-secondary py-0 float-left disabled"
 							href="#"
 							data-toggle="tooltip"
 							title="{{ $__t('Edit product') }}">
@@ -42,17 +36,23 @@
 						</a>
 						@endif
 						<a id="productcard-product-journal-button"
-							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-right disabled show-as-dialog-link"
+							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-left disabled show-as-dialog-link"
 							href="#"
 							data-dialog-type="table">
 							{{ $__t('Stock journal') }}
 						</a>
 						<a id="productcard-product-stock-button"
-							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-right disabled show-as-dialog-link"
+							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-left disabled show-as-dialog-link"
 							href="#"
 							data-dialog-type="table">
 							{{ $__t('Stock entries') }}
 						</a>
+						<button type="button"
+							class="close"
+							data-dismiss="modal"
+							aria-label="{{ $__t('Close') }}">
+							<i class="fa-solid fa-xmark"></i>
+						</button>
 					</div>
 					<div class="card-body">
 						<h3><span id="productcard-product-name"></span></h3>
