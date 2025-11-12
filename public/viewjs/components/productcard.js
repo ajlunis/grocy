@@ -23,7 +23,7 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 				$('#productcard-product-child-products-wrapper').removeClass('d-none');
 				$('#productcard-product-child-products').empty();
 				productDetails.child_products.forEach(function(child) {
-					$('#productcard-product-child-products').append('<li><a href="#" class="productcard-trigger" data-product-id="' + child.id + '" style="color: blue;">' + child.name + '</a></li>');
+					$('#productcard-product-child-products').append('<li><a href="#" class="productcard-trigger" data-product-id="' + child.id + '" style="color: #007bff;">' + child.name + '</a></li>');
 				});
 			}
 			else
