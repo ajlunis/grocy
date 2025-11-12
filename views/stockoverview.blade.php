@@ -30,6 +30,11 @@
 		justify-content: center;
 		z-index: 10
 	}
+	
+	.input-group-barcode-scanner #camerabarcodescanner-start-button {
+		margin-top: 0;
+		margin-right: 0;
+	}
 </style>
 @endpush
 
