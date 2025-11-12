@@ -56,8 +56,12 @@
 					</div>
 					<div class="card-body">
 						<h3><span id="productcard-product-name"></span></h3>
-						<h5 id="productcard-product-parent-product-name"
-							class="mb-2"></h5>
+						<h6 id="productcard-product-parent-product-name"
+							class="mb-2"></h6>
+						<div id="productcard-product-child-products-wrapper" class="d-none">
+							<h6 class="mb-2">{{ $__t('Child Products') }}:</h6>
+							<ul id="productcard-product-child-products" class="list-unstyled"></ul>
+						</div>
 
 						<div id="productcard-product-description-wrapper"
 							class="expandable-text mb-2 d-none">
