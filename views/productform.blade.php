@@ -496,42 +496,6 @@
 				value="0">
 			@endif
 
-			@php if($mode == 'edit') { $value = $product->calories; } else { $value = 0; } @endphp
-			@include('components.numberpicker', array(
-			'id' => 'calories',
-			'label' => 'Energy',
-			'min' => '0.' . str_repeat('0', $userSettings['stock_decimal_places_amounts']),
-			'decimals' => $userSettings['stock_decimal_places_amounts'],
-			'value' => $value,
-			'hint' => $__t('Per stock quantity unit'),
-			'contextInfoId' => 'energy_qu_info',
-			'isRequired' => false,
-			'additionalCssClasses' => 'locale-number-input locale-number-quantity-amount'
-			))
-
-			@php if($mode == 'edit') { $value = $product->quick_consume_amount; } else { $value = 1; } @endphp
-			@include('components.numberpicker', array(
-			'id' => 'quick_consume_amount',
-			'label' => 'Quick consume amount',
-			'min' => $DEFAULT_MIN_AMOUNT,
-			'decimals' => $userSettings['stock_decimal_places_amounts'],
-			'value' => $value,
-			'hint' => $__t('This amount is used for the "quick consume button" on the stock overview page (related to quantity unit stock)'),
-			'contextInfoId' => 'quick_consume_qu_info',
-			'additionalCssClasses' => 'locale-number-input locale-number-quantity-amount'
-			))
-
-			@php if($mode == 'edit') { $value = $product->quick_open_amount; } else { $value = 1; } @endphp
-			@include('components.numberpicker', array(
-			'id' => 'quick_open_amount',
-			'label' => 'Quick open amount',
-			'min' => $DEFAULT_MIN_AMOUNT,
-			'decimals' => $userSettings['stock_decimal_places_amounts'],
-			'value' => $value,
-			'hint' => $__t('This amount is used for the "quick open button" on the stock overview page (related to quantity unit stock)'),
-			'contextInfoId' => 'quick_open_qu_info',
-			'additionalCssClasses' => 'locale-number-input locale-number-quantity-amount'
-			))
 
 			@if(GROCY_FEATURE_FLAG_LABEL_PRINTER)
 			<div class="form-group">
