@@ -222,6 +222,12 @@ a:not([href]) {
 
 /* Third party component customizations - Bootstrap */
 
+.close {
+	font-size: 1.7rem;
+	opacity: 1;
+	text-shadow: none;
+}
+
 /* Hide the form validation feedback icons introduced in Bootstrap 4.2.0 - a colored border is enough */
 .form-control.is-invalid,
 .custom-control.is-invalid,
