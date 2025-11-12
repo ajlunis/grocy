@@ -9,6 +9,9 @@
 @endpush
 
 @section('content')
+
+@include('components.camerabarcodescanner')
+
 <div class="row">
 	<div class="col">
 		<div class="title-related-links">
@@ -98,8 +101,11 @@
 			</div>
 			<input type="text"
 				id="search"
-				class="form-control"
+				class="form-control barcodescanner-input"
+				data-target="@stockoverview-search"
 				placeholder="{{ $__t('Search') }}">
+			<div class="input-group-append">
+			</div>
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
