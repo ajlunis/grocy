@@ -424,9 +424,6 @@ $(document).on("Grocy.BarcodeScanned", function(e, barcode, target)
 	if (target === "@stockoverview-search")
 	{
 		$("#search").val(barcode);
-		$("#search").trigger("keyup");
+		stockOverviewTable.search(barcode).draw();
 	}
 });
-
-Grocy.Components.CameraBarcodeScanner.Init();
-$("#camerabarcodescanner-start-button").appendTo(".input-group-append");

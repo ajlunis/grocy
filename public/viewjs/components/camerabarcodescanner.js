@@ -212,11 +212,11 @@ Grocy.Components.CameraBarcodeScanner.Init = function()
 	{
 		if ($(this).hasAttr("disabled"))
 		{
-			$(this).after('<a id="camerabarcodescanner-start-button" class="btn btn-sm btn-primary text-white disabled" data-target="' + $(this).attr("data-target") + '"><i class="fa-solid fa-camera"></i></a>');
+			$(this).after('<a id="camerabarcodescanner-start-button" class="btn btn-sm btn-primary text-white disabled barcodescanner-camera-button" data-target="' + $(this).attr("data-target") + '"><i class="fa-solid fa-camera"></i></a>');
 		}
 		else
 		{
-			$(this).after('<a id="camerabarcodescanner-start-button" class="btn btn-sm btn-primary text-white" data-target="' + $(this).attr("data-target") + '"><i class="fa-solid fa-camera"></i></a>');
+			$(this).after('<a id="camerabarcodescanner-start-button" class="btn btn-sm btn-primary text-white barcodescanner-camera-button" data-target="' + $(this).attr("data-target") + '"><i class="fa-solid fa-camera"></i></a>');
 		}
 
 		Grocy.Components.CameraBarcodeScanner.InitDone = true;
