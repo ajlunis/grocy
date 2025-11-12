@@ -13,8 +13,8 @@
 	#camerabarcodescanner-start-button {
 		position: absolute;
 		right: 0;
-		margin-top: 4px;
-		margin-right: 5px;
+		margin-top: 0px;
+		margin-right: 0px;
 		cursor: pointer;
 	}
 
