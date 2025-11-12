@@ -2,9 +2,9 @@
 
 var stockOverviewTable = $('#stock-overview-table').DataTable({
 	'order': [[5, 'asc']],
+	// VVVV THIS IS THE BLOCK YOU ARE REPLACING VVVV
 	'columnDefs': [
 		{ 'orderable': false, 'targets': 0 },
-		{ 'searchable': false, "targets": 0 },
 		{ 'searchable': false, "targets": 0 },
 		{ 'visible': false, 'targets': 6 },
 		{ 'visible': false, 'targets': 7 },
@@ -20,17 +20,13 @@ var stockOverviewTable = $('#stock-overview-table').DataTable({
 		{ 'visible': false, 'targets': 15 },
 		{ 'visible': false, 'targets': 16 },
 		{ 'visible': false, 'targets': 17 },
-		{ 'visible': false, 'targets': 18 },
-		{ 'visible': false, 'targets': 19 },
 		{ "type": "custom-sort", "targets": 3 },
-		{ "type": "html-num-fmt", "targets": 9 },
-		{ "type": "html-num-fmt", "targets": 10 },
 		{ "type": "html", "targets": 5 },
-		{ "type": "html", "targets": 11 },
-		{ "type": "custom-sort", "targets": 12 },
-		{ "type": "html-num-fmt", "targets": 13 },
 		{ "type": "custom-sort", "targets": 4 },
-		{ "type": "custom-sort", "targets": 18 }
+		{ "type": "html", "targets": 9 },
+		{ "type": "custom-sort", "targets": 10 },
+		{ "type": "html-num-fmt", "targets": 11 },
+		{ "type": "custom-sort", "targets": 16 }
 	].concat($.fn.dataTable.defaults.columnDefs)
 });
 
