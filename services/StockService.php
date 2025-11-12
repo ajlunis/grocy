@@ -756,6 +756,8 @@ class StockService extends BaseService
 			$product->parent_product = $this->getDatabase()->products($product->parent_product_id);
 		}
 
+		$childProducts = $this->getDatabase()->products()->where('parent_product_id', $productId)->fetchAll();
+
 		$quPurchase = $this->getDatabase()->quantity_units($product->qu_id_purchase);
 		$quStock = $this->getDatabase()->quantity_units($product->qu_id_stock);
 		$quConsume = $this->getDatabase()->quantity_units($product->qu_id_consume);
@@ -796,7 +798,8 @@ class StockService extends BaseService
 			'has_childs' => boolval($detailsRow->has_childs),
 			'default_consume_location' => $defaultConsumeLocation,
 			'qu_conversion_factor_purchase_to_stock' => $detailsRow->qu_factor_purchase_to_stock,
-			'qu_conversion_factor_price_to_stock' => $detailsRow->qu_factor_price_to_stock
+			'qu_conversion_factor_price_to_stock' => $detailsRow->qu_factor_price_to_stock,
+			'child_products' => $childProducts
 		];
 	}
 

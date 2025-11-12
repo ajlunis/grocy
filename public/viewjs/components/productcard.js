@@ -11,11 +11,24 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			$('#productcard-product-name').text(productDetails.product.name);
 			if (productDetails.product.parent_product)
 			{
-				$('#productcard-product-parent-product-name').html('Parent Product: <a href="' + U('/product/') + productDetails.product.parent_product.id + '" style="color: blue;">' + productDetails.product.parent_product.name + '</a>');
+				$('#productcard-product-parent-product-name').html('Parent Product: <a href="#" class="productcard-trigger" data-product-id="' + productDetails.product.parent_product.id + '" style="color: blue;">' + productDetails.product.parent_product.name + '</a>');
 			}
 			else
 			{
 				$('#productcard-product-parent-product-name').empty();
+			}
+
+			if (productDetails.child_products && productDetails.child_products.length > 0)
+			{
+				$('#productcard-product-child-products-wrapper').removeClass('d-none');
+				$('#productcard-product-child-products').empty();
+				productDetails.child_products.forEach(function(child) {
+					$('#productcard-product-child-products').append('<li>Child Product: <a href="#" class="productcard-trigger" data-product-id="' + child.id + '" style="color: blue;">' + child.name + '</a></li>');
+				});
+			}
+			else
+			{
+				$('#productcard-product-child-products-wrapper').addClass('d-none');
 			}
 			$('#productcard-product-description').html(productDetails.product.description);
 			$('#productcard-product-stock-amount').text(stockAmount);
