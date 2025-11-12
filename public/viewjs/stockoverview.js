@@ -418,3 +418,15 @@ $(window).on("message", function(e)
 		RefreshStatistics();
 	}
 });
+
+$(document).on("Grocy.BarcodeScanned", function(e, barcode, target)
+{
+	if (target === "@stockoverview-search")
+	{
+		$("#search").val(barcode);
+		$("#search").trigger("keyup");
+	}
+});
+
+Grocy.Components.CameraBarcodeScanner.Init();
+$("#camerabarcodescanner-start-button").appendTo(".input-group-append");
