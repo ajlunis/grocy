@@ -750,6 +750,12 @@ class StockService extends BaseService
 		$detailsRow = $this->getDatabase()->uihelper_product_details()->where('id', $productId)->fetch();
 		$product = $this->getDatabase()->products($productId);
 		$productBarcodes = $this->getDatabase()->product_barcodes()->where('product_id', $productId)->fetchAll();
+
+		if ($product->parent_product_id)
+		{
+			$product->parent_product = $this->getDatabase()->products($product->parent_product_id);
+		}
+
 		$quPurchase = $this->getDatabase()->quantity_units($product->qu_id_purchase);
 		$quStock = $this->getDatabase()->quantity_units($product->qu_id_stock);
 		$quConsume = $this->getDatabase()->quantity_units($product->qu_id_consume);
