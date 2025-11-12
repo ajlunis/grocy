@@ -13,9 +13,21 @@
 	#camerabarcodescanner-start-button {
 		position: absolute;
 		right: 0;
-		margin-top: 0px;
-		margin-right: 0px;
+		top: 0;
+		bottom: 0;
+		height: 100%;
+		padding: 0 10px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		cursor: pointer;
+		box-sizing: border-box;
+
+		/* 👇 these 3 lines fix the mobile weirdness */
+		margin-top: 0 !important;
+		margin-right: 0 !important;
+		-webkit-appearance: none;
+		appearance: none;
 	}
 
 	.combobox-container #camerabarcodescanner-start-button {
@@ -23,5 +35,6 @@
 	}
 </style>
 @endpush
+
 
 @endif
