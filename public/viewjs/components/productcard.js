@@ -9,6 +9,14 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			var stockValue = productDetails.stock_value || '0';
 			var stockAmountOpened = productDetails.stock_amount_opened || '0';
 			$('#productcard-product-name').text(productDetails.product.name);
+			if (productDetails.product.parent_product)
+			{
+				$('#productcard-product-parent-product-name').html('Parent Product: <a href="' + U('/product/') + productDetails.product.parent_product.id + '" style="color: blue;">' + productDetails.product.parent_product.name + '</a>');
+			}
+			else
+			{
+				$('#productcard-product-parent-product-name').empty();
+			}
 			$('#productcard-product-description').html(productDetails.product.description);
 			$('#productcard-product-stock-amount').text(stockAmount);
 			$('#productcard-product-stock-qu-name').text(__n(stockAmount, productDetails.quantity_unit_stock.name, productDetails.quantity_unit_stock.name_plural, true));
