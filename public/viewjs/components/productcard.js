@@ -11,7 +11,7 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			$('#productcard-product-name').text(productDetails.product.name);
 			if (productDetails.product.parent_product)
 			{
-				$('#productcard-product-parent-product-name').html('Parent Product: <a href="#" class="productcard-trigger" data-product-id="' + productDetails.product.parent_product.id + '" style="color: blue;">' + productDetails.product.parent_product.name + '</a>');
+				$('#productcard-product-parent-product-name').html('Parent Product: <a href="#" class="productcard-trigger" data-product-id="' + productDetails.product.parent_product.id + '" style="color: #007bff;">' + productDetails.product.parent_product.name + '</a>');
 			}
 			else
 			{
