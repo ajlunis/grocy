@@ -2,6 +2,7 @@
 
 var stockOverviewTable = $('#stock-overview-table').DataTable({
 	'order': [[5, 'asc']],
+	// VVVV THIS IS THE BLOCK YOU ARE REPLACING VVVV
 	'columnDefs': [
 		{ 'orderable': false, 'targets': 0 },
 		{ 'searchable': false, "targets": 0 },
