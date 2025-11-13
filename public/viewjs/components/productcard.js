@@ -34,7 +34,7 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			if (productDetails.product_group)
 			{
 				$('#productcard-product-group-wrapper').removeClass('d-none');
-				$('#productcard-product-group').html('<a href="' + U('/products?product-group=') + productDetails.product_group.id + '" class="text-primary">' + productDetails.product_group.name + '</a>');
+				$('#productcard-product-group').html('<a href="' + U('/stockoverview?product-group=') + productDetails.product_group.id + '" class="text-primary">' + productDetails.product_group.name + '</a>');
 			}
 			else
 			{
