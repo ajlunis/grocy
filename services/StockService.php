@@ -763,6 +763,11 @@ class StockService extends BaseService
 		$quConsume = $this->getDatabase()->quantity_units($product->qu_id_consume);
 		$quPrice = $this->getDatabase()->quantity_units($product->qu_id_price);
 		$location = $this->getDatabase()->locations($product->location_id);
+		$productGroup = null;
+		if ($product->product_group_id !== null)
+		{
+			$productGroup = $this->getDatabase()->product_groups($product->product_group_id);
+		}
 
 		$defaultConsumeLocation = null;
 		if (!empty($product->default_consume_location_id))
@@ -772,6 +777,7 @@ class StockService extends BaseService
 
 		return [
 			'product' => $product,
+			'product_group' => $productGroup,
 			'product_barcodes' => $productBarcodes,
 			'last_purchased' => $detailsRow->last_purchased_date,
 			'last_used' => $detailsRow->last_used_date,

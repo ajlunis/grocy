@@ -63,6 +63,11 @@
 							<ul id="productcard-product-child-products" class="list-unstyled"></ul>
 						</div>
 
+						<div id="productcard-product-group-wrapper"
+							class="d-none">
+							<strong>{{ $__t('Product Group') }}:</strong> <span id="productcard-product-group"></span><br>
+						</div>
+
 						<div id="productcard-product-description-wrapper"
 							class="expandable-text mb-2 d-none">
 							<p id="productcard-product-description"
