@@ -207,6 +207,8 @@
 					<th class="d-none">Hidden location</th>
 					<th class="d-none">Hidden status</th>
 					<th class="d-none">Hidden product group</th>
+					<th>{{ $__t('Calories') }} ({{ $__t('Per stock quantity unit') }})</th>
+					<th>{{ $__t('Calories') }}</th>
 					<th class="allow-grouping">{{ $__t('Last purchased') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Last price') }}</th>
 					<th class="allow-grouping">{{ $__t('Min. stock amount') }}</th>
@@ -410,6 +412,12 @@
 					</td>
 					<td class="d-none">
 						xx{{ $currentStockEntry->product_group_name }}xx
+					</td>
+					<td>
+						<span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->product_calories }}</span>
+					</td>
+					<td>
+						<span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->calories }}</span>
 					</td>
 					<td>
 						{{ $currentStockEntry->last_purchased }}
