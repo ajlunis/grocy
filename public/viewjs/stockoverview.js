@@ -54,8 +54,8 @@ $("#location-filter").on("change", function()
 
 $("#product-group-filter").on("change", function()
 {
-	var value = $(this).val();
-	if (value === "all")
+	var value = $("#product-group-filter option:selected").text();
+	if (value === __t("All"))
 	{
 		value = "";
 	}
@@ -427,3 +427,9 @@ $(document).on("Grocy.BarcodeScanned", function(e, barcode, target)
 		stockOverviewTable.search(barcode).draw();
 	}
 });
+
+if (typeof GetUriParam("product-group") !== "undefined")
+{
+	$("#product-group-filter").val(GetUriParam("product-group"));
+	$("#product-group-filter").trigger("change");
+}
