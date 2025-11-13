@@ -11,7 +11,7 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			$('#productcard-product-name').text(productDetails.product.name);
 			if (productDetails.product.parent_product)
 			{
-				$('#productcard-product-parent-product-name').html('Parent Product: <a href="#" class="productcard-trigger" data-product-id="' + productDetails.product.parent_product.id + '" style="color: #007bff;">' + productDetails.product.parent_product.name + '</a>');
+				$('#productcard-product-parent-product-name').html('Parent Product: <a href="#" class="productcard-trigger link-blue" data-product-id="' + productDetails.product.parent_product.id + '">' + productDetails.product.parent_product.name + '</a>');
 			}
 			else
 			{
@@ -23,13 +23,24 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 				$('#productcard-product-child-products-wrapper').removeClass('d-none');
 				$('#productcard-product-child-products').empty();
 				productDetails.child_products.forEach(function(child) {
-					$('#productcard-product-child-products').append('<li><a href="#" class="productcard-trigger" data-product-id="' + child.id + '" style="color: #007bff;">' + child.name + '</a></li>');
+					$('#productcard-product-child-products').append('<li><a href="#" class="productcard-trigger link-blue" data-product-id="' + child.id + '">' + child.name + '</a></li>');
 				});
 			}
 			else
 			{
 				$('#productcard-product-child-products-wrapper').addClass('d-none');
 			}
+
+			if (productDetails.product_group)
+			{
+				$('#productcard-product-group-wrapper').removeClass('d-none');
+				$('#productcard-product-group').html('<a href="' + U('/stockoverview?product-group=') + productDetails.product_group.id + '" class="link-blue">' + productDetails.product_group.name + '</a>');
+			}
+			else
+			{
+				$('#productcard-product-group-wrapper').addClass('d-none');
+			}
+
 			$('#productcard-product-description').html(productDetails.product.description);
 			$('#productcard-product-stock-amount').text(stockAmount);
 			$('#productcard-product-stock-qu-name').text(__n(stockAmount, productDetails.quantity_unit_stock.name, productDetails.quantity_unit_stock.name_plural, true));

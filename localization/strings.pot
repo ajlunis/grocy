@@ -2470,3 +2470,9 @@ msgstr ""
 
 msgid "List actions"
 msgstr ""
+
+msgid "Child Products"
+msgstr ""
+
+msgid "Product Group"
+msgstr ""
