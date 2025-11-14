@@ -9,6 +9,30 @@
 
 -----
 
+### My Tweaks (this is *not* the main Grocy repo)
+
+This fork is my attempt to make Grocy a little better for general asset tracking. I'll do my best to keep it up to date with the `release` branch of the main Grocy repository, as long as there are no major conflicts.  If you need it as a Home Assistant addon, check my profile, I've got that too!
+
+Here's a list of the changes I've made:
+
+*   **Product Card:**
+    *   Added Grocycode text and a print button.
+    *   Added Grocycode and barcode display.
+    *   Added links to parent and child products.
+    *   Added a link to the product group filtered in the Stock Overview.
+    *   All userfields display in the product card.
+*   **Stock Overview:**
+    *   Added a barcode scanner to the search.
+    *   Enabled product group filtering via URL.
+    *   Updated the buttons.
+    *   Expanded the filter menus by default on mobile.
+*   **Bug Fixes & Other:**
+    *   Fixed a scrollbar issue on the product overview.
+    *   Refactored the product card modal.
+    *   Removed the spoil rate from the product card.
+
+-----
+
 ## Give it a try
 
 - Public demo of the latest stable version (`release` branch) &rarr; [https://demo.grocy.info](https://demo.grocy.info)
