@@ -151,12 +151,12 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			var grocycode = new Grocycode(productDetails.product.id, "product");
 			$("#productcard-grocycode-img").html('<img src="' + grocycode.GetUrl(60) + '" class="img-fluid">');
 			$("#productcard-grocycode-text").text("grcy:p:" + productDetails.product.id);
-			$("#productcard-grocycode-download-button").attr("href", grocycode.GetUrl(400) + "&download=true");
+			$("#productcard-grocycode-download-button").attr("href", grocycode.GetUrl(60) + "&download=true");
 
 			$("#productcard-grocycode-print-button").off("click").on("click", function(e)
 			{
 				e.preventDefault();
-				var printWindow = window.open(grocycode.GetUrl(400));
+				var printWindow = window.open(grocycode.GetUrl(60));
 				printWindow.onload = function() {
 					printWindow.print();
 				};
@@ -164,22 +164,7 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 
 			if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_LABEL_PRINTER)
 			{
-				var printLabelButton = '<a id="productcard-grocycode-print-label-button" class="btn btn-sm btn-outline-secondary py-0" href="#" data-toggle="tooltip" title="' + __t('Print label') + '"><i class="fa-solid fa-print"></i></a>';
-				$("#productcard-grocycode-print-button").parent().append(printLabelButton);
-				$("#productcard-grocycode-print-label-button").off("click").on("click", function(e)
-				{
-					e.preventDefault();
-					Grocy.Api.Post('stock/products/' + productDetails.product.id + '/printlabel', {},
-						function()
-						{
-							Grocy.FrontendHelpers.ShowGenericSuccessSnack(__t('Label printing successful'));
-						},
-						function(xhr)
-						{
-							Grocy.FrontendHelpers.ShowGenericError('Error while printing label', xhr.response);
-						}
-					);
-				});
+				$("#productcard-grocycode-print-label-button").data("product-id", productDetails.product.id);
 			}
 
 
@@ -390,3 +375,19 @@ $(document).on("click", ".productcard-trigger", function(e)
 		$("#productcard-modal").modal("show");
 	}
 });
+
+if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_LABEL_PRINTER)
+{
+	$(document).on("click", "#productcard-grocycode-print-label-button", function(e)
+	{
+		e.preventDefault();
+		var productId = $(this).data("product-id");
+		Grocy.Api.Get('stock/products/' + productId + '/printlabel', function(labelData)
+		{
+			if (Grocy.Webhooks.labelprinter !== undefined)
+			{
+				Grocy.FrontendHelpers.RunWebhook(Grocy.Webhooks.labelprinter, labelData);
+			}
+		});
+	});
+}
