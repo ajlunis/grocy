@@ -29,7 +29,7 @@
 						</a>
 						@if(GROCY_FEATURE_FLAG_SHOPPINGLIST)
 						<a id="productcard-product-shoppinglist-button"
-							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-right disabled show-as-dialog-link"
+							class="btn btn-sm btn-outline-secondary py-0 mr-1 float-left disabled show-as-dialog-link"
 							href="#"
 							data-toggle="tooltip"
 							title="{{ $__t('Add to shopping list') }}">
