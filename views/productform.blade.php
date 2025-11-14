@@ -769,11 +769,16 @@
 						<img src="{{ $U('/product/' . $product->id . '/grocycode?size=60') }}"
 							class="float-lg-left"
 							loading="lazy">
+						<span class="ml-2">grcy:p:{{ $product->id }}</span>
 						@endif
 					</p>
 					<p>
 						<a class="btn btn-outline-primary btn-sm"
 							href="{{ $U('/product/' . $product->id . '/grocycode?download=true') }}">{{ $__t('Download') }}</a>
+						<a id="product-grocycode-print-button" class="btn btn-outline-secondary btn-sm"
+							href="#">
+							{{ $__t('Print') }}
+						</a>
 						@if(GROCY_FEATURE_FLAG_LABEL_PRINTER)
 						<a class="btn btn-outline-primary btn-sm product-grocycode-label-print"
 							data-product-id="{{ $product->id }}"

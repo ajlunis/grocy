@@ -264,6 +264,13 @@ setTimeout(function()
 	$('#name').focus();
 }, Grocy.FormFocusDelay);
 
+$(document).on('click', '#product-grocycode-print-button', function(e)
+{
+	e.preventDefault();
+	var printWindow = window.open("");
+	printWindow.document.write('<iframe src="' + U('/product/' + Grocy.EditObjectId + '/grocycode?size=60') + '" onload="this.contentWindow.print();"></iframe>');
+});
+
 $(document).on('click', '.product-grocycode-label-print', function(e)
 {
 	e.preventDefault();
