@@ -775,7 +775,7 @@
 					<p>
 						<a class="btn btn-outline-primary btn-sm"
 							href="{{ $U('/product/' . $product->id . '/grocycode?download=true') }}">{{ $__t('Download') }}</a>
-						<a id="product-grocycode-print-button" class="btn btn-outline-secondary btn-sm"
+						<a id="product-grocycode-print-button" class="btn btn-outline-primary btn-sm"
 							href="#">
 							{{ $__t('Print') }}
 						</a>
