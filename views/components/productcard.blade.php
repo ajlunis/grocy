@@ -132,18 +132,21 @@
 								<div class="d-inline-block">
 									<a id="productcard-grocycode-download-button"
 										class="btn btn-sm btn-outline-secondary py-0 mr-1"
-										href="#"
-										data-toggle="tooltip"
-										title="{{ $__t('Download') }}">
-										<i class="fa-solid fa-download"></i>
+										href="#">
+										<i class="fa-solid fa-download"></i> <span>{{ $__t('Download') }}</span>
 									</a>
 									<a id="productcard-grocycode-print-button"
 										class="btn btn-sm btn-outline-secondary py-0"
-										href="#"
-										data-toggle="tooltip"
-										title="{{ $__t('Print') }}">
-										<i class="fa-solid fa-print"></i>
+										href="#">
+										<i class="fa-solid fa-print"></i> <span>{{ $__t('Print') }}</span>
 									</a>
+									@if(GROCY_FEATURE_FLAG_LABEL_PRINTER)
+									<a id="productcard-grocycode-print-label-button"
+										class="btn btn-sm btn-outline-secondary py-0"
+										href="#">
+										<i class="fa-solid fa-tags"></i> <span>{{ $__t('Print label') }}</span>
+									</a>
+									@endif
 								</div>
 								<div id="productcard-product-barcodes-list-wrapper"
 									class="d-none">
