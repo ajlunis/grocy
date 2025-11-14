@@ -2476,3 +2476,6 @@ msgstr ""
 
 msgid "Product Group"
 msgstr ""
+
+msgid "No barcodes"
+msgstr ""
