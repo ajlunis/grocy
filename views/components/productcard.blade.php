@@ -2,6 +2,7 @@
 
 @once
 @push('componentScripts')
+<script src="{{ $U('/viewjs/grocycode.js', true) }}?v={{ $version }}"></script>
 <script src="{{ $U('/viewjs/components/productcard.js', true) }}?v={{ $version }}"></script>
 @endpush
 @endonce
@@ -122,6 +123,36 @@
 								src=""
 								loading="lazy">
 						</p>
+
+						<div class="row mt-2">
+							<div class="col">
+								<div id="productcard-grocycode-img"
+									class="d-inline-block"></div>
+								<div id="productcard-grocycode-text" class="text-center"></div>
+								<div class="d-inline-block">
+									<a id="productcard-grocycode-download-button"
+										class="btn btn-sm btn-outline-secondary py-0 mr-1"
+										href="#"
+										data-toggle="tooltip"
+										title="{{ $__t('Download') }}">
+										<i class="fa-solid fa-download"></i>
+									</a>
+									<a id="productcard-grocycode-print-button"
+										class="btn btn-sm btn-outline-secondary py-0"
+										href="#"
+										data-toggle="tooltip"
+										title="{{ $__t('Print') }}">
+										<i class="fa-solid fa-print"></i>
+									</a>
+								</div>
+								<div id="productcard-product-barcodes-list-wrapper"
+									class="d-none">
+									<h6 class="mb-2">{{ $__t('Barcodes') }}:</h6>
+									<ul id="productcard-product-barcodes-list"
+										class="list-unstyled"></ul>
+								</div>
+							</div>
+						</div>
 
 						@if(GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 						<h5 class="mt-3">{{ $__t('Price history') }}</h5>
