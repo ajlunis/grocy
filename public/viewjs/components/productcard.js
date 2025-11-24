@@ -193,6 +193,28 @@ Grocy.Components.ProductCard.Refresh = function(productId)
 			RefreshContextualTimeago(".productcard");
 			RefreshLocaleNumberDisplay(".productcard");
 
+			$("#productcard-product-userfields-wrapper").empty().addClass("d-none");
+			$.get(U('/stock/products/' + productId + '/userfields'), function(result)
+			{
+				if (result)
+				{
+					$("#productcard-product-userfields-wrapper").html(result).removeClass("d-none");
+					RefreshLocaleNumberDisplay("#productcard-product-userfields-wrapper");
+
+					$("#productcard-product-userfields-wrapper .userfield-date-format").each(function()
+					{
+						var element = $(this);
+						element.text(moment(element.text()).format('L'));
+					});
+
+					$("#productcard-product-userfields-wrapper .userfield-datetime-format").each(function()
+					{
+						var element = $(this);
+						element.text(moment(element.text()).format('L LT'));
+					});
+				}
+			});
+
 			if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 			{
 				Grocy.Api.Get('stock/products/' + productId + '/price-history',

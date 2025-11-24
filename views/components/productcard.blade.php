@@ -157,6 +157,9 @@
 							</div>
 						</div>
 
+						<div id="productcard-product-userfields-wrapper"
+							class="d-none mt-3"></div>
+
 						@if(GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 						<h5 class="mt-3">{{ $__t('Price history') }}</h5>
 						<canvas id="productcard-product-price-history-chart"

@@ -638,4 +638,12 @@ class StockController extends BaseController
 			'quantityUnitConversionsResolved' => $quantityUnitConversionsResolved
 		]);
 	}
+
+	public function ProductUserfieldsDisplay(Request $request, Response $response, array $args)
+	{
+		return $this->render($response, 'components/userfields_display', [
+			'userfields' => $this->getUserfieldsService()->GetFields('products'),
+			'userfieldValues' => $this->getUserfieldsService()->GetValues('products', $args['productId'])
+		]);
+	}
 }

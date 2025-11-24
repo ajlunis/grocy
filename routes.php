@@ -43,6 +43,7 @@ $app->group('', function (RouteCollectorProxy $group)
 	$group->get('/productgroups', '\Grocy\Controllers\StockController:ProductGroupsList');
 	$group->get('/productgroup/{productGroupId}', '\Grocy\Controllers\StockController:ProductGroupEditForm');
 	$group->get('/product/{productId}/grocycode', '\Grocy\Controllers\StockController:ProductGrocycodeImage');
+	$group->get('/stock/products/{productId}/userfields', '\Grocy\Controllers\StockController:ProductUserfieldsDisplay');
 
 	// Stock handling routes
 	$group->get('/stockoverview', '\Grocy\Controllers\StockController:Overview');
