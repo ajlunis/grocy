@@ -140,7 +140,11 @@
 	</div>
 	@elseif($userfield->type == \Grocy\Services\UserfieldsService::USERFIELD_TYPE_LINK)
 	<div class="form-group">
-		<label>{{ $userfield->caption }}</label>
+		<label>{{ $userfield->caption }}&nbsp;<i class="fa-solid fa-question-circle text-muted"
+				data-toggle="tooltip"
+				data-trigger="hover click"
+				title="{{ $__t('Links without a protocol (http:// or https://) are considered relative URLs.') }}"></i>
+		</label>
 		<input type="link"
 			class="form-control userfield-input"
 			data-userfield-name="{{ $userfield->name }}"
@@ -148,7 +152,11 @@
 	</div>
 	@elseif($userfield->type == \Grocy\Services\UserfieldsService::USERFIELD_TYPE_LINK_WITH_TITLE)
 	<div class="form-group">
-		<label class="d-block">{{ $userfield->caption }}</label>
+		<label class="d-block">{{ $userfield->caption }}&nbsp;<i class="fa-solid fa-question-circle text-muted"
+				data-toggle="tooltip"
+				data-trigger="hover click"
+				title="{{ $__t('Links without a protocol (http:// or https://) are considered relative URLs.') }}"></i>
+		</label>
 		<div class="form-row">
 			<div class="col-4">
 				<input type="text"

@@ -2479,3 +2479,6 @@ msgstr ""
 
 msgid "No barcodes"
 msgstr ""
+
+msgid "Links without a protocol (http:// or https://) are considered relative URLs."
+msgstr ""

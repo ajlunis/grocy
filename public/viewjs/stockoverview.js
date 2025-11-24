@@ -433,3 +433,40 @@ if (typeof GetUriParam("product-group") !== "undefined")
 	$("#product-group-filter").val(GetUriParam("product-group"));
 	$("#product-group-filter").trigger("change");
 }
+
+if (typeof GetUriParam("productid") !== "undefined")
+{
+	var productId = GetUriParam("productid");
+	Grocy.Components.ProductCard.Refresh(productId);
+	$("#productcard-modal").modal("show");
+}
+
+
+function UpdateUriParam(key, value)
+{
+	var url = new URL(window.location);
+	url.searchParams.set(key, value);
+	window.history.pushState({}, "", url);
+}
+
+function RemoveUriParam(key)
+{
+	var url = new URL(window.location);
+	url.searchParams.delete(key);
+	window.history.pushState({}, "", url);
+}
+
+if (typeof Grocy.Components.ProductCard !== "undefined")
+{
+	var originalProductCardRefresh = Grocy.Components.ProductCard.Refresh;
+	Grocy.Components.ProductCard.Refresh = function(productId)
+	{
+		UpdateUriParam("productid", productId);
+		originalProductCardRefresh(productId);
+	};
+}
+
+$("#productcard-modal").on("hide.bs.modal", function()
+{
+	RemoveUriParam("productid");
+});
