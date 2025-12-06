@@ -1,4 +1,4 @@
-﻿
+
 
 var stockOverviewTable = $('#stock-overview-table').DataTable({
 	'order': [[5, 'asc']],
@@ -37,66 +37,85 @@ var stockOverviewTable = $('#stock-overview-table').DataTable({
 $('#stock-overview-table tbody').removeClass("d-none");
 stockOverviewTable.columns.adjust().draw();
 
-$("#location-filter").on("change", function()
+function GetFilterRegex(selectedValues)
 {
-	var value = $(this).val();
-	if (value === "all")
+	if (!selectedValues || selectedValues.length === 0)
 	{
-		value = "";
-	}
-	else
-	{
-		value = "xx" + value + "xx";
+		return "";
 	}
 
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search(value).draw();
+	// Escape special regex characters in the values
+	selectedValues = selectedValues.map(function(value) {
+		return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+	});
+
+	return "^(" + selectedValues.join("|") + ")$";
+}
+
+$("#location-filter").on("change", function()
+{
+	var values = $(this).val();
+	var regex = "";
+
+	if (values && values.length > 0)
+	{
+		// Location names in the hidden column are wrapped in "xx"
+		regex = "xx(" + values.map(function(v) { return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }).join("|") + ")xx";
+	}
+
+	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search(regex, true, false).draw();
 });
 
 $("#product-group-filter").on("change", function()
 {
-	var value = $("#product-group-filter option:selected").text();
-	if (value === __t("All"))
+	// For product groups, we need the text of the selected options
+	var selectedOptions = $("#product-group-filter option:selected");
+	var values = [];
+	selectedOptions.each(function() {
+		values.push($(this).text());
+	});
+
+	var regex = "";
+	if (values && values.length > 0)
 	{
-		value = "";
-	}
-	else
-	{
-		value = "xx" + value + "xx";
+		// Product group names in the hidden column are wrapped in "xx"
+		regex = "xx(" + values.map(function(v) { return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }).join("|") + ")xx";
 	}
 
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search(value).draw();
+	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search(regex, true, false).draw();
 });
 
 $("#status-filter").on("change", function()
 {
-	var value = $(this).val();
-	if (value === "all")
-	{
-		value = "";
-	}
+	var values = $(this).val();
+	var regex = GetFilterRegex(values);
 
-	// Transfer CSS classes of selected element to dropdown element (for background)
-	$(this).attr("class", $("#" + $(this).attr("id") + " option[value='" + value + "']").attr("class") + " form-control");
-
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search(value).draw();
+	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search(regex, true, false).draw();
 });
 
 $(".status-filter-message").on("click", function()
 {
 	var value = $(this).data("status-filter");
-	$("#status-filter").val(value);
-	$("#status-filter").trigger("change");
+	$("#status-filter").selectpicker('val', value);
 });
 
 $("#clear-filter-button").on("click", function()
 {
 	$("#search").val("");
-	$("#status-filter").val("all");
-	$("#product-group-filter").val("all");
-	$("#location-filter").val("all");
+	$("#status-filter").selectpicker('val', []);
+	$("#product-group-filter").selectpicker('val', []);
+	$("#location-filter").selectpicker('val', []);
+
+	// Clear userfield filters
+	$("#userfield-filters-container").empty();
+
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search("").draw();
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search("").draw();
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search("").draw();
+
+	// Clear all other columns searches (userfields)
+	stockOverviewTable.columns().search("");
+
 	stockOverviewTable.search("").draw();
 });
 
@@ -110,6 +129,159 @@ $("#search").on("keyup", Delay(function()
 
 	stockOverviewTable.search(value).draw();
 }, Grocy.FormFocusDelay));
+
+
+// Userfield Filtering System
+$("#add-userfield-filter-button").on("click", function()
+{
+	var availableUserfields = [];
+
+	// Find visible userfield columns
+	if (typeof Grocy.Userfields !== 'undefined')
+	{
+		$.each(Grocy.Userfields, function(index, userfield)
+		{
+			if (userfield.show_as_column_in_tables == 1 && userfield.type != "file" && userfield.type != "image") // Exclude file/image types for now as filtering is tricky
+			{
+				availableUserfields.push(userfield);
+			}
+		});
+	}
+
+	if (availableUserfields.length === 0)
+	{
+		bootbox.alert({
+			message: __t("No userfields are available for filtering."),
+			backdrop: true,
+			closeButton: false
+		});
+		return;
+	}
+
+	var optionsHtml = "";
+	$.each(availableUserfields, function(index, userfield)
+	{
+		optionsHtml += '<option value="' + userfield.id + '">' + userfield.caption + '</option>';
+	});
+
+	bootbox.dialog({
+		title: __t("Add filter"),
+		message: '<select class="form-control" id="add-userfield-filter-select">' + optionsHtml + '</select>',
+		buttons: {
+			cancel: {
+				label: __t('Cancel'),
+				className: 'btn-secondary',
+				callback: function() {}
+			},
+			ok: {
+				label: __t('OK'),
+				className: 'btn-primary',
+				callback: function()
+				{
+					var selectedUserfieldId = $("#add-userfield-filter-select").val();
+					var selectedUserfield = availableUserfields.find(x => x.id == selectedUserfieldId);
+					AddUserfieldFilter(selectedUserfield);
+				}
+			}
+		}
+	});
+});
+
+function AddUserfieldFilter(userfield)
+{
+	// Find column index based on header text
+	// This is a bit fragile if multiple columns have same name, but standard approach for now
+	var columnIndex = -1;
+	stockOverviewTable.columns().every(function(index)
+	{
+		var header = $(this.header()).text().trim();
+		if (header === userfield.caption)
+		{
+			columnIndex = index;
+			return false; // break
+		}
+	});
+
+	if (columnIndex === -1)
+	{
+		console.error("Column for userfield '" + userfield.caption + "' not found.");
+		return;
+	}
+
+	var filterId = "userfield-filter-" + userfield.id;
+	if ($("#" + filterId).length > 0)
+	{
+		// Filter already exists
+		return;
+	}
+
+	// Get unique values from the column
+	var uniqueValues = stockOverviewTable.column(columnIndex).data().unique().sort().toArray();
+	var distinctValues = [];
+
+	$.each(uniqueValues, function(index, value)
+	{
+		// Strip HTML tags to get the clean value
+		var tempDiv = document.createElement("div");
+		tempDiv.innerHTML = value;
+		var textValue = tempDiv.textContent || tempDiv.innerText || "";
+		textValue = textValue.trim();
+
+		if (textValue !== "" && !distinctValues.includes(textValue))
+		{
+			distinctValues.push(textValue);
+		}
+	});
+
+	// For checkbox, we might want "Yes" / "No" or just list what's there (usually empty or symbol)
+	// If it's a checkbox type, distinct values might be empty string and a symbol.
+	// But let's just use the text value for now.
+
+	var optionsHtml = "";
+	$.each(distinctValues, function(index, value)
+	{
+		optionsHtml += '<option value="' + value + '">' + value + '</option>';
+	});
+
+	var filterHtml = '<div class="input-group col-12 col-md-6 col-xl-3 mb-2" id="' + filterId + '">' +
+		'<div class="input-group-prepend">' +
+			'<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;' + userfield.caption + '</span>' +
+		'</div>' +
+		'<select class="custom-control custom-select selectpicker" multiple data-actions-box="true" data-column-index="' + columnIndex + '">' +
+			optionsHtml +
+		'</select>' +
+		'<div class="input-group-append">' +
+			'<button class="btn btn-outline-danger remove-userfield-filter-button" type="button"><i class="fa-solid fa-trash"></i></button>' +
+		'</div>' +
+	'</div>';
+
+	$("#userfield-filters-container").append(filterHtml);
+	var selectElement = $("#" + filterId + " select");
+	selectElement.selectpicker();
+
+	selectElement.on("change", function()
+	{
+		var selectedValues = $(this).val();
+		var regex = "";
+		if (selectedValues && selectedValues.length > 0)
+		{
+			var escapedValues = selectedValues.map(function(val) {
+				return val.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+			});
+			regex = "(" + escapedValues.join("|") + ")";
+		}
+
+		stockOverviewTable.column(columnIndex).search(regex, true, false).draw();
+	});
+
+	$("#" + filterId + " .remove-userfield-filter-button").on("click", function()
+	{
+		stockOverviewTable.column(columnIndex).search("").draw();
+		$("#" + filterId).remove();
+	});
+}
+
+
 
 $(document).on('click', '.product-grocycode-label-print', function(e)
 {

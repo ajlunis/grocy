@@ -1,4 +1,4 @@
-@php require_frontend_packages(['datatables', 'animatecss']); @endphp
+@php require_frontend_packages(['datatables', 'animatecss', 'bootstrap-select']); @endphp
 
 @extends('layout.default')
 
@@ -6,6 +6,9 @@
 
 @push('pageScripts')
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
+<script>
+	Grocy.Userfields = {!! json_encode($userfields) !!};
+</script>
 @endpush
 
 @push('pageStyles')
@@ -142,9 +145,10 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Location') }}</span>
 			</div>
-			<select class="custom-control custom-select"
+			<select class="custom-control custom-select selectpicker"
+				multiple
+				data-actions-box="true"
 				id="location-filter">
-				<option value="all">{{ $__t('All') }}</option>
 				@foreach($locations as $location)
 				<option value="{{ $location->name }}">{{ $location->name }}</option>
 				@endforeach
@@ -157,9 +161,10 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product group') }}</span>
 			</div>
-			<select class="custom-control custom-select"
+			<select class="custom-control custom-select selectpicker"
+				multiple
+				data-actions-box="true"
 				id="product-group-filter">
-				<option value="all">{{ $__t('All') }}</option>
 				@foreach($productGroups as $productGroup)
 				<option value="{{ $productGroup->id }}">{{ $productGroup->name }}</option>
 				@endforeach
@@ -171,10 +176,10 @@
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Status') }}</span>
 			</div>
-			<select class="custom-control custom-select"
+			<select class="custom-control custom-select selectpicker"
+				multiple
+				data-actions-box="true"
 				id="status-filter">
-				<option class="bg-white"
-					value="all">{{ $__t('All') }}</option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
 				<option value="overdue">{{ $__t('Overdue') }}</option>
@@ -184,6 +189,16 @@
 				<option value="instockX">{{ $__t('In stock products') }}</option>
 			</select>
 		</div>
+	</div>
+	<div class="col-12">
+		<div id="userfield-filters-container"
+			class="row mt-2">
+			<!-- Dynamic filters will go here -->
+		</div>
+		<button id="add-userfield-filter-button"
+			class="btn btn-outline-info btn-sm mt-2">
+			<i class="fa-solid fa-plus"></i> {{ $__t('Add filter') }}
+		</button>
 	</div>
 </div>
 
