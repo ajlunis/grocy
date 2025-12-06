@@ -84,13 +84,17 @@ $("#product-group-filter").on("change", function()
 	if (values && values.length > 0)
 	{
 		// Product group names in the hidden column are wrapped in "xx"
-		regex = "xx(" + values.map(function(v) { return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }).join("|") + ")xx";
+		regex = "xx(" + values.map(function(v) {
+			if (v === __t("<No Product Group>")) {
+				return "";
+			}
+			return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+		}).join("|") + ")xx";
 	}
 	else
 	{
-		// If nothing is selected, show products with NO product group
-		// These are rendered as "xxxx" in the hidden column
-		regex = "^xxxx$";
+		// If nothing is selected, show nothing
+		regex = "^$";
 	}
 
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search(regex, true, false).draw();
@@ -154,7 +158,9 @@ $("#add-userfield-filter-button").on("click", function()
 	{
 		$.each(Grocy.Userfields, function(index, userfield)
 		{
-			if (userfield.show_as_column_in_tables == 1 && userfield.type != "file" && userfield.type != "image") // Exclude file/image types for now as filtering is tricky
+			// Whitelist types that make sense for a dropdown filter
+			var supportedTypes = ["text", "number-integral", "number-decimal", "date", "datetime", "checkbox", "preset-list", "select"];
+			if (userfield.show_as_column_in_tables == 1 && supportedTypes.includes(userfield.type))
 			{
 				availableUserfields.push(userfield);
 			}
@@ -203,7 +209,6 @@ $("#add-userfield-filter-button").on("click", function()
 function AddUserfieldFilter(userfield)
 {
 	// Find column index based on header text
-	// This is a bit fragile if multiple columns have same name, but standard approach for now
 	var columnIndex = -1;
 	stockOverviewTable.columns().every(function(index)
 	{
@@ -224,13 +229,13 @@ function AddUserfieldFilter(userfield)
 	var filterId = "userfield-filter-" + userfield.id;
 	if ($("#" + filterId).length > 0)
 	{
-		// Filter already exists
 		return;
 	}
 
 	// Get unique values from the column
 	var uniqueValues = stockOverviewTable.column(columnIndex).data().unique().sort().toArray();
 	var distinctValues = [];
+	var hasEmptyValue = false;
 
 	$.each(uniqueValues, function(index, value)
 	{
@@ -244,17 +249,59 @@ function AddUserfieldFilter(userfield)
 		{
 			distinctValues.push(textValue);
 		}
-	});
 
-	// For checkbox, we might want "Yes" / "No" or just list what's there (usually empty or symbol)
-	// If it's a checkbox type, distinct values might be empty string and a symbol.
-	// But let's just use the text value for now.
+		if (textValue === "")
+		{
+			hasEmptyValue = true;
+		}
+	});
 
 	var optionsHtml = "";
-	$.each(distinctValues, function(index, value)
+	if (hasEmptyValue)
 	{
-		optionsHtml += '<option value="' + value + '">' + value + '</option>';
-	});
+		optionsHtml += '<option value="<EMPTY>">' + __t("<Not set>") + '</option>';
+	}
+
+	if (userfield.type === "checkbox")
+	{
+		// For checkboxes, usually they are rendered as icons (checked) or empty (unchecked)
+		// If we found "empty", that's "No". If we found anything else (the icon), that's "Yes" (but logic above stripped it to empty string if it was just an icon?)
+		// Actually, <i class="fa-check"></i> text content IS empty.
+		// So for checkbox, we need to look at HTML.
+
+		var hasChecked = false;
+		var hasUnchecked = false;
+
+		$.each(uniqueValues, function(index, value)
+		{
+			if (value.includes("fa-check"))
+			{
+				hasChecked = true;
+			}
+			else
+			{
+				hasUnchecked = true;
+			}
+		});
+
+		// Clear previous options as we are building custom ones
+		optionsHtml = "";
+		if (hasUnchecked)
+		{
+			optionsHtml += '<option value="<EMPTY>">' + __t("No") + '</option>';
+		}
+		if (hasChecked)
+		{
+			optionsHtml += '<option value="fa-check">' + __t("Yes") + '</option>';
+		}
+	}
+	else
+	{
+		$.each(distinctValues, function(index, value)
+		{
+			optionsHtml += '<option value="' + value + '">' + value + '</option>';
+		});
+	}
 
 	var filterHtml = '<div class="input-group col-12 col-md-6 col-xl-3 mb-2" id="' + filterId + '">' +
 		'<div class="input-group-prepend">' +
@@ -272,16 +319,39 @@ function AddUserfieldFilter(userfield)
 	var selectElement = $("#" + filterId + " select");
 	selectElement.selectpicker();
 
+	// Select all by default
+	selectElement.selectpicker("selectAll");
+
 	selectElement.on("change", function()
 	{
 		var selectedValues = $(this).val();
 		var regex = "";
 		if (selectedValues && selectedValues.length > 0)
 		{
-			var escapedValues = selectedValues.map(function(val) {
-				return val.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+			var parts = [];
+			selectedValues.forEach(function(val) {
+				if (val === "<EMPTY>")
+				{
+					// Match empty cell or cell with no visible text (for checkbox "No")
+					// For checkbox, "No" is empty string or no fa-check.
+					// But DataTables search on render is tricky.
+					// Regex for empty string: ^$
+					parts.push("^$");
+
+					// Also match whitespace only
+					parts.push("^\\s+$");
+				}
+				else
+				{
+					parts.push(val.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'));
+				}
 			});
-			regex = "(" + escapedValues.join("|") + ")";
+			regex = "(" + parts.join("|") + ")";
+		}
+		else
+		{
+			// If nothing selected, match nothing
+			regex = "^$";
 		}
 
 		stockOverviewTable.column(columnIndex).search(regex, true, false).draw();
