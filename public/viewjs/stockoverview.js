@@ -103,7 +103,12 @@ $("#product-group-filter").on("change", function()
 $("#status-filter").on("change", function()
 {
 	var values = $(this).val();
-	var regex = GetFilterRegex(values);
+	var regex = "";
+
+	if (values && values.length > 0 && !values.includes("all"))
+	{
+		regex = "(" + values.join("|") + ")";
+	}
 
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search(regex, true, false).draw();
 });
@@ -146,7 +151,7 @@ $("#search").on("keyup", Delay(function()
 }, Grocy.FormFocusDelay));
 
 // Trigger initial filter change to apply default selections
-$("#location-filter, #product-group-filter").trigger("change");
+$("#location-filter, #product-group-filter, #status-filter").trigger("change");
 
 // Userfield Filtering System
 $("#add-userfield-filter-button").on("click", function()

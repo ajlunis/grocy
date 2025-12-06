@@ -150,7 +150,7 @@
 				data-actions-box="true"
 				id="location-filter">
 				@foreach($locations as $location)
-				<option value="{{ $location->name }}">{{ $location->name }}</option>
+				<option value="{{ $location->name }}" selected>{{ $location->name }}</option>
 				@endforeach
 			</select>
 		</div>
@@ -180,6 +180,7 @@
 				multiple
 				data-actions-box="true"
 				id="status-filter">
+				<option value="all">{{ $__t('All') }}</option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
 				<option value="overdue">{{ $__t('Overdue') }}</option>
