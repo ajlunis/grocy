@@ -62,6 +62,11 @@ $("#location-filter").on("change", function()
 		// Location names in the hidden column are wrapped in "xx"
 		regex = "xx(" + values.map(function(v) { return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }).join("|") + ")xx";
 	}
+	else
+	{
+		// If nothing is selected, show nothing (impossible condition for locations as all have one, but consistent logic)
+		regex = "^$";
+	}
 
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search(regex, true, false).draw();
 });
@@ -80,6 +85,12 @@ $("#product-group-filter").on("change", function()
 	{
 		// Product group names in the hidden column are wrapped in "xx"
 		regex = "xx(" + values.map(function(v) { return v.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&'); }).join("|") + ")xx";
+	}
+	else
+	{
+		// If nothing is selected, show products with NO product group
+		// These are rendered as "xxxx" in the hidden column
+		regex = "^xxxx$";
 	}
 
 	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search(regex, true, false).draw();
@@ -130,6 +141,8 @@ $("#search").on("keyup", Delay(function()
 	stockOverviewTable.search(value).draw();
 }, Grocy.FormFocusDelay));
 
+// Trigger initial filter change to apply default selections
+$("#location-filter, #product-group-filter").trigger("change");
 
 // Userfield Filtering System
 $("#add-userfield-filter-button").on("click", function()

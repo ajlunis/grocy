@@ -166,7 +166,7 @@
 				data-actions-box="true"
 				id="product-group-filter">
 				@foreach($productGroups as $productGroup)
-				<option value="{{ $productGroup->id }}">{{ $productGroup->name }}</option>
+				<option value="{{ $productGroup->id }}" selected>{{ $productGroup->name }}</option>
 				@endforeach
 			</select>
 		</div>
