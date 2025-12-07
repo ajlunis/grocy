@@ -14,7 +14,9 @@ $excludeFieldTypes = [];
 @endif
 
 @if($userfield->show_as_column_in_tables == 1)
-<th class="allow-grouping">{{ $userfield->caption }}</th>
+<th class="allow-grouping"
+	data-userfield-name="{{ $userfield->name }}"
+	data-userfield-type="{{ $userfield->type }}">{{ $userfield->caption }}</th>
 @endif
 
 @endforeach

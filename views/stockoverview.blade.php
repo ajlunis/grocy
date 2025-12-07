@@ -1,4 +1,4 @@
-@php require_frontend_packages(['datatables', 'animatecss']); @endphp
+@php require_frontend_packages(['datatables', 'animatecss', 'bootstrap-select']); @endphp
 
 @extends('layout.default')
 
@@ -6,6 +6,7 @@
 
 @push('pageScripts')
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
+<script src="{{ $U('/viewjs/stockoverview_filters.js?v=', true) }}{{ $version }}"></script>
 @endpush
 
 @push('pageStyles')
@@ -204,9 +205,12 @@
 					<th>{{ $__t('Amount') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Value') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) d-none @endif allow-grouping">{{ $__t('Next due date') }}</th>
-					<th class="d-none">Hidden location</th>
-					<th class="d-none">Hidden status</th>
-					<th class="d-none">Hidden product group</th>
+					<th class="d-none"
+						data-filter-name="hidden-location">Hidden location</th>
+					<th class="d-none"
+						data-filter-name="hidden-status">Hidden status</th>
+					<th class="d-none"
+						data-filter-name="hidden-product-group">Hidden product group</th>
 					<th>{{ $__t('Calories') }} ({{ $__t('Per stock quantity unit') }})</th>
 					<th>{{ $__t('Calories') }}</th>
 					<th class="allow-grouping">{{ $__t('Last purchased') }}</th>
@@ -380,6 +384,7 @@
 							class="locale-number locale-number-currency">{{ $currentStockEntry->value }}</span>
 					</td>
 					<td class="@if(!GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) d-none @endif">
+						<span class="custom-sort d-none">{{ $currentStockEntry->best_before_date }}</span>
 						<span id="product-{{ $currentStockEntry->product_id }}-next-due-date">{{ $currentStockEntry->best_before_date }}</span>
 						<time id="product-{{ $currentStockEntry->product_id }}-next-due-date-timeago"
 							class="timeago timeago-contextual"
@@ -414,12 +419,15 @@
 						xx{{ $currentStockEntry->product_group_name }}xx
 					</td>
 					<td>
+						<span class="custom-sort d-none">{{ $currentStockEntry->product_calories }}</span>
 						<span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->product_calories }}</span>
 					</td>
 					<td>
+						<span class="custom-sort d-none">{{ $currentStockEntry->calories }}</span>
 						<span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->calories }}</span>
 					</td>
 					<td>
+						<span class="custom-sort d-none">{{ $currentStockEntry->last_purchased }}</span>
 						{{ $currentStockEntry->last_purchased }}
 						<time class="timeago timeago-contextual"
 							datetime="{{ $currentStockEntry->last_purchased }}"></time>
@@ -436,6 +444,7 @@
 						@endif
 					</td>
 					<td>
+						<span class="custom-sort d-none">{{ $currentStockEntry->min_stock_amount }}</span>
 						<span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->min_stock_amount }}</span>
 					</td>
 					<td>

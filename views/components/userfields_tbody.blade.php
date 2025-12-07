@@ -17,6 +17,7 @@ $excludeFieldTypes = [];
 @php $userfieldObject = FindObjectInArrayByPropertyValue($userfieldValues, 'name', $userfield->name) @endphp
 <td>
 	@if($userfieldObject !== null)
+	<span class="d-none userfield-raw-value">{{ $userfieldObject->value }}</span>
 	@if($userfield->type == \Grocy\Services\UserfieldsService::USERFIELD_TYPE_CHECKBOX)
 	@if($userfieldObject->value == 1)<i class="fa-solid fa-check"></i>@endif
 	@elseif($userfield->type == \Grocy\Services\UserfieldsService::USERFIELD_TYPE_PRESET_CHECKLIST)
@@ -55,6 +56,8 @@ $excludeFieldTypes = [];
 	@else
 	{{ $userfieldObject->value }}
 	@endif
+	@else
+	<span class="d-none userfield-raw-value"></span>
 	@endif
 </td>
 @endif

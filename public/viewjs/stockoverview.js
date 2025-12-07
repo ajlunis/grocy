@@ -37,67 +37,10 @@ var stockOverviewTable = $('#stock-overview-table').DataTable({
 $('#stock-overview-table tbody').removeClass("d-none");
 stockOverviewTable.columns.adjust().draw();
 
-$("#location-filter").on("change", function()
-{
-	var value = $(this).val();
-	if (value === "all")
-	{
-		value = "";
-	}
-	else
-	{
-		value = "xx" + value + "xx";
-	}
-
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search(value).draw();
-});
-
-$("#product-group-filter").on("change", function()
-{
-	var value = $("#product-group-filter option:selected").text();
-	if (value === __t("All"))
-	{
-		value = "";
-	}
-	else
-	{
-		value = "xx" + value + "xx";
-	}
-
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search(value).draw();
-});
-
-$("#status-filter").on("change", function()
-{
-	var value = $(this).val();
-	if (value === "all")
-	{
-		value = "";
-	}
-
-	// Transfer CSS classes of selected element to dropdown element (for background)
-	$(this).attr("class", $("#" + $(this).attr("id") + " option[value='" + value + "']").attr("class") + " form-control");
-
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search(value).draw();
-});
-
 $(".status-filter-message").on("click", function()
 {
 	var value = $(this).data("status-filter");
-	$("#status-filter").val(value);
-	$("#status-filter").trigger("change");
-});
-
-$("#clear-filter-button").on("click", function()
-{
-	$("#search").val("");
-	$("#status-filter").val("all");
-	$("#product-group-filter").val("all");
-	$("#location-filter").val("all");
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(6)).search("").draw();
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(7)).search("").draw();
-	stockOverviewTable.column(stockOverviewTable.colReorder.transpose(8)).search("").draw();
-	stockOverviewTable.search("").draw();
+	$("#status-filter").selectpicker('val', value);
 });
 
 $("#search").on("keyup", Delay(function()
@@ -428,11 +371,7 @@ $(document).on("Grocy.BarcodeScanned", function(e, barcode, target)
 	}
 });
 
-if (typeof GetUriParam("product-group") !== "undefined")
-{
-	$("#product-group-filter").val(GetUriParam("product-group"));
-	$("#product-group-filter").trigger("change");
-}
+// Filter URI params are handled in stockoverview_filters.js
 
 if (typeof GetUriParam("productid") !== "undefined")
 {
