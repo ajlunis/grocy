@@ -4,3 +4,4 @@ embedded.txt
 /packages
 /public/packages
 *.log
+tests_env/node_modules/
