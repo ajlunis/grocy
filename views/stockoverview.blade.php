@@ -416,7 +416,7 @@
 								@if ($currentStockEntry->product_missing) belowminstockamount @endif
 					</td>
 					<td class="d-none">
-						xx{{ $currentStockEntry->product_group_name }}xx
+						xx{{ $currentStockEntry->product_group_id }}xx
 					</td>
 					<td>
 						<span class="custom-sort d-none">{{ $currentStockEntry->product_calories }}</span>

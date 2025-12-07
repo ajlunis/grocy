@@ -392,7 +392,7 @@ class StockOverviewFilters {
 
         $('#add-filter-container').before(container);
 
-        container.find('.selectpicker').selectpicker();
+        $('#container-' + filterId).find('.selectpicker').selectpicker('render');
 
         var filterObj = {
             id: filterId,
