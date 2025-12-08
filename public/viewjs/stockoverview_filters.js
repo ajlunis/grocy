@@ -135,7 +135,7 @@ class StockOverviewFilters {
         }
         else
         {
-            var rowValues = rawValue.split(',');
+            var rowValues = rawValue.split(',').map(function(item) { return item.trim(); });
             if (selectedValues.includes('all')) return true;
 
             var notSetSelected = selectedValues.includes('__grocy_not_set__');
@@ -471,9 +471,18 @@ class StockOverviewFilters {
             '<option value="on">' + __t('On') + '</option>' +
             '<option value="before">' + __t('Before') + '</option>' +
             '<option value="after">' + __t('After') + '</option>' +
+            '<option value="empty">' + __t('Not set') + '</option>' +
             '</select>');
 
         var input = $('<input type="text" class="form-control filter-value datetimepicker-input" data-toggle="datetimepicker">');
+
+        opSelect.on('change', function() {
+            if ($(this).val() === 'empty') {
+                input.prop('disabled', true);
+            } else {
+                input.prop('disabled', false);
+            }
+        });
 
         // Presets Dropdown
         var presetsBtn = $('<div class="input-group-append">' +
