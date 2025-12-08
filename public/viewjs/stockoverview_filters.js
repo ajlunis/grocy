@@ -94,9 +94,9 @@ class StockOverviewFilters {
 
         if (filter.type === 'multiselect' || filter.type === 'userfield-multiselect') {
             return this.checkMultiselect(filter, rawValue);
-        } else if (filter.type === 'number') {
+        } else if (filter.type === 'number' || filter.type === 'number-currency') {
             return this.checkNumber(filter, rawValue);
-        } else if (filter.type === 'date') {
+        } else if (filter.type === 'date' || filter.type === 'datetime') {
             return this.checkDate(filter, rawValue);
         } else if (filter.type === 'checkbox') {
             return this.checkCheckbox(filter, rawValue);
@@ -152,14 +152,9 @@ class StockOverviewFilters {
                  var exact = filter.element.closest('.filter-container').find('.exact-match-checkbox').is(':checked');
 
                  if (notSetSelected && !isRowEmpty) return false;
-                 // If Not Set is selected with other items in AND logic?
-                 // It means row must be Empty AND contain other values -> Impossible.
-                 // So if Not Set is selected in AND mode, and other items are selected, it returns false always?
-                 // Unless the row contains "Not Set"? But "Not Set" means empty.
 
                  for(var i=0; i<selectedValues.length; i++) {
-                     if (selectedValues[i] === '__grocy_not_set__') continue; // Handled above? No.
-                     // If we are here, we are checking actual values.
+                     if (selectedValues[i] === '__grocy_not_set__') continue;
                      if (!rowValues.includes(selectedValues[i])) return false;
                  }
 
@@ -194,19 +189,23 @@ class StockOverviewFilters {
     checkDate(filter, rawValue) {
          var container = filter.element.closest('.filter-container');
          var operator = container.find('.filter-operator').val();
-         var valueStr = container.find('.filter-value').val();
+         var valueStr = container.find('.filter-value').val(); // This gets value from input
 
          if (!valueStr) return true;
 
+         // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD
          var cellDate = moment(rawValue);
-         var filterDate = moment(valueStr);
+         var filterDate = moment(valueStr); // format depends on locale, but moment handles it if standard
+
+         // If using TempusDominus, the input value is localized string.
+         // We should rely on moment parsing it correctly using locale.
 
          if (!cellDate.isValid()) return false;
          if (!filterDate.isValid()) return true;
 
-         if (operator === 'on') return cellDate.isSame(filterDate, 'day');
-         if (operator === 'before') return cellDate.isBefore(filterDate, 'day');
-         if (operator === 'after') return cellDate.isAfter(filterDate, 'day');
+         if (operator === 'on') return cellDate.isSame(filterDate, 'day'); // Precision Day for 'On'
+         if (operator === 'before') return cellDate.isBefore(filterDate); // Precision Millisecond
+         if (operator === 'after') return cellDate.isAfter(filterDate);
 
          return true;
     }
@@ -276,12 +275,12 @@ class StockOverviewFilters {
 
     loadAvailableFilters() {
          this.addAvailableFilter('amount', __t('Amount'), 'number', 3);
-         this.addAvailableFilter('value', __t('Value'), 'number', 4);
+         this.addAvailableFilter('value', __t('Value'), 'number-currency', 4);
          this.addAvailableFilter('calories', __t('Calories'), 'number', 10);
          this.addAvailableFilter('last-purchased', __t('Last purchased'), 'date', 11);
-         this.addAvailableFilter('last-price', __t('Last price'), 'number', 12);
+         this.addAvailableFilter('last-price', __t('Last price'), 'number-currency', 12);
          this.addAvailableFilter('min-stock', __t('Min. stock amount'), 'number', 13);
-         this.addAvailableFilter('average-price', __t('Average price'), 'number', 18);
+         this.addAvailableFilter('average-price', __t('Average price'), 'number-currency', 18);
          this.addAvailableFilter('default-location', __t('Default location'), 'multiselect-dynamic', 16);
          this.addAvailableFilter('default-store', __t('Default store'), 'multiselect-dynamic', 19);
 
@@ -314,7 +313,9 @@ class StockOverviewFilters {
 
     mapUserfieldTypeToFilterType(ufType) {
         if (ufType === 'checkbox') return 'checkbox';
-        if (ufType === 'date' || ufType === 'datetime') return 'date';
+        if (ufType === 'date') return 'date';
+        if (ufType === 'datetime') return 'datetime';
+        if (ufType === 'number-currency') return 'number-currency';
         if (ufType.startsWith('number')) return 'number';
         if (ufType === 'link' || ufType === 'file' || ufType === 'image') return 'set-not-set';
         if (ufType === 'preset-list' || ufType === 'preset-checklist') return 'userfield-multiselect';
@@ -376,23 +377,23 @@ class StockOverviewFilters {
 
         var element;
 
-        if (filterDef.type === 'number') {
-            element = this.createNumberFilterUI(group);
-        } else if (filterDef.type === 'date') {
-            element = this.createDateFilterUI(group);
+        if (filterDef.type === 'number' || filterDef.type === 'number-currency') {
+            element = this.createNumberFilterUI(group, filterDef);
+        } else if (filterDef.type === 'date' || filterDef.type === 'datetime') {
+            element = this.createDateFilterUI(group, filterDef);
         } else if (filterDef.type === 'checkbox') {
             element = this.createCheckboxFilterUI(group);
         } else if (filterDef.type === 'set-not-set') {
             element = this.createSetNotSetFilterUI(group);
         } else if (filterDef.type === 'multiselect-dynamic' || filterDef.type === 'userfield-multiselect') {
-            element = this.createMultiselectDynamicUI(group, filterDef);
+            element = this.createMultiselectDynamicUI(group, filterDef, container.attr('id'));
         }
 
         container.append(group);
 
         $('#add-filter-container').before(container);
 
-        $('#container-' + filterId).find('.selectpicker').selectpicker('render');
+        container.find('.selectpicker').selectpicker();
 
         var filterObj = {
             id: filterId,
@@ -406,8 +407,16 @@ class StockOverviewFilters {
         this.filters.push(filterObj);
 
         var self = this;
+        // Bind change events including click for +/- buttons
         container.find('input, select').on('change changed.bs.select keyup', function() {
             self.table.draw();
+        });
+
+        // Special bindings for +/- buttons which are appended to group
+        container.find('.number-btn').on('click', function() {
+            // Logic handled in createNumberFilterUI event bindings,
+            // but we need to trigger draw here if value changed
+            // The createNumberFilterUI buttons trigger 'change' on input?
         });
     }
 
@@ -421,29 +430,124 @@ class StockOverviewFilters {
         }
     }
 
-    createNumberFilterUI(group) {
+    createNumberFilterUI(group, filterDef) {
+        if (filterDef.type === 'number-currency') {
+            group.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
+        }
+
         var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 60px;">' +
             '<option value="=">=</option>' +
             '<option value="<">&lt;</option>' +
             '<option value=">">&gt;</option>' +
             '</select>');
+
+        var minusBtn = $('<div class="input-group-prepend"><button class="btn btn-secondary number-btn" type="button"><i class="fa-solid fa-minus"></i></button></div>');
         var input = $('<input type="number" class="form-control filter-value" step="0.01">');
+        var plusBtn = $('<div class="input-group-append"><button class="btn btn-secondary number-btn" type="button"><i class="fa-solid fa-plus"></i></button></div>');
 
         group.append(opSelect);
+        group.append(minusBtn);
         group.append(input);
+        group.append(plusBtn);
+
+        // Button Logic
+        var self = this;
+        minusBtn.find('button').on('click', function() {
+            var val = parseFloat(input.val());
+            if (isNaN(val)) val = 0;
+            input.val(val - 1).trigger('change');
+        });
+        plusBtn.find('button').on('click', function() {
+            var val = parseFloat(input.val());
+            if (isNaN(val)) val = 0;
+            input.val(val + 1).trigger('change');
+        });
+
         return group;
     }
 
-    createDateFilterUI(group) {
+    createDateFilterUI(group, filterDef) {
         var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 100px;">' +
             '<option value="on">' + __t('On') + '</option>' +
             '<option value="before">' + __t('Before') + '</option>' +
             '<option value="after">' + __t('After') + '</option>' +
             '</select>');
-        var input = $('<input type="date" class="form-control filter-value">');
+
+        var input = $('<input type="text" class="form-control filter-value datetimepicker-input" data-toggle="datetimepicker">');
+
+        // Presets Dropdown
+        var presetsBtn = $('<div class="input-group-append">' +
+            '<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">' + __t('Presets') + '</button>' +
+            '<div class="dropdown-menu dropdown-menu-right">' +
+            '<a class="dropdown-item preset-link" href="#" data-range="week">' + __t('In the last week') + '</a>' +
+            '<a class="dropdown-item preset-link" href="#" data-range="month">' + __t('In the last month') + '</a>' +
+            '<a class="dropdown-item preset-link" href="#" data-range="year">' + __t('In the last year') + '</a>' +
+            '<div class="dropdown-divider"></div>' +
+            '<a class="dropdown-item preset-link" href="#" data-range="year-plus">' + __t('Over a year ago') + '</a>' +
+            '</div></div>');
 
         group.append(opSelect);
         group.append(input);
+        group.append(presetsBtn);
+
+        // Initialize TempusDominus
+        var format = 'L';
+        if (filterDef.type === 'datetime') format = 'L LT';
+
+        input.datetimepicker({
+            format: format,
+            buttons: {
+                showToday: true,
+                showClose: true
+            },
+            calendarWeeks: Grocy.CalendarShowWeekNumbers,
+            locale: moment.locale(),
+            useCurrent: false,
+            icons: {
+                time: 'fa-solid fa-clock',
+                date: 'fa-solid fa-calendar',
+                up: 'fa-solid fa-arrow-up',
+                down: 'fa-solid fa-arrow-down',
+                previous: 'fa-solid fa-chevron-left',
+                next: 'fa-solid fa-chevron-right',
+                today: 'fa-solid fa-calendar-day',
+                clear: 'fa-solid fa-trash-can',
+                close: 'fa-solid fa-check'
+            }
+        });
+
+        // Fix for TempusDominus not triggering 'change' on input when selected via widget
+        input.on('change.datetimepicker', function(e) {
+            // Trigger actual change event for the filter logic
+            // But we need to update the internal value or rely on .val()
+            // .val() works on the input.
+            // Just ensure table draw logic picks it up.
+            self.table.draw();
+        });
+
+        // Preset Logic
+        presetsBtn.find('.preset-link').on('click', function(e) {
+            e.preventDefault();
+            var range = $(this).data('range');
+            var now = moment();
+
+            if (range === 'week') {
+                opSelect.val('after');
+                input.val(now.subtract(1, 'week').format(format));
+            } else if (range === 'month') {
+                opSelect.val('after');
+                input.val(now.subtract(1, 'month').format(format));
+            } else if (range === 'year') {
+                opSelect.val('after');
+                input.val(now.subtract(1, 'year').format(format));
+            } else if (range === 'year-plus') {
+                opSelect.val('before');
+                input.val(now.subtract(1, 'year').format(format));
+            }
+
+            self.table.draw();
+        });
+
         return group;
     }
 
@@ -467,8 +571,8 @@ class StockOverviewFilters {
         return select;
     }
 
-    createMultiselectDynamicUI(group, filterDef) {
-        var select = $('<select class="custom-control custom-select selectpicker" multiple data-actions-box="true"></select>');
+    createMultiselectDynamicUI(group, filterDef, containerId) {
+        var select = $('<select class="custom-control custom-select selectpicker d-none" multiple data-actions-box="true"></select>');
 
         var uniqueValues = new Set();
         var hasEmptyValues = false;
@@ -519,6 +623,13 @@ class StockOverviewFilters {
              logicDiv.find('input[type="radio"]').on('change', function() {
                  if ($(this).val() === 'AND') exactDiv.show();
                  else exactDiv.hide();
+
+                 // Trigger filter update
+                 self.table.draw();
+             });
+
+             exactDiv.find('input').on('change', function() {
+                 self.table.draw();
              });
         }
 

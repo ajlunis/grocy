@@ -2500,3 +2500,18 @@ msgstr ""
 
 msgid "After"
 msgstr ""
+
+msgid "Presets"
+msgstr ""
+
+msgid "In the last week"
+msgstr ""
+
+msgid "In the last month"
+msgstr ""
+
+msgid "In the last year"
+msgstr ""
+
+msgid "Over a year ago"
+msgstr ""
