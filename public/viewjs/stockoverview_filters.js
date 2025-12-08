@@ -113,12 +113,8 @@ class StockOverviewFilters {
              return false;
         }
 
-        var logic = 'OR';
-        var container = filter.element.closest('.filter-card');
-        if (container.length > 0) {
-             var logicInput = container.find('input[name="logic-' + filter.id + '"]:checked');
-             if (logicInput.length > 0) logic = logicInput.val();
-        }
+        var logic = filter.element.closest('.input-group').find('input[name="logic-' + filter.id + '"]:checked').val();
+        if (!logic) logic = 'OR';
 
         if (filter.type === 'multiselect')
         {
@@ -153,10 +149,7 @@ class StockOverviewFilters {
                  }
                  return false;
             } else if (logic === 'AND') {
-                 var exact = false;
-                 if (container.length > 0) {
-                     exact = container.find('.exact-match-checkbox').is(':checked');
-                 }
+                 var exact = filter.element.closest('.filter-container').find('.exact-match-checkbox').is(':checked');
 
                  if (notSetSelected && !isRowEmpty) return false;
 
@@ -176,7 +169,7 @@ class StockOverviewFilters {
     }
 
     checkNumber(filter, rawValue) {
-        var container = filter.element.closest('.filter-card');
+        var container = filter.element.closest('.filter-container');
         var operator = container.find('.filter-operator').val();
         var valueInput = container.find('.filter-value').val();
         var value = parseFloat(valueInput);
@@ -194,9 +187,11 @@ class StockOverviewFilters {
     }
 
     checkDate(filter, rawValue) {
-         var container = filter.element.closest('.filter-card');
+         var container = filter.element.closest('.filter-container');
          var operator = container.find('.filter-operator').val();
          var valueStr = container.find('.filter-value').val(); // This gets value from input
+
+         if (operator === 'empty') return !rawValue || rawValue === "";
 
          if (!valueStr) return true;
 
@@ -249,7 +244,8 @@ class StockOverviewFilters {
         }
 
         element.off('change');
-        element.addClass('selectpicker').attr('multiple', 'multiple').selectpicker('render');
+        // Fix: Remove custom-select and hide original
+        element.removeClass('custom-select').addClass('selectpicker d-none').attr('multiple', 'multiple').selectpicker('render');
         element.selectpicker('refresh');
 
         var filterObj = {
@@ -330,9 +326,13 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var container = $('<div class="col-12 col-md-6 col-xl-3 mb-2" id="add-filter-container"></div>');
+        var container = $('<div class="col-12 col-md-6 col-xl-3" id="add-filter-container"></div>');
+        var group = $('<div class="input-group"></div>');
+        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
 
-        var select = $('<select class="custom-control custom-select selectpicker" data-live-search="true" title="<i class=\'fa-solid fa-plus\'></i> ' + __t('Add filter') + '"></select>');
+        // Remove custom-control and d-none, rely on selectpicker()
+        var select = $('<select class="selectpicker" data-live-search="true"></select>');
+        select.append('<option value="">' + __t('Select a filter to add') + '</option>');
 
         var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
         var ufGroup = $('<optgroup label="' + __t('Userfields') + '"></optgroup>');
@@ -346,18 +346,23 @@ class StockOverviewFilters {
         select.append(stdGroup);
         if(ufGroup.children().length > 0) select.append(ufGroup);
 
-        container.append(select);
+        group.append(prepend);
+        group.append(select);
+        container.append(group);
 
         $('#table-filter-row').append(container);
 
-        select.selectpicker('refresh');
+        // Explicitly initialize
+        select.selectpicker();
 
         var self = this;
         select.on('changed.bs.select', function() {
             var val = $(this).val();
             if (val) {
                  self.addFilter(val);
-                 $(this).val('').selectpicker('refresh');
+                 // Reset value and refresh
+                 $(this).val('');
+                 $(this).selectpicker('refresh');
             }
         });
     }
@@ -368,22 +373,17 @@ class StockOverviewFilters {
 
         if (this.filters.find(f => f.id === filterId)) return;
 
-        var container = $('<div class="filter-card col-12 col-md-6 col-xl-3 mb-2" id="container-' + filterId + '"></div>');
-        var card = $('<div class="card shadow-sm"></div>');
-        var header = $('<div class="card-header py-1 px-2 d-flex justify-content-between align-items-center bg-light"></div>');
-        var body = $('<div class="card-body p-2"></div>');
-        var group = $('<div class="input-group input-group-sm"></div>');
+        var container = $('<div class="col-12 col-md-6 col-xl-3 filter-container mb-2" id="container-' + filterId + '"></div>');
+        var group = $('<div class="input-group"></div>');
 
-        // Header Content
-        header.append('<span class="font-weight-bold small text-truncate mr-2">' + filterDef.caption + '</span>');
-        var removeBtn = $('<button class="btn btn-sm btn-link text-danger p-0" title="' + __t('Remove') + '"><i class="fa-solid fa-trash"></i></button>');
-        removeBtn.on('click', () => this.removeFilter(filterId));
-        header.append(removeBtn);
+        var removeBtn = $('<div class="input-group-prepend"><button class="btn btn-outline-danger" type="button"><i class="fa-solid fa-trash"></i></button></div>');
+        removeBtn.find('button').on('click', () => this.removeFilter(filterId));
+        group.append(removeBtn);
 
-        card.append(header);
+        group.append('<div class="input-group-prepend"><span class="input-group-text">' + filterDef.caption + '</span></div>');
 
-        // Body Content (Controls)
         var element;
+
         if (filterDef.type === 'number' || filterDef.type === 'number-currency') {
             element = this.createNumberFilterUI(group, filterDef);
         } else if (filterDef.type === 'date' || filterDef.type === 'datetime') {
@@ -396,20 +396,12 @@ class StockOverviewFilters {
             element = this.createMultiselectDynamicUI(group, filterDef, container.attr('id'));
         }
 
-        body.append(group);
-        card.append(body);
-        container.append(card);
+        container.append(group);
 
         $('#add-filter-container').before(container);
 
-        // Initialize plugins within the container
-        // Note: createMultiselectDynamicUI might have already appended selectpicker logic,
-        // but we need to ensure it initializes on the now-attached element.
-        if (filterDef.type === 'multiselect-dynamic' || filterDef.type === 'userfield-multiselect') {
-             container.find('.selectpicker').selectpicker('render');
-        } else {
-             container.find('.selectpicker').selectpicker();
-        }
+        // Initialize any selectpickers in the new container
+        container.find('.selectpicker').selectpicker();
 
         var filterObj = {
             id: filterId,
@@ -423,8 +415,16 @@ class StockOverviewFilters {
         this.filters.push(filterObj);
 
         var self = this;
+        // Bind change events including click for +/- buttons
         container.find('input, select').on('change changed.bs.select keyup', function() {
             self.table.draw();
+        });
+
+        // Special bindings for +/- buttons which are appended to group
+        container.find('.number-btn').on('click', function() {
+            // Logic handled in createNumberFilterUI event bindings,
+            // but we need to trigger draw here if value changed
+            // The createNumberFilterUI buttons trigger 'change' on input?
         });
     }
 
