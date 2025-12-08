@@ -323,12 +323,9 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var container = $('<div class="col-12 col-md-6 col-xl-3" id="add-filter-container"></div>');
-        var group = $('<div class="input-group"></div>');
-        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
+        var container = $('<div class="col-12 col-md-6 col-xl-3 mb-2" id="add-filter-container"></div>');
 
-        var select = $('<select class="custom-control custom-select selectpicker" data-live-search="true"></select>');
-        select.append('<option value="">' + __t('Select a filter to add') + '</option>');
+        var select = $('<select class="custom-control custom-select selectpicker" data-live-search="true" title="<i class=\'fa-solid fa-plus\'></i> ' + __t('Add filter') + '"></select>');
 
         var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
         var ufGroup = $('<optgroup label="' + __t('Userfields') + '"></optgroup>');
@@ -342,9 +339,7 @@ class StockOverviewFilters {
         select.append(stdGroup);
         if(ufGroup.children().length > 0) select.append(ufGroup);
 
-        group.append(prepend);
-        group.append(select);
-        container.append(group);
+        container.append(select);
 
         $('#table-filter-row').append(container);
 
@@ -366,17 +361,22 @@ class StockOverviewFilters {
 
         if (this.filters.find(f => f.id === filterId)) return;
 
-        var container = $('<div class="col-12 col-md-6 col-xl-3 filter-container mb-2" id="container-' + filterId + '"></div>');
-        var group = $('<div class="input-group"></div>');
+        var container = $('<div class="filter-card col-12 col-md-6 col-xl-3 mb-2" id="container-' + filterId + '"></div>');
+        var card = $('<div class="card shadow-sm"></div>');
+        var header = $('<div class="card-header py-1 px-2 d-flex justify-content-between align-items-center bg-light"></div>');
+        var body = $('<div class="card-body p-2"></div>');
+        var group = $('<div class="input-group input-group-sm"></div>');
 
-        var removeBtn = $('<div class="input-group-prepend"><button class="btn btn-outline-danger" type="button"><i class="fa-solid fa-trash"></i></button></div>');
-        removeBtn.find('button').on('click', () => this.removeFilter(filterId));
-        group.append(removeBtn);
+        // Header Content
+        header.append('<span class="font-weight-bold small text-truncate mr-2">' + filterDef.caption + '</span>');
+        var removeBtn = $('<button class="btn btn-sm btn-link text-danger p-0" title="' + __t('Remove') + '"><i class="fa-solid fa-trash"></i></button>');
+        removeBtn.on('click', () => this.removeFilter(filterId));
+        header.append(removeBtn);
 
-        group.append('<div class="input-group-prepend"><span class="input-group-text">' + filterDef.caption + '</span></div>');
+        card.append(header);
 
+        // Body Content (Controls)
         var element;
-
         if (filterDef.type === 'number' || filterDef.type === 'number-currency') {
             element = this.createNumberFilterUI(group, filterDef);
         } else if (filterDef.type === 'date' || filterDef.type === 'datetime') {
@@ -389,11 +389,20 @@ class StockOverviewFilters {
             element = this.createMultiselectDynamicUI(group, filterDef, container.attr('id'));
         }
 
-        container.append(group);
+        body.append(group);
+        card.append(body);
+        container.append(card);
 
         $('#add-filter-container').before(container);
 
-        container.find('.selectpicker').selectpicker();
+        // Initialize plugins within the container
+        // Note: createMultiselectDynamicUI might have already appended selectpicker logic,
+        // but we need to ensure it initializes on the now-attached element.
+        if (filterDef.type === 'multiselect-dynamic' || filterDef.type === 'userfield-multiselect') {
+             container.find('.selectpicker').selectpicker('render');
+        } else {
+             container.find('.selectpicker').selectpicker();
+        }
 
         var filterObj = {
             id: filterId,
@@ -407,16 +416,8 @@ class StockOverviewFilters {
         this.filters.push(filterObj);
 
         var self = this;
-        // Bind change events including click for +/- buttons
         container.find('input, select').on('change changed.bs.select keyup', function() {
             self.table.draw();
-        });
-
-        // Special bindings for +/- buttons which are appended to group
-        container.find('.number-btn').on('click', function() {
-            // Logic handled in createNumberFilterUI event bindings,
-            // but we need to trigger draw here if value changed
-            // The createNumberFilterUI buttons trigger 'change' on input?
         });
     }
 
@@ -451,7 +452,6 @@ class StockOverviewFilters {
         group.append(plusBtn);
 
         // Button Logic
-        var self = this;
         minusBtn.find('button').on('click', function() {
             var val = parseFloat(input.val());
             if (isNaN(val)) val = 0;

@@ -2515,3 +2515,6 @@ msgstr ""
 
 msgid "Over a year ago"
 msgstr ""
+
+msgid "Remove"
+msgstr ""
