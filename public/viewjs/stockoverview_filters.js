@@ -113,8 +113,12 @@ class StockOverviewFilters {
              return false;
         }
 
-        var logic = filter.element.closest('.input-group').find('input[name="logic-' + filter.id + '"]:checked').val();
-        if (!logic) logic = 'OR';
+        var logic = 'OR';
+        var container = filter.element.closest('.filter-card');
+        if (container.length > 0) {
+             var logicInput = container.find('input[name="logic-' + filter.id + '"]:checked');
+             if (logicInput.length > 0) logic = logicInput.val();
+        }
 
         if (filter.type === 'multiselect')
         {
@@ -149,7 +153,10 @@ class StockOverviewFilters {
                  }
                  return false;
             } else if (logic === 'AND') {
-                 var exact = filter.element.closest('.filter-container').find('.exact-match-checkbox').is(':checked');
+                 var exact = false;
+                 if (container.length > 0) {
+                     exact = container.find('.exact-match-checkbox').is(':checked');
+                 }
 
                  if (notSetSelected && !isRowEmpty) return false;
 
@@ -169,7 +176,7 @@ class StockOverviewFilters {
     }
 
     checkNumber(filter, rawValue) {
-        var container = filter.element.closest('.filter-container');
+        var container = filter.element.closest('.filter-card');
         var operator = container.find('.filter-operator').val();
         var valueInput = container.find('.filter-value').val();
         var value = parseFloat(valueInput);
@@ -187,7 +194,7 @@ class StockOverviewFilters {
     }
 
     checkDate(filter, rawValue) {
-         var container = filter.element.closest('.filter-container');
+         var container = filter.element.closest('.filter-card');
          var operator = container.find('.filter-operator').val();
          var valueStr = container.find('.filter-value').val(); // This gets value from input
 
