@@ -2500,3 +2500,15 @@ msgstr ""
 
 msgid "After"
 msgstr ""
+
+msgid "Set"
+msgstr ""
+
+msgid "Exact match"
+msgstr ""
+
+msgid "Checked"
+msgstr ""
+
+msgid "Unchecked"
+msgstr ""
