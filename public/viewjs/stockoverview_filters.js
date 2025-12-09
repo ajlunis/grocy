@@ -264,10 +264,13 @@ class StockOverviewFilters {
         // Remove custom-control classes that interfere with bootstrap-select in input-group
         element.removeClass('custom-control custom-select');
 
-        // Add specific class for our CSS fix and form-control to make it look standard
-        element.addClass('selectpicker form-control');
+        // Add specific class for our CSS fix. Removed form-control to avoid double-boxing
+        element.addClass('selectpicker');
 
         element.attr('multiple', 'multiple');
+        // Ensure width is auto or 100% to fill container
+        element.data('width', '100%');
+
         element.selectpicker('render');
         element.selectpicker('refresh');
 
@@ -351,7 +354,8 @@ class StockOverviewFilters {
 
     initAddFilterButton() {
         var container = $('<div class="col-12 col-md-6 col-xl-3" id="add-filter-container"></div>');
-        var card = $('<div class="card bg-light mb-2"><div class="card-body p-2 d-flex align-items-center"></div></div>');
+        // Removed bg-light to better support night mode, used a plain border class if needed or rely on default card style
+        var card = $('<div class="card mb-2"><div class="card-body p-2 d-flex align-items-center"></div></div>');
 
         var label = $('<span class="mr-2 text-nowrap"><i class="fa-solid fa-plus"></i> ' + __t('Add filter') + '</span>');
 
