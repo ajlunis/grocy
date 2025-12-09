@@ -268,10 +268,17 @@ class StockOverviewFilters {
         element.addClass('selectpicker');
 
         element.attr('multiple', 'multiple');
-        // Ensure width is auto or 100% to fill container
-        element.data('width', '100%');
+        // Ensure width is auto to allow flexbox resizing
+        element.data('width', 'auto');
+        element.data('style', 'btn-light rounded-right border-left-0');
 
         element.selectpicker('render');
+        element.on('loaded.bs.select', function (e) {
+            // Force the dropdown wrapper to fill remaining space in the input group
+            $(this).parent().addClass('flex-grow-1');
+            // Remove border radius from the button to merge with label
+            $(this).parent().find('.dropdown-toggle').addClass('rounded-0 rounded-right');
+        });
         element.selectpicker('refresh');
 
         var filterObj = {
