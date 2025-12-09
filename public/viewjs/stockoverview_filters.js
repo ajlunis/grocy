@@ -17,6 +17,7 @@ class StockOverviewFilters {
         this.initBootstrapSelects();
         this.loadAvailableFilters();
 
+        // Convert existing filters using a CSS class fix for input-group integration
         this.convertExistingFilter('#location-filter', 'hidden-location', 'multiselect', __t('Location'));
         this.convertExistingFilter('#product-group-filter', 'hidden-product-group', 'multiselect', __t('Product group'));
         this.convertExistingFilter('#status-filter', 'hidden-status', 'multiselect', __t('Status'));
@@ -48,8 +49,7 @@ class StockOverviewFilters {
         $.fn.selectpicker.Constructor.DEFAULTS.container = 'body';
         $.fn.selectpicker.Constructor.DEFAULTS.style = 'btn-light';
         $.fn.selectpicker.Constructor.DEFAULTS.showTick = true;
-
-        $('.selectpicker').selectpicker();
+        $.fn.selectpicker.Constructor.DEFAULTS.width = 'auto'; // Important for flex
     }
 
     initClearFilterButton() {
@@ -58,6 +58,7 @@ class StockOverviewFilters {
         {
             $("#search").val("");
 
+            // Reset all filters
             for (var i = self.filters.length - 1; i >= 0; i--) {
                 var filter = self.filters[i];
                 if (filter.isPermanent) {
@@ -113,8 +114,14 @@ class StockOverviewFilters {
              return false;
         }
 
-        var logic = filter.element.closest('.input-group').find('input[name="logic-' + filter.id + '"]:checked').val();
-        if (!logic) logic = 'OR';
+        var logic = 'OR';
+        if (filter.isDynamic) {
+             logic = filter.container.find('input[name="logic-' + filter.id + '"]:checked').val();
+             if (!logic) logic = 'OR';
+        } else {
+             // Permanent filters don't have AND/OR logic yet, default OR
+             // If we add it later, we'd read it here
+        }
 
         if (filter.type === 'multiselect')
         {
@@ -128,18 +135,22 @@ class StockOverviewFilters {
                  }
 
                  var matchVal = "xx" + val + "xx";
+                 // Check if rawValue contains the wrapped ID/Value
                  if (rawValue.indexOf(matchVal) !== -1) return true;
+                 // Fallback for exact match
                  if (rawValue === val) return true;
             }
             return false;
         }
-        else
+        else // userfield-multiselect or dynamic multiselect
         {
-            var rowValues = rawValue.split(',').map(function(item) { return item.trim(); });
+            // Split comma separated values
+            var rowValues = rawValue.split(',').map(function(item) { return item.trim(); }).filter(i => i);
+
             if (selectedValues.includes('all')) return true;
 
             var notSetSelected = selectedValues.includes('__grocy_not_set__');
-            var isRowEmpty = (rawValue === "" || (rowValues.length === 1 && rowValues[0] === ""));
+            var isRowEmpty = (rowValues.length === 0);
 
             if (logic === 'OR') {
                  if (notSetSelected && isRowEmpty) return true;
@@ -149,17 +160,25 @@ class StockOverviewFilters {
                  }
                  return false;
             } else if (logic === 'AND') {
-                 var exact = filter.element.closest('.filter-container').find('.exact-match-checkbox').is(':checked');
+                 var exact = filter.container.find('.exact-match-checkbox').is(':checked');
 
-                 if (notSetSelected && !isRowEmpty) return false;
+                 // If filtering for "Not Set" in AND mode, the row must be empty
+                 if (notSetSelected) {
+                     if (!isRowEmpty) return false;
+                     // If we only selected "Not Set", and row is empty, it's a match
+                     if (selectedValues.length === 1) return true;
+                 }
 
+                 // Check if all selected values (except Not Set) are present
                  for(var i=0; i<selectedValues.length; i++) {
                      if (selectedValues[i] === '__grocy_not_set__') continue;
                      if (!rowValues.includes(selectedValues[i])) return false;
                  }
 
                  if (exact) {
-                     if (rowValues.length !== selectedValues.length) return false;
+                     // Filter out Not Set from selected count for exact match comparison
+                     var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
+                     if (rowValues.length !== selectedCount) return false;
                  }
 
                  return true;
@@ -169,7 +188,7 @@ class StockOverviewFilters {
     }
 
     checkNumber(filter, rawValue) {
-        var container = filter.element.closest('.filter-container');
+        var container = filter.container;
         var operator = container.find('.filter-operator').val();
         var valueInput = container.find('.filter-value').val();
         var value = parseFloat(valueInput);
@@ -179,7 +198,7 @@ class StockOverviewFilters {
 
         if (isNaN(value)) return true;
 
-        if (operator === '=') return cellValue === value;
+        if (operator === '=') return Math.abs(cellValue - value) < 0.00001; // Float comparison
         if (operator === '<') return cellValue < value;
         if (operator === '>') return cellValue > value;
 
@@ -187,9 +206,9 @@ class StockOverviewFilters {
     }
 
     checkDate(filter, rawValue) {
-         var container = filter.element.closest('.filter-container');
+         var container = filter.container;
          var operator = container.find('.filter-operator').val();
-         var valueStr = container.find('.filter-value').val(); // This gets value from input
+         var valueStr = container.find('.filter-value').val(); // Localized string from input
 
          if (operator === 'empty') return !rawValue || rawValue === "";
 
@@ -197,16 +216,13 @@ class StockOverviewFilters {
 
          // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD
          var cellDate = moment(rawValue);
-         var filterDate = moment(valueStr); // format depends on locale, but moment handles it if standard
-
-         // If using TempusDominus, the input value is localized string.
-         // We should rely on moment parsing it correctly using locale.
+         var filterDate = moment(valueStr, filter.dateFormat);
 
          if (!cellDate.isValid()) return false;
          if (!filterDate.isValid()) return true;
 
-         if (operator === 'on') return cellDate.isSame(filterDate, 'day'); // Precision Day for 'On'
-         if (operator === 'before') return cellDate.isBefore(filterDate); // Precision Millisecond
+         if (operator === 'on') return cellDate.isSame(filterDate, 'day');
+         if (operator === 'before') return cellDate.isBefore(filterDate);
          if (operator === 'after') return cellDate.isAfter(filterDate);
 
          return true;
@@ -244,8 +260,15 @@ class StockOverviewFilters {
         }
 
         element.off('change');
-        // Fix: Remove custom-select and hide original
-        element.removeClass('custom-select').addClass('selectpicker d-none').attr('multiple', 'multiple').selectpicker('render');
+
+        // Remove custom-control classes that interfere with bootstrap-select in input-group
+        element.removeClass('custom-control custom-select');
+
+        // Add specific class for our CSS fix and form-control to make it look standard
+        element.addClass('selectpicker form-control');
+
+        element.attr('multiple', 'multiple');
+        element.selectpicker('render');
         element.selectpicker('refresh');
 
         var filterObj = {
@@ -254,7 +277,8 @@ class StockOverviewFilters {
             columnIndex: columnIndex,
             type: type,
             caption: caption,
-            isPermanent: true
+            isPermanent: true,
+            isDynamic: false
         };
 
         this.filters.push(filterObj);
@@ -327,11 +351,12 @@ class StockOverviewFilters {
 
     initAddFilterButton() {
         var container = $('<div class="col-12 col-md-6 col-xl-3" id="add-filter-container"></div>');
-        var group = $('<div class="input-group"></div>');
-        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
+        var card = $('<div class="card bg-light mb-2"><div class="card-body p-2 d-flex align-items-center"></div></div>');
 
-        // Remove custom-control and d-none, rely on selectpicker()
-        var select = $('<select class="selectpicker" data-live-search="true"></select>');
+        var label = $('<span class="mr-2 text-nowrap"><i class="fa-solid fa-plus"></i> ' + __t('Add filter') + '</span>');
+
+        // Remove 'form-control' to avoid input-group styles if any
+        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-outline-success" data-width="auto"></select>');
         select.append('<option value="">' + __t('Select a filter to add') + '</option>');
 
         var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
@@ -346,14 +371,13 @@ class StockOverviewFilters {
         select.append(stdGroup);
         if(ufGroup.children().length > 0) select.append(ufGroup);
 
-        group.append(prepend);
-        group.append(select);
-        container.append(group);
+        card.find('.card-body').append(label).append(select);
+        container.append(card);
 
         $('#table-filter-row').append(container);
 
         // Explicitly initialize
-        select.selectpicker();
+        select.selectpicker('render');
 
         var self = this;
         select.on('changed.bs.select', function() {
@@ -373,30 +397,41 @@ class StockOverviewFilters {
 
         if (this.filters.find(f => f.id === filterId)) return;
 
+        // Use Card Layout for Dynamic Filters
         var container = $('<div class="col-12 col-md-6 col-xl-3 filter-container mb-2" id="container-' + filterId + '"></div>');
-        var group = $('<div class="input-group"></div>');
+        var card = $('<div class="card h-100"></div>');
 
-        var removeBtn = $('<div class="input-group-prepend"><button class="btn btn-outline-danger" type="button"><i class="fa-solid fa-trash"></i></button></div>');
-        removeBtn.find('button').on('click', () => this.removeFilter(filterId));
-        group.append(removeBtn);
+        // Header
+        var header = $('<div class="card-header py-1 px-2 d-flex justify-content-between align-items-center bg-gray-200"></div>');
+        header.append('<span class="font-weight-bold small text-uppercase">' + filterDef.caption + '</span>');
 
-        group.append('<div class="input-group-prepend"><span class="input-group-text">' + filterDef.caption + '</span></div>');
+        var removeBtn = $('<button class="btn btn-sm btn-link text-danger p-0" type="button"><i class="fa-solid fa-trash"></i></button>');
+        removeBtn.on('click', () => this.removeFilter(filterId));
+        header.append(removeBtn);
+
+        card.append(header);
+
+        // Body
+        var body = $('<div class="card-body p-2 d-flex flex-column justify-content-center"></div>');
 
         var element;
+        var extraProps = {};
 
         if (filterDef.type === 'number' || filterDef.type === 'number-currency') {
-            element = this.createNumberFilterUI(group, filterDef);
+            element = this.createNumberFilterUI(body, filterDef);
         } else if (filterDef.type === 'date' || filterDef.type === 'datetime') {
-            element = this.createDateFilterUI(group, filterDef);
+            element = this.createDateFilterUI(body, filterDef);
+            extraProps.dateFormat = (filterDef.type === 'datetime') ? 'L LT' : 'L';
         } else if (filterDef.type === 'checkbox') {
-            element = this.createCheckboxFilterUI(group);
+            element = this.createCheckboxFilterUI(body);
         } else if (filterDef.type === 'set-not-set') {
-            element = this.createSetNotSetFilterUI(group);
+            element = this.createSetNotSetFilterUI(body);
         } else if (filterDef.type === 'multiselect-dynamic' || filterDef.type === 'userfield-multiselect') {
-            element = this.createMultiselectDynamicUI(group, filterDef, container.attr('id'));
+            element = this.createMultiselectDynamicUI(body, filterDef, container.attr('id'));
         }
 
-        container.append(group);
+        card.append(body);
+        container.append(card);
 
         $('#add-filter-container').before(container);
 
@@ -406,10 +441,13 @@ class StockOverviewFilters {
         var filterObj = {
             id: filterId,
             element: element,
+            container: container,
             columnIndex: filterDef.columnIndex,
             type: filterDef.type,
             caption: filterDef.caption,
-            isPermanent: false
+            isPermanent: false,
+            isDynamic: true,
+            ...extraProps
         };
 
         this.filters.push(filterObj);
@@ -418,13 +456,6 @@ class StockOverviewFilters {
         // Bind change events including click for +/- buttons
         container.find('input, select').on('change changed.bs.select keyup', function() {
             self.table.draw();
-        });
-
-        // Special bindings for +/- buttons which are appended to group
-        container.find('.number-btn').on('click', function() {
-            // Logic handled in createNumberFilterUI event bindings,
-            // but we need to trigger draw here if value changed
-            // The createNumberFilterUI buttons trigger 'change' on input?
         });
     }
 
@@ -438,25 +469,29 @@ class StockOverviewFilters {
         }
     }
 
-    createNumberFilterUI(group, filterDef) {
+    createNumberFilterUI(container, filterDef) {
+        var group = $('<div class="input-group input-group-sm"></div>');
+
         if (filterDef.type === 'number-currency') {
             group.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
         }
 
-        var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 60px;">' +
+        var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 50px;">' +
             '<option value="=">=</option>' +
             '<option value="<">&lt;</option>' +
             '<option value=">">&gt;</option>' +
             '</select>');
 
-        var minusBtn = $('<div class="input-group-prepend"><button class="btn btn-secondary number-btn" type="button"><i class="fa-solid fa-minus"></i></button></div>');
+        var minusBtn = $('<div class="input-group-prepend"><button class="btn btn-outline-secondary number-btn" type="button"><i class="fa-solid fa-minus"></i></button></div>');
         var input = $('<input type="number" class="form-control filter-value" step="0.01">');
-        var plusBtn = $('<div class="input-group-append"><button class="btn btn-secondary number-btn" type="button"><i class="fa-solid fa-plus"></i></button></div>');
+        var plusBtn = $('<div class="input-group-append"><button class="btn btn-outline-secondary number-btn" type="button"><i class="fa-solid fa-plus"></i></button></div>');
 
         group.append(opSelect);
         group.append(minusBtn);
         group.append(input);
         group.append(plusBtn);
+
+        container.append(group);
 
         // Button Logic
         minusBtn.find('button').on('click', function() {
@@ -473,8 +508,10 @@ class StockOverviewFilters {
         return group;
     }
 
-    createDateFilterUI(group, filterDef) {
-        var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 100px;">' +
+    createDateFilterUI(container, filterDef) {
+        var group = $('<div class="input-group input-group-sm mb-1"></div>');
+
+        var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 80px;">' +
             '<option value="on">' + __t('On') + '</option>' +
             '<option value="before">' + __t('Before') + '</option>' +
             '<option value="after">' + __t('After') + '</option>' +
@@ -482,6 +519,10 @@ class StockOverviewFilters {
             '</select>');
 
         var input = $('<input type="text" class="form-control filter-value datetimepicker-input" data-toggle="datetimepicker">');
+
+        group.append(opSelect);
+        group.append(input);
+        container.append(group);
 
         opSelect.on('change', function() {
             if ($(this).val() === 'empty') {
@@ -492,19 +533,18 @@ class StockOverviewFilters {
         });
 
         // Presets Dropdown
-        var presetsBtn = $('<div class="input-group-append">' +
-            '<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">' + __t('Presets') + '</button>' +
-            '<div class="dropdown-menu dropdown-menu-right">' +
-            '<a class="dropdown-item preset-link" href="#" data-range="week">' + __t('In the last week') + '</a>' +
-            '<a class="dropdown-item preset-link" href="#" data-range="month">' + __t('In the last month') + '</a>' +
-            '<a class="dropdown-item preset-link" href="#" data-range="year">' + __t('In the last year') + '</a>' +
-            '<div class="dropdown-divider"></div>' +
-            '<a class="dropdown-item preset-link" href="#" data-range="year-plus">' + __t('Over a year ago') + '</a>' +
-            '</div></div>');
+        var presetsGroup = $('<div class="btn-group btn-group-sm w-100"></div>');
+        presetsGroup.append('<button type="button" class="btn btn-outline-secondary dropdown-toggle w-100" data-toggle="dropdown">' + __t('Presets') + '</button>');
 
-        group.append(opSelect);
-        group.append(input);
-        group.append(presetsBtn);
+        var menu = $('<div class="dropdown-menu w-100"></div>');
+        menu.append('<a class="dropdown-item preset-link" href="#" data-range="week">' + __t('In the last week') + '</a>');
+        menu.append('<a class="dropdown-item preset-link" href="#" data-range="month">' + __t('In the last month') + '</a>');
+        menu.append('<a class="dropdown-item preset-link" href="#" data-range="year">' + __t('In the last year') + '</a>');
+        menu.append('<div class="dropdown-divider"></div>');
+        menu.append('<a class="dropdown-item preset-link" href="#" data-range="year-plus">' + __t('Over a year ago') + '</a>');
+
+        presetsGroup.append(menu);
+        container.append(presetsGroup);
 
         // Initialize TempusDominus
         var format = 'L';
@@ -532,17 +572,13 @@ class StockOverviewFilters {
             }
         });
 
-        // Fix for TempusDominus not triggering 'change' on input when selected via widget
+        var self = this;
         input.on('change.datetimepicker', function(e) {
-            // Trigger actual change event for the filter logic
-            // But we need to update the internal value or rely on .val()
-            // .val() works on the input.
-            // Just ensure table draw logic picks it up.
             self.table.draw();
         });
 
         // Preset Logic
-        presetsBtn.find('.preset-link').on('click', function(e) {
+        menu.find('.preset-link').on('click', function(e) {
             e.preventDefault();
             var range = $(this).data('range');
             var now = moment();
@@ -567,28 +603,30 @@ class StockOverviewFilters {
         return group;
     }
 
-    createCheckboxFilterUI(group) {
-        var select = $('<select class="custom-control custom-select selectpicker">' +
+    createCheckboxFilterUI(container) {
+        var select = $('<select class="custom-control custom-select selectpicker w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="checked">' + __t('Checked') + '</option>' +
             '<option value="unchecked">' + __t('Unchecked') + '</option>' +
             '</select>');
-        group.append(select);
+        container.append(select);
+        select.selectpicker('render');
         return select;
     }
 
-    createSetNotSetFilterUI(group) {
-        var select = $('<select class="custom-control custom-select selectpicker">' +
+    createSetNotSetFilterUI(container) {
+        var select = $('<select class="custom-control custom-select selectpicker w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="set">' + __t('Set') + '</option>' +
             '<option value="not-set">' + __t('Not set') + '</option>' +
             '</select>');
-        group.append(select);
+        container.append(select);
+        select.selectpicker('render');
         return select;
     }
 
-    createMultiselectDynamicUI(group, filterDef, containerId) {
-        var select = $('<select class="custom-control custom-select selectpicker d-none" multiple data-actions-box="true"></select>');
+    createMultiselectDynamicUI(container, filterDef, containerId) {
+        var select = $('<select class="custom-control custom-select selectpicker w-100" multiple data-actions-box="true" data-width="100%"></select>');
 
         var uniqueValues = new Set();
         var hasEmptyValues = false;
@@ -623,10 +661,10 @@ class StockOverviewFilters {
         select.selectpicker('val', []);
         select.selectpicker('selectAll');
 
-        group.append(select);
+        container.append(select);
 
         if (filterDef.type === 'userfield-multiselect') {
-             var logicDiv = $('<div class="input-group-append pl-2 pt-2"></div>');
+             var logicDiv = $('<div class="mt-2 small"></div>');
              var name = 'logic-' + filterDef.id;
              logicDiv.append('<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="' + name + '" value="OR" checked><label class="form-check-label">OR</label></div>');
              logicDiv.append('<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="' + name + '" value="AND"><label class="form-check-label">AND</label></div>');
@@ -634,8 +672,9 @@ class StockOverviewFilters {
              var exactDiv = $('<div class="form-check form-check-inline exact-match-container" style="display:none;"><input class="form-check-input exact-match-checkbox" type="checkbox"><label class="form-check-label">' + __t('Exact match') + '</label></div>');
 
              logicDiv.append(exactDiv);
-             group.after(logicDiv);
+             container.append(logicDiv);
 
+             var self = this;
              logicDiv.find('input[type="radio"]').on('change', function() {
                  if ($(this).val() === 'AND') exactDiv.show();
                  else exactDiv.hide();
