@@ -123,7 +123,7 @@
 		</div>
 	</div>
 </div>
-<div class="row collapse d-md-flex show"
+<div class="form-row collapse d-md-flex show"
 	id="table-filter-row">
 	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group input-group-barcode-scanner">
