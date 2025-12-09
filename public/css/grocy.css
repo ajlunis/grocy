@@ -566,3 +566,12 @@ html {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
+
+/* Ensure aligned height for inputs and addons */
+.input-group .input-group-prepend .input-group-text,
+.input-group .form-control,
+.input-group .custom-select,
+.input-group .btn {
+    display: flex;
+    align-items: center;
+}
