@@ -68,6 +68,9 @@ class StockOverviewFilters {
                 }
             }
 
+            // Should be handled by removeFilter, but force update here to be sure
+            if (self.addFilterSelect) self.updateAddFilterAvailability();
+
             self.table.search("").draw();
         });
     }
@@ -189,18 +192,14 @@ class StockOverviewFilters {
 
     checkNumber(filter, rawValue) {
         var container = filter.container;
-        var operator = container.find('.filter-operator').val();
-        var valueInput = container.find('.filter-value').val();
-        var value = parseFloat(valueInput);
+        var minVal = parseFloat(container.find('.filter-min-value').val());
+        var maxVal = parseFloat(container.find('.filter-max-value').val());
 
         var cellValue = parseFloat(rawValue);
         if (isNaN(cellValue)) cellValue = 0;
 
-        if (isNaN(value)) return true;
-
-        if (operator === '=') return Math.abs(cellValue - value) < 0.00001; // Float comparison
-        if (operator === '<') return cellValue < value;
-        if (operator === '>') return cellValue > value;
+        if (!isNaN(minVal) && cellValue <= minVal) return false;
+        if (!isNaN(maxVal) && cellValue >= maxVal) return false;
 
         return true;
     }
@@ -504,42 +503,31 @@ class StockOverviewFilters {
     }
 
     createNumberFilterUI(container, filterDef) {
-        var group = $('<div class="input-group input-group-sm"></div>');
+        var wrapper = $('<div class="d-flex flex-column"></div>');
 
+        // Min Value Input
+        var minGroup = $('<div class="input-group input-group-sm mb-2"></div>');
+        minGroup.append('<div class="input-group-prepend"><span class="input-group-text">&gt;</span></div>');
         if (filterDef.type === 'number-currency') {
-            group.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
+            minGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
         }
+        var minInput = $('<input type="number" class="form-control filter-min-value" placeholder="' + __t('Min') + '" step="0.01">');
+        minGroup.append(minInput);
 
-        var opSelect = $('<select class="custom-control custom-select filter-operator flex-grow-0" style="width: 50px;">' +
-            '<option value="=">=</option>' +
-            '<option value="<">&lt;</option>' +
-            '<option value=">">&gt;</option>' +
-            '</select>');
+        // Max Value Input
+        var maxGroup = $('<div class="input-group input-group-sm"></div>');
+        maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">&lt;</span></div>');
+        if (filterDef.type === 'number-currency') {
+            maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
+        }
+        var maxInput = $('<input type="number" class="form-control filter-max-value" placeholder="' + __t('Max') + '" step="0.01">');
+        maxGroup.append(maxInput);
 
-        var minusBtn = $('<div class="input-group-prepend"><button class="btn btn-outline-secondary number-btn" type="button"><i class="fa-solid fa-minus"></i></button></div>');
-        var input = $('<input type="number" class="form-control filter-value" step="0.01">');
-        var plusBtn = $('<div class="input-group-append"><button class="btn btn-outline-secondary number-btn" type="button"><i class="fa-solid fa-plus"></i></button></div>');
+        wrapper.append(minGroup);
+        wrapper.append(maxGroup);
+        container.append(wrapper);
 
-        group.append(opSelect);
-        group.append(minusBtn);
-        group.append(input);
-        group.append(plusBtn);
-
-        container.append(group);
-
-        // Button Logic
-        minusBtn.find('button').on('click', function() {
-            var val = parseFloat(input.val());
-            if (isNaN(val)) val = 0;
-            input.val(val - 1).trigger('change');
-        });
-        plusBtn.find('button').on('click', function() {
-            var val = parseFloat(input.val());
-            if (isNaN(val)) val = 0;
-            input.val(val + 1).trigger('change');
-        });
-
-        return group;
+        return wrapper;
     }
 
     createDateFilterUI(container, filterDef) {
