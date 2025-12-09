@@ -503,10 +503,10 @@ class StockOverviewFilters {
     }
 
     createNumberFilterUI(container, filterDef) {
-        var wrapper = $('<div class="d-flex flex-column"></div>');
+        var wrapper = $('<div class="d-flex"></div>');
 
         // Min Value Input
-        var minGroup = $('<div class="input-group input-group-sm mb-2"></div>');
+        var minGroup = $('<div class="input-group input-group-sm mr-2"></div>');
         minGroup.append('<div class="input-group-prepend"><span class="input-group-text">&gt;</span></div>');
         if (filterDef.type === 'number-currency') {
             minGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
