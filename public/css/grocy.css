@@ -1,4 +1,4 @@
-﻿/* Main style customizations */
+/* Main style customizations */
 body {
 	font-family: 'Roboto', sans-serif;
 }
@@ -554,4 +554,15 @@ html {
 	#table-filter-row div:not(:first-of-type) {
 		margin-top: 8px;
 	}
+}
+
+/* Fix for bootstrap-select inside input-group */
+.input-group > .dropdown.bootstrap-select {
+    flex: 1 1 auto;
+    width: 1% !important;
+}
+
+.input-group > .dropdown.bootstrap-select .dropdown-toggle {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
