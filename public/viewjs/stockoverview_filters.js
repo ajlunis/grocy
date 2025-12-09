@@ -503,29 +503,29 @@ class StockOverviewFilters {
     }
 
     createNumberFilterUI(container, filterDef) {
-        var wrapper = $('<div class="d-flex"></div>');
+        var wrapper = $('<div class="d-flex align-items-center"></div>');
 
         // Min Value Input
-        var minGroup = $('<div class="input-group input-group-sm mr-2"></div>');
-        var minPrependText = '&gt;';
+        var minGroup = $('<div class="input-group input-group-sm"></div>');
         if (filterDef.type === 'number-currency') {
-            minPrependText += ' ' + Grocy.Currency;
+            minGroup.append('<div class="input-group-prepend"><span class="input-group-text">$</span></div>');
         }
-        minGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + minPrependText + '</span></div>');
         var minInput = $('<input type="number" class="form-control filter-min-value" placeholder="' + __t('Min') + '" step="0.01">');
         minGroup.append(minInput);
 
+        // Separator
+        var separator = $('<span class="mx-2 small">' + __t('to') + '</span>');
+
         // Max Value Input
         var maxGroup = $('<div class="input-group input-group-sm"></div>');
-        var maxPrependText = '&lt;';
         if (filterDef.type === 'number-currency') {
-            maxPrependText += ' ' + Grocy.Currency;
+            maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">$</span></div>');
         }
-        maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + maxPrependText + '</span></div>');
         var maxInput = $('<input type="number" class="form-control filter-max-value" placeholder="' + __t('Max') + '" step="0.01">');
         maxGroup.append(maxInput);
 
         wrapper.append(minGroup);
+        wrapper.append(separator);
         wrapper.append(maxGroup);
         container.append(wrapper);
 
