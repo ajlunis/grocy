@@ -36,6 +36,23 @@
 		margin-top: 0;
 		margin-right: 0;
 	}
+
+    /* Scoped fix for mobile alignment in stock overview filters */
+    @media (max-width: 767.98px) {
+        .stock-overview-filter .input-group > .form-control,
+        .stock-overview-filter .input-group > .input-group-prepend > .input-group-text,
+        .stock-overview-filter .input-group > .custom-select,
+        .stock-overview-filter .input-group > .dropdown > .btn {
+            display: flex;
+            align-items: center;
+        }
+
+        #add-filter-container .input-group > .dropdown > .btn,
+        #add-filter-container .input-group > .input-group-prepend > .input-group-text {
+            display: flex;
+            align-items: center;
+        }
+    }
 </style>
 @endpush
 

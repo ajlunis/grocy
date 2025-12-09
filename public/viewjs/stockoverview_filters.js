@@ -198,8 +198,8 @@ class StockOverviewFilters {
         var cellValue = parseFloat(rawValue);
         if (isNaN(cellValue)) cellValue = 0;
 
-        if (!isNaN(minVal) && cellValue <= minVal) return false;
-        if (!isNaN(maxVal) && cellValue >= maxVal) return false;
+        if (!isNaN(minVal) && cellValue < minVal) return false;
+        if (!isNaN(maxVal) && cellValue > maxVal) return false;
 
         return true;
     }
@@ -430,7 +430,7 @@ class StockOverviewFilters {
         if (this.filters.find(f => f.id === filterId)) return;
 
         // Use Card Layout for Dynamic Filters
-        var container = $('<div class="col-12 col-md-6 col-xl-3 filter-container mb-2" id="container-' + filterId + '"></div>');
+        var container = $('<div class="col-12 col-md-6 col-xl-3 filter-container stock-overview-filter mb-2" id="container-' + filterId + '"></div>');
         var card = $('<div class="card h-100"></div>');
 
         // Header
@@ -507,19 +507,21 @@ class StockOverviewFilters {
 
         // Min Value Input
         var minGroup = $('<div class="input-group input-group-sm mr-2"></div>');
-        minGroup.append('<div class="input-group-prepend"><span class="input-group-text">&gt;</span></div>');
+        var minPrependText = '&gt;';
         if (filterDef.type === 'number-currency') {
-            minGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
+            minPrependText += ' ' + Grocy.Currency;
         }
+        minGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + minPrependText + '</span></div>');
         var minInput = $('<input type="number" class="form-control filter-min-value" placeholder="' + __t('Min') + '" step="0.01">');
         minGroup.append(minInput);
 
         // Max Value Input
         var maxGroup = $('<div class="input-group input-group-sm"></div>');
-        maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">&lt;</span></div>');
+        var maxPrependText = '&lt;';
         if (filterDef.type === 'number-currency') {
-            maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + Grocy.Currency + '</span></div>');
+            maxPrependText += ' ' + Grocy.Currency;
         }
+        maxGroup.append('<div class="input-group-prepend"><span class="input-group-text">' + maxPrependText + '</span></div>');
         var maxInput = $('<input type="number" class="form-control filter-max-value" placeholder="' + __t('Max') + '" step="0.01">');
         maxGroup.append(maxInput);
 

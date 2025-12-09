@@ -2518,3 +2518,9 @@ msgstr ""
 
 msgid "Remove"
 msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Max"
+msgstr ""
