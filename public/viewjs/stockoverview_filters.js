@@ -360,14 +360,12 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var container = $('<div class="col-12 col-md-6 col-xl-3" id="add-filter-container"></div>');
-        // Removed bg-light to better support night mode, used a plain border class if needed or rely on default card style
-        var card = $('<div class="card mb-2"><div class="card-body p-2 d-flex align-items-center"></div></div>');
+        var container = $('<div class="col-12 col-md-6 col-xl-3 mb-2" id="add-filter-container"></div>');
+        var group = $('<div class="input-group"></div>');
 
-        var label = $('<span class="mr-2 text-nowrap"><i class="fa-solid fa-plus"></i> ' + __t('Add filter') + '</span>');
+        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
 
-        // Remove 'form-control' to avoid input-group styles if any
-        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-outline-success" data-width="auto"></select>');
+        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-light rounded-right border-left-0" data-width="auto"></select>');
         select.append('<option value="">' + __t('Select a filter to add') + '</option>');
 
         var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
@@ -382,13 +380,19 @@ class StockOverviewFilters {
         select.append(stdGroup);
         if(ufGroup.children().length > 0) select.append(ufGroup);
 
-        card.find('.card-body').append(label).append(select);
-        container.append(card);
+        group.append(prepend);
+        group.append(select);
+        container.append(group);
 
         $('#table-filter-row').append(container);
 
         // Explicitly initialize
         select.selectpicker('render');
+
+        // Match the style of other input group filters
+        var wrapper = select.parent('.dropdown');
+        wrapper.css('flex-grow', '1');
+        wrapper.find('.btn.dropdown-toggle').addClass('rounded-0 rounded-right');
 
         var self = this;
         select.on('changed.bs.select', function() {
@@ -397,9 +401,27 @@ class StockOverviewFilters {
                  self.addFilter(val);
                  // Reset value and refresh
                  $(this).val('');
+                 self.updateAddFilterAvailability();
                  $(this).selectpicker('refresh');
             }
         });
+
+        this.addFilterSelect = select;
+    }
+
+    updateAddFilterAvailability() {
+        var activeIds = this.filters.map(f => f.id);
+        this.addFilterSelect.find('option').each(function() {
+            var val = $(this).val();
+            if (val === '') return;
+
+            if (activeIds.includes(val)) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+        this.addFilterSelect.selectpicker('refresh');
     }
 
     addFilter(filterId) {
@@ -476,6 +498,7 @@ class StockOverviewFilters {
             $('#container-' + filterId).remove();
 
             this.filters.splice(index, 1);
+            this.updateAddFilterAvailability();
             this.table.draw();
         }
     }

@@ -125,7 +125,7 @@
 </div>
 <div class="row collapse d-md-flex show"
 	id="table-filter-row">
-	<div class="col-12 col-md-6 col-xl-3 mb-3">
+	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group input-group-barcode-scanner">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-search"></i></span>
@@ -138,7 +138,7 @@
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
-	<div class="col-12 col-md-6 col-xl-3 mb-3">
+	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Location') }}</span>
@@ -153,7 +153,7 @@
 		</div>
 	</div>
 	@endif
-	<div class="col-12 col-md-6 col-xl-3 mb-3">
+	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product group') }}</span>
@@ -167,7 +167,7 @@
 			</select>
 		</div>
 	</div>
-	<div class="col-12 col-md-6 col-xl-3 mb-3">
+	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Status') }}</span>
