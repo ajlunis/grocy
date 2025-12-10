@@ -176,13 +176,15 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="status-filter">
+				<option value="instockX">{{ $__t('In stock products') }}</option>
+				<option value="outofstock">{{ $__t('Out of stock') }}</option>
+				<option data-divider="true"></option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
 				<option value="overdue">{{ $__t('Overdue') }}</option>
 				<option value="expired">{{ $__t('Expired') }}</option>
 				@endif
 				<option value="belowminstockamount">{{ $__t('Below min. stock amount') }}</option>
-				<option value="instockX">{{ $__t('In stock products') }}</option>
 			</select>
 		</div>
 	</div>
@@ -412,7 +414,7 @@
 								))
 								&&
 								$currentStockEntry->amount > 0) xxduesoonxx @endif
-								@if($currentStockEntry->amount_aggregated > 0) xxinstockXxx @endif
+								@if($currentStockEntry->amount_aggregated > 0) xxinstockXxx @else xxoutofstockxx @endif
 								@if ($currentStockEntry->product_missing) xxbelowminstockamountxx @endif
 					</td>
 					<td class="d-none">

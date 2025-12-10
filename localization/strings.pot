@@ -2524,3 +2524,9 @@ msgstr ""
 
 msgid "Max"
 msgstr ""
+
+msgid "Out of stock"
+msgstr ""
+
+msgid "No Group"
+msgstr ""

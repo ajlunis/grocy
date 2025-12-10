@@ -19,7 +19,7 @@ class StockOverviewFilters {
 
         // Convert existing filters using a CSS class fix for input-group integration
         this.convertExistingFilter('#location-filter', 'hidden-location', 'multiselect', __t('Location'));
-        this.convertExistingFilter('#product-group-filter', 'hidden-product-group', 'multiselect', __t('Product group'));
+        this.convertExistingFilter('#product-group-filter', 'hidden-product-group', 'multiselect', __t('Product Group'), __t('No Group'));
         this.convertExistingFilter('#status-filter', 'hidden-status', 'multiselect', __t('Status'));
 
         this.handleUrlParams();
@@ -28,6 +28,11 @@ class StockOverviewFilters {
         this.initClearFilterButton();
 
         this.setupDataTableSearch();
+
+        // Specific init for Status filter: default to "In stock" if no param
+        if (typeof GetUriParam("status") === "undefined") {
+            $("#status-filter").selectpicker('val', ['instockX']);
+        }
     }
 
     handleUrlParams() {
@@ -62,7 +67,15 @@ class StockOverviewFilters {
             for (var i = self.filters.length - 1; i >= 0; i--) {
                 var filter = self.filters[i];
                 if (filter.isPermanent) {
-                    filter.element.selectpicker('selectAll');
+                    if (filter.id === 'filter-hidden-status') {
+                         filter.element.selectpicker('val', ['instockX']);
+                    } else {
+                         filter.element.selectpicker('selectAll');
+                    }
+                    // Reset logic to OR
+                    if (filter.container) {
+                        filter.container.find('input[value="OR"]').prop('checked', true).trigger('change');
+                    }
                 } else {
                     self.removeFilter(filter.id);
                 }
@@ -135,35 +148,14 @@ class StockOverviewFilters {
         }
 
         var logic = 'OR';
-        if (filter.isDynamic) {
+        if (filter.container) {
              logic = filter.container.find('input[name="logic-' + filter.id + '"]:checked').val();
              if (!logic) logic = 'OR';
-        } else {
-             // Permanent filters don't have AND/OR logic yet, default OR
-             // If we add it later, we'd read it here
         }
 
-        if (filter.type === 'multiselect')
+        // Logic for Dynamic Multiselect (comma separated values)
+        if (filter.type === 'userfield-multiselect' || filter.isDynamic)
         {
-             for(var i=0; i<selectedValues.length; i++) {
-                 var val = selectedValues[i];
-
-                 if (val === '__grocy_not_set__') {
-                     if (!rawValue || rawValue === "" || rawValue === "xxxx") return true;
-                     continue;
-                 }
-
-                 var matchVal = "xx" + val + "xx";
-                 // Check if rawValue contains the wrapped ID/Value
-                 if (rawValue.indexOf(matchVal) !== -1) return true;
-                 // Fallback for exact match
-                 if (rawValue === val) return true;
-            }
-            return false;
-        }
-        else // userfield-multiselect or dynamic multiselect
-        {
-            // Split comma separated values
             var rowValues = rawValue.split(',').map(function(item) { return item.trim(); }).filter(i => i);
 
             if (selectedValues.includes('all')) return true;
@@ -184,24 +176,62 @@ class StockOverviewFilters {
                  // If filtering for "Not Set" in AND mode, the row must be empty
                  if (notSetSelected) {
                      if (!isRowEmpty) return false;
-                     // If we only selected "Not Set", and row is empty, it's a match
                      if (selectedValues.length === 1) return true;
                  }
 
-                 // Check if all selected values (except Not Set) are present
                  for(var i=0; i<selectedValues.length; i++) {
                      if (selectedValues[i] === '__grocy_not_set__') continue;
                      if (!rowValues.includes(selectedValues[i])) return false;
                  }
 
                  if (exact) {
-                     // Filter out Not Set from selected count for exact match comparison
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
                      if (rowValues.length !== selectedCount) return false;
                  }
 
                  return true;
             }
+        }
+        // Logic for Permanent Multiselect (Regex/Wrapper based: xxValuexx)
+        else
+        {
+             // Permanent filters don't support "Not set" logic mixed with values in the same way for now
+             // except for "Not set" being a specific value if provided.
+
+             // Handle "Not Set" special case if implemented for permanent filters
+             // Currently Product Group has "Not Set" mapped to empty string or special value
+
+             if (logic === 'OR') {
+                 for(var i=0; i<selectedValues.length; i++) {
+                     var val = selectedValues[i];
+
+                     if (val === '__grocy_not_set__') {
+                         if (!rawValue || rawValue === "" || rawValue === "xxxx") return true;
+                         continue;
+                     }
+
+                     var matchVal = "xx" + val + "xx";
+                     // Check if rawValue contains the wrapped ID/Value
+                     if (rawValue.indexOf(matchVal) !== -1) return true;
+                     // Fallback for exact match
+                     if (rawValue === val) return true;
+                }
+                return false;
+             } else if (logic === 'AND') {
+                 // For AND logic, all selected values must be present in the rawValue
+                 for(var i=0; i<selectedValues.length; i++) {
+                     var val = selectedValues[i];
+
+                     if (val === '__grocy_not_set__') {
+                          if (!(!rawValue || rawValue === "" || rawValue === "xxxx")) return false;
+                          continue;
+                     }
+
+                     var matchVal = "xx" + val + "xx";
+                     if (rawValue.indexOf(matchVal) === -1 && rawValue !== val) return false;
+                 }
+                 return true;
+             }
         }
         return true;
     }
@@ -266,12 +296,16 @@ class StockOverviewFilters {
         return true;
     }
 
-    convertExistingFilter(selector, columnName, type, caption) {
+    convertExistingFilter(selector, columnName, type, caption, nullOptionLabel) {
         var element = $(selector);
         var columnIndex = this.getColumnIndexByName(columnName);
 
-        if (columnName !== 'hidden-location' && element.find('option[value="__grocy_not_set__"]').length === 0) {
-             element.prepend('<option value="__grocy_not_set__">' + __t('Not set') + '</option>');
+        if (columnName !== 'hidden-location' && columnName !== 'hidden-status' && element.find('option[value="__grocy_not_set__"]').length === 0) {
+             var label = nullOptionLabel || __t('Not set');
+             if (nullOptionLabel) {
+                 element.prepend('<option data-divider="true"></option>');
+             }
+             element.prepend('<option value="__grocy_not_set__">' + label + '</option>');
         }
 
         element.off('change');
@@ -297,9 +331,13 @@ class StockOverviewFilters {
         });
         element.selectpicker('refresh');
 
+        // Locate the container (the column div)
+        var container = element.closest('.col-12');
+
         var filterObj = {
             id: 'filter-' + columnName,
             element: element,
+            container: container,
             columnIndex: columnIndex,
             type: type,
             caption: caption,
@@ -307,13 +345,99 @@ class StockOverviewFilters {
             isDynamic: false
         };
 
+        // Add Logic Controls for Status and Location
+        if (columnName === 'hidden-location' || columnName === 'hidden-status') {
+            this.addLogicControls(container, filterObj.id, false); // false = no exact match for regex columns
+        }
+
         this.filters.push(filterObj);
 
+        // Store initial value for tracking changes
+        element.data('lastVal', element.val() || []);
+
         var self = this;
-        element.on('changed.bs.select', function() {
+        element.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+
+            // Status Mutual Exclusivity Logic
+            if (columnName === 'hidden-status') {
+                 var logic = container.find('input[name="logic-' + filterObj.id + '"]:checked').val();
+
+                 if (logic === 'AND') {
+                     var currentVal = element.val() || [];
+                     var lastVal = element.data('lastVal') || [];
+
+                     // Determine what was added
+                     var added = currentVal.filter(x => !lastVal.includes(x));
+
+                     if (added.includes('instockX')) {
+                         if (currentVal.includes('outofstock')) {
+                              var newVal = currentVal.filter(v => v !== 'outofstock');
+                              setTimeout(function() { element.selectpicker('val', newVal); }, 0);
+                         }
+                     } else if (added.includes('outofstock')) {
+                         if (currentVal.includes('instockX')) {
+                              var newVal = currentVal.filter(v => v !== 'instockX');
+                              setTimeout(function() { element.selectpicker('val', newVal); }, 0);
+                         }
+                     }
+                 }
+            }
+
+            // Update lastVal for next event
+            element.data('lastVal', element.val() || []);
+
             self.table.draw();
         });
     }
+
+    addLogicControls(container, filterId, allowExactMatch) {
+         var logicDiv = $('<div class="mt-2 small d-flex align-items-center justify-content-end"></div>');
+         var name = 'logic-' + filterId;
+         var idOr = 'logic-' + filterId + '-or';
+         var idAnd = 'logic-' + filterId + '-and';
+
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">OR</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">AND</label></div>');
+
+         if (allowExactMatch) {
+             var idExact = 'logic-' + filterId + '-exact';
+             var exactDiv = $('<div class="form-check form-check-inline exact-match-container ml-2" style="display:none;"><input class="form-check-input exact-match-checkbox" type="checkbox" id="' + idExact + '"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Exact match') + '</label></div>');
+             logicDiv.append(exactDiv);
+         }
+
+         container.append(logicDiv);
+
+         var self = this;
+         logicDiv.find('input[type="radio"]').on('change', function() {
+             var val = $(this).val();
+             if (allowExactMatch) {
+                var exactDiv = logicDiv.find('.exact-match-container');
+                 if (val === 'AND') exactDiv.show();
+                 else exactDiv.hide();
+             }
+
+             // For Status filter: Enforce mutual exclusivity if switching to AND
+             if (filterId === 'filter-hidden-status' && val === 'AND') {
+                 var el = container.find('select');
+                 var currentVal = el.val() || [];
+                 if (currentVal.includes('instockX') && currentVal.includes('outofstock')) {
+                     // Default to In Stock, remove Out of Stock
+                      var newVal = currentVal.filter(v => v !== 'outofstock');
+                      el.selectpicker('val', newVal);
+                 }
+             }
+
+             // Trigger filter update
+             self.table.draw();
+         });
+
+         if (allowExactMatch) {
+             logicDiv.find('.exact-match-checkbox').on('change', function() {
+                 self.table.draw();
+             });
+         }
+    }
+
 
     getColumnIndexByName(name) {
         var index = -1;
@@ -706,30 +830,7 @@ class StockOverviewFilters {
 
         container.append(select);
 
-        if (filterDef.type === 'userfield-multiselect') {
-             var logicDiv = $('<div class="mt-2 small"></div>');
-             var name = 'logic-' + filterDef.id;
-             logicDiv.append('<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="' + name + '" value="OR" checked><label class="form-check-label">OR</label></div>');
-             logicDiv.append('<div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="' + name + '" value="AND"><label class="form-check-label">AND</label></div>');
-
-             var exactDiv = $('<div class="form-check form-check-inline exact-match-container" style="display:none;"><input class="form-check-input exact-match-checkbox" type="checkbox"><label class="form-check-label">' + __t('Exact match') + '</label></div>');
-
-             logicDiv.append(exactDiv);
-             container.append(logicDiv);
-
-             var self = this;
-             logicDiv.find('input[type="radio"]').on('change', function() {
-                 if ($(this).val() === 'AND') exactDiv.show();
-                 else exactDiv.hide();
-
-                 // Trigger filter update
-                 self.table.draw();
-             });
-
-             exactDiv.find('input').on('change', function() {
-                 self.table.draw();
-             });
-        }
+        this.addLogicControls(container, filterDef.id, true);
 
         return select;
     }
