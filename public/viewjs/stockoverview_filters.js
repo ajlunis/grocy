@@ -89,10 +89,27 @@ class StockOverviewFilters {
     }
 
     checkFilter(filter, settings, dataIndex) {
-        var cell = settings.aoData[dataIndex].anCells[filter.columnIndex];
-        var rawValue = $(cell).find('.custom-sort').text();
-        if(!rawValue) rawValue = $(cell).find('.userfield-raw-value').text();
-        if (!rawValue) rawValue = $(cell).text();
+        // Safe retrieval of cell data (HTML string) even if DOM nodes are not rendered (deferRender)
+        var rowData = settings.aoData[dataIndex]._aData;
+        var cellHtml = rowData[filter.columnIndex];
+
+        // Parse the HTML string to get text content
+        // We use a temporary DIV to let the browser handle parsing (stripping tags, decoding entities)
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cellHtml;
+
+        // Prioritize structured data if present
+        var customSort = tempDiv.querySelector('.custom-sort');
+        var userfieldRaw = tempDiv.querySelector('.userfield-raw-value');
+
+        var rawValue = "";
+        if (customSort) {
+            rawValue = customSort.textContent;
+        } else if (userfieldRaw) {
+            rawValue = userfieldRaw.textContent;
+        } else {
+            rawValue = tempDiv.textContent;
+        }
 
         rawValue = rawValue ? rawValue.trim() : "";
 

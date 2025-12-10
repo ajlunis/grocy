@@ -403,7 +403,7 @@
 							. ' days'
 							))
 							&&
-							$currentStockEntry->amount > 0) @if($currentStockEntry->due_type == 1) overdue @else expired @endif @elseif($currentStockEntry->best_before_date < date('Y-m-d
+							$currentStockEntry->amount > 0) @if($currentStockEntry->due_type == 1) xxoverduexx @else xxexpiredxx @endif @elseif($currentStockEntry->best_before_date < date('Y-m-d
 								23:59:59',
 								strtotime('+'
 								.
@@ -411,9 +411,9 @@
 								. ' days'
 								))
 								&&
-								$currentStockEntry->amount > 0) duesoon @endif
-								@if($currentStockEntry->amount_aggregated > 0) instockX @endif
-								@if ($currentStockEntry->product_missing) belowminstockamount @endif
+								$currentStockEntry->amount > 0) xxduesoonxx @endif
+								@if($currentStockEntry->amount_aggregated > 0) xxinstockXxx @endif
+								@if ($currentStockEntry->product_missing) xxbelowminstockamountxx @endif
 					</td>
 					<td class="d-none">
 						xx{{ $currentStockEntry->product_group_id }}xx
