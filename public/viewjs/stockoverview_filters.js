@@ -317,9 +317,11 @@ class StockOverviewFilters {
 
     getColumnIndexByName(name) {
         var index = -1;
-        $('#stock-overview-table thead th').each(function(i) {
-            if ($(this).data('filter-name') === name) {
-                index = i;
+        var self = this;
+        this.table.columns().every(function(colIdx) {
+            var header = this.header();
+            if ($(header).data('filter-name') === name) {
+                index = colIdx;
                 return false;
             }
         });
