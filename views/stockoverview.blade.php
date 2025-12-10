@@ -207,11 +207,11 @@
 					<th>{{ $__t('Amount') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Value') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) d-none @endif allow-grouping">{{ $__t('Next due date') }}</th>
-					<th class="d-none"
+					<th class="d-none" id="col-hidden-location"
 						data-filter-name="hidden-location">Hidden location</th>
-					<th class="d-none"
+					<th class="d-none" id="col-hidden-status"
 						data-filter-name="hidden-status">Hidden status</th>
-					<th class="d-none"
+					<th class="d-none" id="col-hidden-product-group"
 						data-filter-name="hidden-product-group">Hidden product group</th>
 					<th>{{ $__t('Calories') }} ({{ $__t('Per stock quantity unit') }})</th>
 					<th>{{ $__t('Calories') }}</th>
