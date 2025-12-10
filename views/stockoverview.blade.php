@@ -164,7 +164,7 @@
 			<select class="custom-control custom-select"
 				id="product-group-filter">
 				@foreach($productGroups as $productGroup)
-				<option value="{{ $productGroup->id }}">{{ $productGroup->name }}</option>
+				<option value="{{ $productGroup->name }}">{{ $productGroup->name }}</option>
 				@endforeach
 			</select>
 		</div>
@@ -416,7 +416,7 @@
 								@if ($currentStockEntry->product_missing) xxbelowminstockamountxx @endif
 					</td>
 					<td class="d-none">
-						xx{{ $currentStockEntry->product_group_id }}xx
+						xx{{ $currentStockEntry->product_group_name }}xx
 					</td>
 					<td>
 						<span class="custom-sort d-none">{{ $currentStockEntry->product_calories }}</span>
