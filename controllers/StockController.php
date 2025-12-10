@@ -140,11 +140,9 @@ class StockController extends BaseController
 		$userSettings = $usersService->GetUserSettings(GROCY_USER_ID);
 		$nextXDays = $userSettings['stock_due_soon_days'];
 
-		$where = 'is_in_stock_or_below_min_stock = 1';
-		if (boolval($userSettings['stock_overview_show_all_out_of_stock_products']))
-		{
-			$where = '1=1';
-		}
+		// Always return all products (in-stock, out-of-stock, below-min-stock)
+		// Filtering is now handled client-side by the Stock Overview Filters (including "Out of Stock" option)
+		$where = '1=1';
 
 		return $this->renderPage($response, 'stockoverview', [
 			'currentStock' => $this->getDatabase()->uihelper_stock_current_overview()->where($where),

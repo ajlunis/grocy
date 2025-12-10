@@ -159,7 +159,7 @@
 	<div class="col-12 col-md-6 col-xl-3 mb-2">
 		<div class="input-group">
 			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product group') }}</span>
+				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product Group') }}</span>
 			</div>
 			<select class="custom-control custom-select"
 				id="product-group-filter">
@@ -176,8 +176,8 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="status-filter">
-				<option value="instockX">{{ $__t('In stock products') }}</option>
-				<option value="outofstock">{{ $__t('Out of stock') }}</option>
+				<option value="instockX">{{ $__t('In Stock') }}</option>
+				<option value="outofstock">{{ $__t('Out of Stock') }}</option>
 				<option data-divider="true"></option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
