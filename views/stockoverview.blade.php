@@ -149,7 +149,6 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="location-filter">
-				<option value="all">{{ $__t('All') }}</option>
 				@foreach($locations as $location)
 				<option value="{{ $location->name }}">{{ $location->name }}</option>
 				@endforeach
@@ -164,7 +163,6 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="product-group-filter">
-				<option value="all">{{ $__t('All') }}</option>
 				@foreach($productGroups as $productGroup)
 				<option value="{{ $productGroup->id }}">{{ $productGroup->name }}</option>
 				@endforeach
@@ -178,8 +176,6 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="status-filter">
-				<option class="bg-white"
-					value="all">{{ $__t('All') }}</option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
 				<option value="overdue">{{ $__t('Overdue') }}</option>

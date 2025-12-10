@@ -62,7 +62,7 @@ class StockOverviewFilters {
             for (var i = self.filters.length - 1; i >= 0; i--) {
                 var filter = self.filters[i];
                 if (filter.isPermanent) {
-                    filter.element.selectpicker('val', 'all');
+                    filter.element.selectpicker('selectAll');
                 } else {
                     self.removeFilter(filter.id);
                 }
@@ -130,7 +130,6 @@ class StockOverviewFilters {
         {
              for(var i=0; i<selectedValues.length; i++) {
                  var val = selectedValues[i];
-                 if (val === 'all') return true;
 
                  if (val === '__grocy_not_set__') {
                      if (!rawValue || rawValue === "") return true;
@@ -255,7 +254,7 @@ class StockOverviewFilters {
         var columnIndex = this.getColumnIndexByName(columnName);
 
         if (columnName !== 'hidden-location' && element.find('option[value="__grocy_not_set__"]').length === 0) {
-             element.find('option[value="all"]').after('<option value="__grocy_not_set__">' + __t('Not set') + '</option>');
+             element.prepend('<option value="__grocy_not_set__">' + __t('Not set') + '</option>');
         }
 
         element.off('change');
@@ -272,6 +271,7 @@ class StockOverviewFilters {
         element.data('style', 'btn-light rounded-right border-left-0');
 
         element.selectpicker('render');
+        element.selectpicker('selectAll');
         element.on('loaded.bs.select', function (e) {
             // Force the dropdown wrapper to fill remaining space in the input group
             $(this).parent().addClass('flex-grow-1');
