@@ -149,7 +149,7 @@ class StockOverviewFilters {
                  var val = selectedValues[i];
 
                  if (val === '__grocy_not_set__') {
-                     if (!rawValue || rawValue === "") return true;
+                     if (!rawValue || rawValue === "" || rawValue === "xxxx") return true;
                      continue;
                  }
 
