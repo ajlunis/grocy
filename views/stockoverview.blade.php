@@ -1,3 +1,4 @@
+{{-- Force Update v6 --}}
 @php require_frontend_packages(['datatables', 'animatecss', 'bootstrap-select', 'tempusdominus']); @endphp
 
 @extends('layout.default')
