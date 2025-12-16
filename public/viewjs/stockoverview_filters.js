@@ -138,6 +138,12 @@ class StockOverviewFilters {
 
     checkMultiselect(filter, rawValue) {
         var selectedValues = filter.element.val();
+
+        // Specific fix for Status filter: If nothing is selected, show ALL (ignore filter)
+        if (filter.id === 'filter-hidden-status' && (!selectedValues || selectedValues.length === 0)) {
+            return true;
+        }
+
         if (!selectedValues || selectedValues.length === 0) {
              return false;
         }
@@ -303,9 +309,9 @@ class StockOverviewFilters {
              element.prepend('<option value="__grocy_not_set__">' + label + '</option>');
         }
 
-        if (columnName === 'hidden-location' && element.find('option[value="xxIsOutOfStockxx"]').length === 0) {
+        if (columnName === 'hidden-location' && element.find('option[value="IsOutOfStock"]').length === 0) {
             element.prepend('<option data-divider="true"></option>');
-            element.prepend('<option value="xxIsOutOfStockxx">' + __t('Out of Stock') + '</option>');
+            element.prepend('<option value="IsOutOfStock">' + __t('Out of Stock') + '</option>');
         }
 
         element.off('change');
@@ -833,7 +839,14 @@ class StockOverviewFilters {
         this.addLogicControls(container, filterDef.id, true);
 
         // Fix for dynamic selectpickers inside cards/containers
-        select.data('container', 'body');
+        select.selectpicker({
+            container: 'body',
+            liveSearch: true,
+            actionsBox: true,
+            showTick: true,
+            width: '100%',
+            style: 'btn-light'
+        });
         select.selectpicker('render');
 
         return select;
