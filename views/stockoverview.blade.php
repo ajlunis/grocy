@@ -108,6 +108,11 @@
     body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:active {
         color: #e1e1e1 !important;
     }
+
+    /* Force trash icon to be red in Night Mode */
+    body.night-mode .stock-overview-filter .card-header .btn-link {
+        color: #dc3545 !important;
+    }
 </style>
 @endpush
 
