@@ -176,9 +176,6 @@
 			</div>
 			<select class="custom-control custom-select"
 				id="status-filter">
-				<option value="instockX">{{ $__t('In Stock') }}</option>
-				<option value="outofstock">{{ $__t('Out of Stock') }}</option>
-				<option data-divider="true"></option>
 				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
 				<option value="duesoon">{{ $__t('Due soon') }}</option>
 				<option value="overdue">{{ $__t('Overdue') }}</option>
@@ -393,15 +390,11 @@
 							@if(!empty($currentStockEntry->best_before_date)) datetime="{{ $currentStockEntry->best_before_date }} 23:59:59" @endif></time>
 					</td>
 					<td class="d-none">
-						@php
-						$locationsForProduct = FindAllObjectsInArrayByPropertyValue($currentStockLocations, 'product_id', $currentStockEntry->product_id);
-						@endphp
-						@if(count($locationsForProduct) > 0)
-						@foreach($locationsForProduct as $locationForProduct)
-						xx{{ FindObjectInArrayByPropertyValue($locations, 'id', $locationForProduct->location_id)->name }}xx
+						@foreach(FindAllObjectsInArrayByPropertyValue($currentStockLocations, 'product_id', $currentStockEntry->product_id) as $locationsForProduct)
+						xx{{ FindObjectInArrayByPropertyValue($locations, 'id', $locationsForProduct->location_id)->name }}xx
 						@endforeach
-						@else
-						xx{{ $currentStockEntry->product_default_location_name }}xx
+						@if(count(FindAllObjectsInArrayByPropertyValue($currentStockLocations, 'product_id', $currentStockEntry->product_id)) == 0)
+						xxIsOutOfStockxx
 						@endif
 					</td>
 					<td class="d-none">

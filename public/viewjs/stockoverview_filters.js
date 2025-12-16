@@ -28,10 +28,6 @@ class StockOverviewFilters {
 
         this.setupDataTableSearch();
 
-        // Specific init for Status filter: default to "In stock" if no param
-        if (typeof GetUriParam("status") === "undefined") {
-            $("#status-filter").selectpicker('val', ['instockX']);
-        }
     }
 
     handleUrlParams() {
@@ -305,6 +301,11 @@ class StockOverviewFilters {
                  element.prepend('<option data-divider="true"></option>');
              }
              element.prepend('<option value="__grocy_not_set__">' + label + '</option>');
+        }
+
+        if (columnName === 'hidden-location' && element.find('option[value="xxIsOutOfStockxx"]').length === 0) {
+            element.prepend('<option data-divider="true"></option>');
+            element.prepend('<option value="xxIsOutOfStockxx">' + __t('Out of Stock') + '</option>');
         }
 
         element.off('change');
@@ -830,6 +831,10 @@ class StockOverviewFilters {
         container.append(select);
 
         this.addLogicControls(container, filterDef.id, true);
+
+        // Fix for dynamic selectpickers inside cards/containers
+        select.data('container', 'body');
+        select.selectpicker('render');
 
         return select;
     }
