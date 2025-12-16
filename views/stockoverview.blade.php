@@ -88,6 +88,26 @@
     #add-filter-button-wrapper .dropdown-toggle i {
         color: inherit !important;
     }
+
+    /* Override bootstrap-select placeholder color to match btn-outline-info */
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder {
+        color: #17a2b8 !important;
+    }
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:hover,
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:focus,
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:active {
+        color: #ffffff !important;
+    }
+
+    /* Night mode overrides for the placeholder */
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder {
+        color: #1ed1ee !important;
+    }
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:hover,
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:focus,
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:active {
+        color: #e1e1e1 !important;
+    }
 </style>
 @endpush
 
