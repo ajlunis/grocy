@@ -786,29 +786,35 @@ class StockOverviewFilters {
     }
 
     createCheckboxFilterUI(container) {
-        var select = $('<select class="custom-control custom-select w-100">' +
+        var select = $('<select class="selectpicker w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="checked">' + __t('Checked') + '</option>' +
             '<option value="unchecked">' + __t('Unchecked') + '</option>' +
             '</select>');
         container.append(select);
-        select.selectpicker('render');
+        select.selectpicker({
+            container: 'body',
+            style: 'btn-light'
+        });
         return select;
     }
 
     createSetNotSetFilterUI(container) {
-        var select = $('<select class="custom-control custom-select w-100">' +
+        var select = $('<select class="selectpicker w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="set">' + __t('Set') + '</option>' +
             '<option value="not-set">' + __t('Not set') + '</option>' +
             '</select>');
         container.append(select);
-        select.selectpicker('render');
+        select.selectpicker({
+            container: 'body',
+            style: 'btn-light'
+        });
         return select;
     }
 
     createMultiselectDynamicUI(container, filterDef, containerId) {
-        var select = $('<select class="custom-control custom-select w-100" multiple data-actions-box="true" data-width="100%"></select>');
+        var select = $('<select class="selectpicker w-100" multiple data-actions-box="true" data-width="100%"></select>');
 
         var uniqueValues = new Set();
         var hasEmptyValues = false;
@@ -845,18 +851,16 @@ class StockOverviewFilters {
         this.addLogicControls(container, filterDef.id, true);
 
         // Fix for dynamic selectpickers inside cards/containers
-        setTimeout(function() {
-            select.selectpicker({
-                container: 'body',
-                liveSearch: true,
-                actionsBox: true,
-                showTick: true,
-                width: '100%',
-                style: 'btn-light'
-            });
-            select.selectpicker('render');
-            select.selectpicker('selectAll');
-        }, 0);
+        select.selectpicker({
+            container: 'body',
+            liveSearch: true,
+            actionsBox: true,
+            showTick: true,
+            width: '100%',
+            style: 'btn-light'
+        });
+        select.selectpicker('render');
+        select.selectpicker('selectAll');
 
         return select;
     }
