@@ -265,49 +265,39 @@ function RefreshProductRow(productId)
 				productRow.addClass("table-info");
 			}
 
-			if (!BoolVal(Grocy.UserSettings.stock_overview_show_all_out_of_stock_products) && result.stock_amount == 0 && result.stock_amount_aggregated == 0 && result.product.min_stock_amount == 0)
+			animateCSS("#product-" + productId + "-row td:not(:first)", "flash");
+
+			$('#product-' + productId + '-qu-name').text(__n(result.stock_amount, result.quantity_unit_stock.name, result.quantity_unit_stock.name_plural, true));
+			$('#product-' + productId + '-amount').text(result.stock_amount);
+			$('#product-' + productId + '-consume-all-button').attr('data-consume-amount', result.stock_amount);
+			$('#product-' + productId + '-value').text(result.stock_value);
+			$('#product-' + productId + '-next-due-date').text(result.next_due_date);
+			$('#product-' + productId + '-next-due-date-timeago').attr('datetime', result.next_due_date);
+
+			var openedAmount = result.stock_amount_opened || 0;
+			if (openedAmount > 0)
 			{
-				animateCSS("#product-" + productId + "-row", "fadeOut", function()
-				{
-					$("#product-" + productId + "-row").addClass("d-none");
-				});
+				$('#product-' + productId + '-opened-amount').text(__t('%s opened', openedAmount));
 			}
 			else
 			{
-				animateCSS("#product-" + productId + "-row td:not(:first)", "flash");
+				$('#product-' + productId + '-opened-amount').text("");
+			}
 
-				$('#product-' + productId + '-qu-name').text(__n(result.stock_amount, result.quantity_unit_stock.name, result.quantity_unit_stock.name_plural, true));
-				$('#product-' + productId + '-amount').text(result.stock_amount);
-				$('#product-' + productId + '-consume-all-button').attr('data-consume-amount', result.stock_amount);
-				$('#product-' + productId + '-value').text(result.stock_value);
-				$('#product-' + productId + '-next-due-date').text(result.next_due_date);
-				$('#product-' + productId + '-next-due-date-timeago').attr('datetime', result.next_due_date);
+			if (result.stock_amount_aggregated == 0)
+			{
+				$(".product-consume-button[data-product-id='" + productId + "']").addClass("disabled");
+				$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
+			}
+			else
+			{
+				$(".product-consume-button[data-product-id='" + productId + "']").removeClass("disabled");
+				$(".product-open-button[data-product-id='" + productId + "']").removeClass("disabled");
+			}
 
-				var openedAmount = result.stock_amount_opened || 0;
-				if (openedAmount > 0)
-				{
-					$('#product-' + productId + '-opened-amount').text(__t('%s opened', openedAmount));
-				}
-				else
-				{
-					$('#product-' + productId + '-opened-amount').text("");
-				}
-
-				if (result.stock_amount_aggregated == 0)
-				{
-					$(".product-consume-button[data-product-id='" + productId + "']").addClass("disabled");
-					$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
-				}
-				else
-				{
-					$(".product-consume-button[data-product-id='" + productId + "']").removeClass("disabled");
-					$(".product-open-button[data-product-id='" + productId + "']").removeClass("disabled");
-				}
-
-				if (result.product.disable_open == 1)
-				{
-					$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
-				}
+			if (result.product.disable_open == 1)
+			{
+				$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
 			}
 
 			$('#product-' + productId + '-next-due-date').text(result.next_due_date);
