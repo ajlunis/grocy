@@ -393,9 +393,16 @@
 							@if(!empty($currentStockEntry->best_before_date)) datetime="{{ $currentStockEntry->best_before_date }} 23:59:59" @endif></time>
 					</td>
 					<td class="d-none">
-						@foreach(FindAllObjectsInArrayByPropertyValue($currentStockLocations, 'product_id', $currentStockEntry->product_id) as $locationsForProduct)
-						xx{{ FindObjectInArrayByPropertyValue($locations, 'id', $locationsForProduct->location_id)->name }}xx
+						@php
+						$locationsForProduct = FindAllObjectsInArrayByPropertyValue($currentStockLocations, 'product_id', $currentStockEntry->product_id);
+						@endphp
+						@if(count($locationsForProduct) > 0)
+						@foreach($locationsForProduct as $locationForProduct)
+						xx{{ FindObjectInArrayByPropertyValue($locations, 'id', $locationForProduct->location_id)->name }}xx
 						@endforeach
+						@else
+						xx{{ $currentStockEntry->product_default_location_name }}xx
+						@endif
 					</td>
 					<td class="d-none">
 						@if($currentStockEntry->best_before_date < date('Y-m-d
