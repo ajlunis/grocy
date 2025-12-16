@@ -800,6 +800,7 @@ class StockOverviewFilters {
             '</select>');
         container.append(select);
         select.selectpicker({
+            container: false,
             style: 'btn-light'
         });
         return select;
@@ -813,6 +814,7 @@ class StockOverviewFilters {
             '</select>');
         container.append(select);
         select.selectpicker({
+            container: false,
             style: 'btn-light'
         });
         return select;
@@ -857,6 +859,7 @@ class StockOverviewFilters {
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
+            container: false,
             liveSearch: true,
             actionsBox: true,
             showTick: true,
