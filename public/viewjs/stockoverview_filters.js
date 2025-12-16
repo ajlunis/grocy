@@ -121,7 +121,7 @@ class StockOverviewFilters {
 
         rawValue = rawValue ? rawValue.trim() : "";
 
-        if (filter.type === 'multiselect' || filter.type === 'userfield-multiselect') {
+        if (filter.type === 'multiselect' || filter.type === 'userfield-multiselect' || filter.type === 'multiselect-dynamic') {
             return this.checkMultiselect(filter, rawValue);
         } else if (filter.type === 'number' || filter.type === 'number-currency') {
             return this.checkNumber(filter, rawValue);
