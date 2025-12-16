@@ -1,5 +1,3 @@
-// Force Update v6
-
 /*
  * Stock Overview Filters Logic
  * Encapsulates the complex filtering logic including dynamic userfield filters
