@@ -1,4 +1,3 @@
-<?php // Force Update v6
 <?php
 
 namespace Grocy\Controllers;
