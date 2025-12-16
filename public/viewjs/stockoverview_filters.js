@@ -328,7 +328,16 @@ class StockOverviewFilters {
         element.data('style', 'btn-light rounded-right border-left-0');
 
         element.selectpicker('render');
-        element.selectpicker('selectAll');
+        if (columnName === 'hidden-status') {
+            element.selectpicker('deselectAll');
+        } else {
+            element.selectpicker('selectAll');
+            if (columnName === 'hidden-location') {
+                var currentVal = element.val();
+                var newVal = currentVal.filter(v => v !== 'IsOutOfStock');
+                element.selectpicker('val', newVal);
+            }
+        }
         element.on('loaded.bs.select', function (e) {
             // Force the dropdown wrapper to fill remaining space in the input group
             $(this).parent().addClass('flex-grow-1');
