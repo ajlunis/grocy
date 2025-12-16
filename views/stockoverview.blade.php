@@ -62,16 +62,26 @@
     }
 
     /* Add Filter Button Styling */
+    #add-filter-button-wrapper .dropdown {
+        width: auto !important;
+    }
+
     #add-filter-button-wrapper .dropdown-toggle {
         width: 38px !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    #add-filter-button-wrapper .dropdown-toggle::after {
+    #add-filter-button-wrapper .dropdown-toggle::after,
+    #add-filter-button-wrapper .btn.dropdown-toggle::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    #add-filter-button-wrapper .filter-option {
         display: none !important;
     }
 </style>

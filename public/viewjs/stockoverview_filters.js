@@ -548,8 +548,9 @@ class StockOverviewFilters {
                  // Reset value and refresh
                  // Use setTimeout to ensure the UI update loop finishes before we reset
                  setTimeout(function() {
-                     select.selectpicker('val', '');
+                     select.val('').selectpicker('refresh');
                      self.updateAddFilterAvailability();
+                     self.fixAddFilterButtonVisuals();
                  }, 50);
             }
         });
@@ -558,8 +559,15 @@ class StockOverviewFilters {
     fixAddFilterButtonVisuals() {
         if (!this.addFilterSelect) return;
         var btn = this.addFilterSelect.parent().find('.dropdown-toggle');
-        var iconHtml = '<i class="fa-solid fa-filter"></i><i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>';
-        btn.html(iconHtml).addClass('position-relative').css('overflow', 'visible');
+
+        // Ensure the visual icon element exists and is appended, NOT replacing content
+        if (btn.find('.custom-add-filter-icon').length === 0) {
+            var iconHtml = '<span class="custom-add-filter-icon">' +
+                '<i class="fa-solid fa-filter"></i>' +
+                '<i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>' +
+                '</span>';
+            btn.append(iconHtml).addClass('position-relative').css('overflow', 'visible');
+        }
     }
 
     updateAddFilterAvailability() {
@@ -620,7 +628,7 @@ class StockOverviewFilters {
         card.append(body);
         container.append(card);
 
-        $('#add-filter-container').before(container);
+        $('#table-filter-row').append(container);
 
         // Initialize any selectpickers in the new container
         container.find('.selectpicker').selectpicker();
