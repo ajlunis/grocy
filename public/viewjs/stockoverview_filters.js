@@ -537,9 +537,8 @@ class StockOverviewFilters {
         // Explicitly initialize
         select.selectpicker('render');
 
-        // Inject custom stacked icon HTML into the dropdown toggle button
-        var iconHtml = '<i class="fa-solid fa-filter"></i><i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>';
-        select.parent().find('.dropdown-toggle').html(iconHtml).addClass('position-relative').css('overflow', 'visible');
+        this.addFilterSelect = select;
+        this.fixAddFilterButtonVisuals();
 
         var self = this;
         select.on('changed.bs.select', function() {
@@ -547,13 +546,20 @@ class StockOverviewFilters {
             if (val) {
                  self.addFilter(val);
                  // Reset value and refresh
-                 $(this).val('');
-                 self.updateAddFilterAvailability();
-                 $(this).selectpicker('refresh');
+                 // Use setTimeout to ensure the UI update loop finishes before we reset
+                 setTimeout(function() {
+                     select.selectpicker('val', '');
+                     self.updateAddFilterAvailability();
+                 }, 50);
             }
         });
+    }
 
-        this.addFilterSelect = select;
+    fixAddFilterButtonVisuals() {
+        if (!this.addFilterSelect) return;
+        var btn = this.addFilterSelect.parent().find('.dropdown-toggle');
+        var iconHtml = '<i class="fa-solid fa-filter"></i><i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>';
+        btn.html(iconHtml).addClass('position-relative').css('overflow', 'visible');
     }
 
     updateAddFilterAvailability() {
@@ -569,6 +575,7 @@ class StockOverviewFilters {
             }
         });
         this.addFilterSelect.selectpicker('refresh');
+        this.fixAddFilterButtonVisuals();
     }
 
     addFilter(filterId) {

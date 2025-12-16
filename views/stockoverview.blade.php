@@ -60,6 +60,20 @@
         background-color: #181818;
         border: 1px solid #000000;
     }
+
+    /* Add Filter Button Styling */
+    #add-filter-button-wrapper .dropdown-toggle {
+        width: 38px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #add-filter-button-wrapper .dropdown-toggle::after {
+        display: none !important;
+    }
 </style>
 @endpush
 
