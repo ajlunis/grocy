@@ -45,6 +45,21 @@
     .stock-overview-filter .card-body {
         overflow: visible !important;
     }
+
+    /* Light Mode Scoped Styles */
+    body:not(.night-mode) .stock-overview-filter .card {
+        background-color: #f0f0f0;
+    }
+
+    body:not(.night-mode) .stock-overview-filter .card .card-header {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Night Mode Scoped Styles */
+    body.night-mode .stock-overview-filter .card {
+        background-color: #181818;
+        border: 1px solid #000000;
+    }
 </style>
 @endpush
 
