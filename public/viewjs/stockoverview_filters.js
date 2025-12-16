@@ -518,24 +518,34 @@ class StockOverviewFilters {
 
     initAddFilterButton() {
         var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-sm btn-outline-info" data-width="auto" data-dropdown-align-right="true" title=""></select>');
-        select.append('<option value="">' + __t('Select a filter to add') + '</option>');
 
-        var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
-        var ufGroup = $('<optgroup label="' + __t('Userfields') + '"></optgroup>');
-
+        var hasUserfields = false;
         this.availableFilters.forEach(function(f) {
-            var opt = $('<option></option>').val(f.id).text(f.caption);
-            if (f.isUserfield) ufGroup.append(opt);
-            else stdGroup.append(opt);
+            if (f.isUserfield) hasUserfields = true;
         });
 
-        select.append(stdGroup);
-        if(ufGroup.children().length > 0) select.append(ufGroup);
+        var self = this;
+        this.availableFilters.forEach(function(f) {
+            if (!f.isUserfield) {
+                select.append($('<option></option>').val(f.id).text(f.caption));
+            }
+        });
+
+        if (hasUserfields) {
+            select.append('<option data-divider="true"></option>');
+            this.availableFilters.forEach(function(f) {
+                if (f.isUserfield) {
+                    select.append($('<option></option>').val(f.id).text(f.caption));
+                }
+            });
+        }
 
         $('#add-filter-button-wrapper').append(select);
 
         // Explicitly initialize
         select.selectpicker('render');
+        select.val('');
+        select.selectpicker('refresh');
 
         this.addFilterSelect = select;
         this.fixAddFilterButtonVisuals();

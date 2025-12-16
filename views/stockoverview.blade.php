@@ -67,9 +67,9 @@
     }
 
     #add-filter-button-wrapper .dropdown-toggle {
-        width: 38px !important;
+        width: 34px !important;
         padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding-right: 3px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -83,6 +83,10 @@
 
     #add-filter-button-wrapper .filter-option {
         display: none !important;
+    }
+
+    #add-filter-button-wrapper .dropdown-toggle i {
+        color: inherit !important;
     }
 </style>
 @endpush
