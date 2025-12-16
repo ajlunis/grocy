@@ -644,7 +644,14 @@ class StockOverviewFilters {
 
         var self = this;
         // Bind change events including click for +/- buttons
-        container.find('input, select').on('change changed.bs.select keyup', function() {
+        // Use direct binding to the created element for robustness
+        if (filterObj.element) {
+            filterObj.element.on('change changed.bs.select keyup', function() {
+                self.table.draw();
+            });
+        }
+        // Also bind to any other inputs in the container (e.g. min/max inputs, logic radios)
+        container.find('input').on('change keyup', function() {
             self.table.draw();
         });
     }
@@ -793,7 +800,6 @@ class StockOverviewFilters {
             '</select>');
         container.append(select);
         select.selectpicker({
-            container: 'body',
             style: 'btn-light'
         });
         return select;
@@ -807,7 +813,6 @@ class StockOverviewFilters {
             '</select>');
         container.append(select);
         select.selectpicker({
-            container: 'body',
             style: 'btn-light'
         });
         return select;
@@ -852,7 +857,6 @@ class StockOverviewFilters {
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
-            container: 'body',
             liveSearch: true,
             actionsBox: true,
             showTick: true,

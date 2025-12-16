@@ -40,6 +40,11 @@
     .input-group {
         align-items: flex-end;
     }
+
+    .stock-overview-filter .card,
+    .stock-overview-filter .card-body {
+        overflow: visible !important;
+    }
 </style>
 @endpush
 
