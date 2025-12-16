@@ -517,12 +517,7 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var container = $('<div class="col-12 col-md-6 col-xl-3 mb-2" id="add-filter-container"></div>');
-        var group = $('<div class="input-group"></div>');
-
-        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
-
-        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-light rounded-right border-left-0" data-width="auto"></select>');
+        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-sm btn-outline-info" data-width="auto" data-dropdown-align-right="true" title=""></select>');
         select.append('<option value="">' + __t('Select a filter to add') + '</option>');
 
         var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
@@ -537,19 +532,14 @@ class StockOverviewFilters {
         select.append(stdGroup);
         if(ufGroup.children().length > 0) select.append(ufGroup);
 
-        group.append(prepend);
-        group.append(select);
-        container.append(group);
-
-        $('#table-filter-row').append(container);
+        $('#add-filter-button-wrapper').append(select);
 
         // Explicitly initialize
         select.selectpicker('render');
 
-        // Match the style of other input group filters
-        var wrapper = select.parent('.dropdown');
-        wrapper.css('flex-grow', '1');
-        wrapper.find('.btn.dropdown-toggle').addClass('rounded-0 rounded-right');
+        // Inject custom stacked icon HTML into the dropdown toggle button
+        var iconHtml = '<i class="fa-solid fa-filter"></i><i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>';
+        select.parent().find('.dropdown-toggle').html(iconHtml).addClass('position-relative').css('overflow', 'visible');
 
         var self = this;
         select.on('changed.bs.select', function() {
