@@ -840,23 +840,23 @@ class StockOverviewFilters {
             if(v) select.append($('<option></option>').val(v).text(v));
         });
 
-        select.selectpicker('val', []);
-        select.selectpicker('selectAll');
-
         container.append(select);
 
         this.addLogicControls(container, filterDef.id, true);
 
         // Fix for dynamic selectpickers inside cards/containers
-        select.selectpicker({
-            container: 'body',
-            liveSearch: true,
-            actionsBox: true,
-            showTick: true,
-            width: '100%',
-            style: 'btn-light'
-        });
-        select.selectpicker('render');
+        setTimeout(function() {
+            select.selectpicker({
+                container: 'body',
+                liveSearch: true,
+                actionsBox: true,
+                showTick: true,
+                width: '100%',
+                style: 'btn-light'
+            });
+            select.selectpicker('render');
+            select.selectpicker('selectAll');
+        }, 0);
 
         return select;
     }
