@@ -786,7 +786,7 @@ class StockOverviewFilters {
     }
 
     createCheckboxFilterUI(container) {
-        var select = $('<select class="custom-control custom-select selectpicker w-100">' +
+        var select = $('<select class="custom-control custom-select w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="checked">' + __t('Checked') + '</option>' +
             '<option value="unchecked">' + __t('Unchecked') + '</option>' +
@@ -797,7 +797,7 @@ class StockOverviewFilters {
     }
 
     createSetNotSetFilterUI(container) {
-        var select = $('<select class="custom-control custom-select selectpicker w-100">' +
+        var select = $('<select class="custom-control custom-select w-100">' +
             '<option value="all">' + __t('All') + '</option>' +
             '<option value="set">' + __t('Set') + '</option>' +
             '<option value="not-set">' + __t('Not set') + '</option>' +
@@ -808,7 +808,7 @@ class StockOverviewFilters {
     }
 
     createMultiselectDynamicUI(container, filterDef, containerId) {
-        var select = $('<select class="custom-control custom-select selectpicker w-100" multiple data-actions-box="true" data-width="100%"></select>');
+        var select = $('<select class="custom-control custom-select w-100" multiple data-actions-box="true" data-width="100%"></select>');
 
         var uniqueValues = new Set();
         var hasEmptyValues = false;
