@@ -30,6 +30,8 @@ Here's a list of the changes I've made:
     *   Fixed a scrollbar issue on the product overview.
     *   Refactored the product card modal.
     *   Removed the spoil rate from the product card.
+* 	**Fully Modular Filtering on the Stock Overview Page**
+* 	**And ***much*** more!**
 
 -----
 
