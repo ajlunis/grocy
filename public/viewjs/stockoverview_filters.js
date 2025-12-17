@@ -106,6 +106,10 @@ class StockOverviewFilters {
         var rowData = settings.aoData[dataIndex]._aData;
         var cellHtml = rowData[filter.columnIndex];
 
+        if (typeof cellHtml === 'undefined') {
+            return true;
+        }
+
         // Parse the HTML string to get text content
         // We use a temporary DIV to let the browser handle parsing (stripping tags, decoding entities)
         var tempDiv = document.createElement('div');
@@ -559,19 +563,23 @@ class StockOverviewFilters {
          this.addAvailableFilter('default-store', __t('Default store'), 'multiselect-dynamic', 19);
 
          var self = this;
-         $('#stock-overview-table thead th[data-userfield-name]').each(function(i, th) {
-             var name = $(th).data('userfield-name');
-             var type = $(th).data('userfield-type');
-             var caption = $(th).text();
+         // Use DataTables API to iterate columns to ensure correct index mapping
+         this.table.columns().every(function(index) {
+             var header = $(this.header());
+             var name = header.attr('data-userfield-name');
+             var type = header.attr('data-userfield-type');
+             var caption = header.text().trim();
 
-             self.availableFilters.push({
-                 id: 'userfield-' + name,
-                 caption: caption,
-                 type: self.mapUserfieldTypeToFilterType(type),
-                 columnIndex: self.table.column(th).index(),
-                 isUserfield: true,
-                 origType: type
-             });
+             if (name && type) {
+                 self.availableFilters.push({
+                     id: 'userfield-' + name,
+                     caption: caption,
+                     type: self.mapUserfieldTypeToFilterType(type),
+                     columnIndex: index,
+                     isUserfield: true,
+                     origType: type
+                 });
+             }
          });
     }
 
