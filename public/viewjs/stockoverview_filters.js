@@ -409,18 +409,20 @@ class StockOverviewFilters {
         element.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
             var currentVal = element.val() || [];
 
-            // Location: If IsOutOfStock is selected, hide logic controls and force OR
+            // Location: If IsOutOfStock is selected, disable AND/ONLY logic controls and force OR
             if (columnName === 'hidden-location') {
                 var logicContainer = container.find('.small.d-flex.align-items-center');
+                var logicRadios = logicContainer.find('input[value="AND"], input[value="AND_EXACT"]');
+                var radioOr = logicContainer.find('input[value="OR"]');
+
                 if (currentVal.includes('IsOutOfStock')) {
-                    logicContainer.addClass('d-none');
+                    logicRadios.prop('disabled', true);
                     // Force OR logic if not already set
-                    var radioOr = logicContainer.find('input[value="OR"]');
                     if (!radioOr.prop('checked')) {
                         radioOr.prop('checked', true).trigger('change');
                     }
                 } else {
-                    logicContainer.removeClass('d-none');
+                    logicRadios.prop('disabled', false);
                 }
             }
 
