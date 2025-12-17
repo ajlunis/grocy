@@ -905,9 +905,13 @@ class StockOverviewFilters {
             }
         });
 
-        select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not set')));
+        // Default Location is mandatory (NOT NULL in DB), so "Not set" is invalid.
+        // Default Store is optional, so "Not set" is valid.
+        if (filterDef.id !== 'default-location') {
+             select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not set')));
+        }
 
-        if (hasEmptyValues) {
+        if (hasEmptyValues && filterDef.id !== 'default-location') {
              select.append($('<option data-divider="true"></option>'));
         }
 
