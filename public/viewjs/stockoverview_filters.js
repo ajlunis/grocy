@@ -116,7 +116,15 @@ class StockOverviewFilters {
         var userfieldRaw = tempDiv.querySelector('.userfield-raw-value');
 
         var rawValue = "";
-        if (customSort) {
+        // Special extraction for Checkboxes: look for the check icon in the HTML
+        if (filter.type === 'checkbox') {
+             if (cellHtml.indexOf('fa-check') !== -1) {
+                 rawValue = "1";
+             } else {
+                 rawValue = "0";
+             }
+        }
+        else if (customSort) {
             rawValue = customSort.textContent;
         } else if (userfieldRaw) {
             rawValue = userfieldRaw.textContent;
@@ -271,14 +279,34 @@ class StockOverviewFilters {
 
     checkNumber(filter, rawValue) {
         var container = filter.container;
-        var minVal = parseFloat(container.find('.filter-min-value').val());
-        var maxVal = parseFloat(container.find('.filter-max-value').val());
+        var minInput = container.find('.filter-min-value').val();
+        var maxInput = container.find('.filter-max-value').val();
 
-        var cellValue = parseFloat(rawValue);
+        var minVal = parseFloat(minInput);
+        var maxVal = parseFloat(maxInput);
+
+        // Clean currency symbols and handle localized decimals if needed
+        // Assuming rawValue from userfield-raw-value or custom-sort is already standard float format (dot decimal)
+        // If it's coming from visible text, it might need cleanup
+        var cleanRaw = rawValue.replace(/[^0-9.\-]/g, '');
+        var cellValue = parseFloat(cleanRaw);
+
+        // Treat empty/NaN as 0 for comparison if filtering, OR handle "not set" logic explicitly?
+        // Usually, empty number fields are stored as NULL or 0.
         if (isNaN(cellValue)) cellValue = 0;
 
-        if (!isNaN(minVal) && cellValue < minVal) return false;
-        if (!isNaN(maxVal) && cellValue > maxVal) return false;
+        // If filtering for Not Set (conceptually), usually that means value is 0 or empty
+        // But here we are range filtering.
+
+        // If the user entered a Min value
+        if (!isNaN(minVal)) {
+             if (cellValue < minVal) return false;
+        }
+
+        // If the user entered a Max value
+        if (!isNaN(maxVal)) {
+             if (cellValue > maxVal) return false;
+        }
 
         return true;
     }
@@ -288,12 +316,17 @@ class StockOverviewFilters {
          var operator = container.find('.filter-operator').val();
          var valueStr = container.find('.filter-value').val(); // Localized string from input
 
+         // Clean up rawValue if it contains whitespace
+         rawValue = rawValue ? rawValue.trim() : "";
+
          if (operator === 'empty') return !rawValue || rawValue === "";
 
          if (!valueStr) return true;
 
-         // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD
-         var cellDate = moment(rawValue);
+         // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD from userfield-raw-value
+         // If it's not (e.g. from table text), it might be localized.
+         // We try to parse as ISO first.
+         var cellDate = moment(rawValue, [moment.ISO_8601, "YYYY-MM-DD", "YYYY-MM-DD HH:mm:ss"]);
          var filterDate = moment(valueStr, filter.dateFormat);
 
          if (!cellDate.isValid()) return false;
@@ -892,7 +925,16 @@ class StockOverviewFilters {
         colData.each(function(val, index) {
             var temp = document.createElement('div');
             temp.innerHTML = val;
-            var text = temp.textContent.trim();
+
+            // Prefer extracting from raw value hidden span if available
+            var userfieldRaw = temp.querySelector('.userfield-raw-value');
+            var text = "";
+
+            if (userfieldRaw) {
+                text = userfieldRaw.textContent.trim();
+            } else {
+                text = temp.textContent.trim();
+            }
 
             if (!text) hasEmptyValues = true;
 
@@ -908,7 +950,7 @@ class StockOverviewFilters {
         // Default Location is mandatory (NOT NULL in DB), so "Not set" is invalid.
         // Default Store is optional, so "Not set" is valid.
         if (filterDef.id !== 'default-location') {
-             select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not set')));
+             select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not Set'))); // Capitalized Set
         }
 
         if (hasEmptyValues && filterDef.id !== 'default-location') {
@@ -930,7 +972,7 @@ class StockOverviewFilters {
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
-            container: false,
+            container: 'body', // Fix layout issues
             liveSearch: true,
             actionsBox: true,
             showTick: true,
