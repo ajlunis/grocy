@@ -236,22 +236,16 @@ class StockOverviewFilters {
                  }
 
                  if (logic === 'AND_EXACT') {
-                     // Count occurrences of "xx" to estimate number of items in the cell
-                     // Each item is wrapped in xx...xx, so 2 "xx" per item.
-                     // But rawValue might be "xxItem1xxxxItem2xx".
-                     // Ideally we split by "xx" and filter empty strings.
-                     var parts = rawValue.split('xx').filter(p => p !== "" && p !== ", ");
-                     var rowCount = parts.length;
+                     // Robust parsing for Regex/Permanent filters (Location/Status)
+                     // Data format is "xxVal1xx  xxVal2xx" with potential whitespace/newlines/duplicates
+                     var cleanRaw = rawValue.replace(/\s+/g, '');
+                     var parts = cleanRaw.split('xx').filter(p => p !== "");
+                     var uniqueRowValues = new Set(parts);
 
-                     // Adjust for "Not Set" in selected values
+                     // Adjust selected count to ignore '__grocy_not_set__' if present
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
 
-                     // If "Not Set" is selected, we expect empty row? No, "Not Set" + "Value" logic is tricky.
-                     // Assuming "Only" means: The row contains EXACTLY the selected values.
-                     // If "Not Set" is selected, row should be empty. But if other values are selected too, it's a contradiction.
-                     // Let's assume standard values.
-
-                     if (rowCount !== selectedCount) return false;
+                     if (uniqueRowValues.size !== selectedCount) return false;
                  }
 
                  return true;
