@@ -66,11 +66,8 @@ class StockOverviewFilters {
                          filter.element.selectpicker('val', ['instockX']);
                     } else if (filter.id === 'filter-hidden-location') {
                          // Select all except "Out of Stock"
-                         var allOptions = [];
-                         filter.element.find('option').each(function() {
-                             allOptions.push($(this).val());
-                         });
-                         var defaults = allOptions.filter(v => v !== 'IsOutOfStock');
+                         var allOptions = filter.element.find('option').map(function() { return $(this).val(); }).get();
+                         var defaults = allOptions.filter(v => v && v !== 'IsOutOfStock');
                          filter.element.selectpicker('val', defaults);
                     } else {
                          filter.element.selectpicker('selectAll');
@@ -433,7 +430,7 @@ class StockOverviewFilters {
 
     addLogicControls(container, filterId, allowExactMatch) {
          // Do not show logic controls for single-value filters
-         if (filterId === 'filter-default-location' || filterId === 'filter-default-store') {
+         if (filterId === 'default-location' || filterId === 'default-store') {
              return;
          }
 
@@ -891,7 +888,7 @@ class StockOverviewFilters {
 
         // Hide logic controls for Default Location and Default Store
         // For Product Group, it's already handled (permanent filter), but if it were dynamic:
-        var hideLogic = (filterDef.id === 'filter-default-location' || filterDef.id === 'filter-default-store');
+        var hideLogic = (filterDef.id === 'default-location' || filterDef.id === 'default-store');
         if (!hideLogic) {
             this.addLogicControls(container, filterDef.id, true);
         }
