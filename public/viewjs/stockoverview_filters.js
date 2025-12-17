@@ -64,6 +64,14 @@ class StockOverviewFilters {
                 if (filter.isPermanent) {
                     if (filter.id === 'filter-hidden-status') {
                          filter.element.selectpicker('val', ['instockX']);
+                    } else if (filter.id === 'filter-hidden-location') {
+                         // Select all except "Out of Stock"
+                         var allOptions = [];
+                         filter.element.find('option').each(function() {
+                             allOptions.push($(this).val());
+                         });
+                         var defaults = allOptions.filter(v => v !== 'IsOutOfStock');
+                         filter.element.selectpicker('val', defaults);
                     } else {
                          filter.element.selectpicker('selectAll');
                     }
@@ -216,7 +224,7 @@ class StockOverviewFilters {
                      if (rawValue === val) return true;
                 }
                 return false;
-             } else if (logic === 'AND') {
+             } else if (logic === 'AND' || logic === 'AND_EXACT') {
                  // For AND logic, all selected values must be present in the rawValue
                  for(var i=0; i<selectedValues.length; i++) {
                      var val = selectedValues[i];
@@ -229,6 +237,26 @@ class StockOverviewFilters {
                      var matchVal = "xx" + val + "xx";
                      if (rawValue.indexOf(matchVal) === -1 && rawValue !== val) return false;
                  }
+
+                 if (logic === 'AND_EXACT') {
+                     // Count occurrences of "xx" to estimate number of items in the cell
+                     // Each item is wrapped in xx...xx, so 2 "xx" per item.
+                     // But rawValue might be "xxItem1xxxxItem2xx".
+                     // Ideally we split by "xx" and filter empty strings.
+                     var parts = rawValue.split('xx').filter(p => p !== "" && p !== ", ");
+                     var rowCount = parts.length;
+
+                     // Adjust for "Not Set" in selected values
+                     var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
+
+                     // If "Not Set" is selected, we expect empty row? No, "Not Set" + "Value" logic is tricky.
+                     // Assuming "Only" means: The row contains EXACTLY the selected values.
+                     // If "Not Set" is selected, row should be empty. But if other values are selected too, it's a contradiction.
+                     // Let's assume standard values.
+
+                     if (rowCount !== selectedCount) return false;
+                 }
+
                  return true;
              }
         }
@@ -360,7 +388,7 @@ class StockOverviewFilters {
 
         // Add Logic Controls for Status and Location
         if (columnName === 'hidden-location' || columnName === 'hidden-status') {
-            this.addLogicControls(container, filterObj.id, false); // false = no exact match for regex columns
+            this.addLogicControls(container, filterObj.id, true); // true = allow "Only" (exact match)
         }
 
         this.filters.push(filterObj);
