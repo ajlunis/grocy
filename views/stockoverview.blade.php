@@ -276,8 +276,8 @@
 					</th>
 					<th>{{ $__t('Product') }}</th>
 					<th class="allow-grouping">{{ $__t('Product group') }}</th>
-					<th>{{ $__t('Amount') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Value') }}</th>
+					<th data-filter-name="amount">{{ $__t('Amount') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="value">{{ $__t('Value') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) d-none @endif allow-grouping">{{ $__t('Next due date') }}</th>
 					<th class="d-none" id="col-hidden-location"
 						data-filter-name="hidden-location">Hidden location</th>
@@ -286,16 +286,16 @@
 					<th class="d-none" id="col-hidden-product-group"
 						data-filter-name="hidden-product-group">Hidden product group</th>
 					<th>{{ $__t('Calories') }} ({{ $__t('Per stock quantity unit') }})</th>
-					<th>{{ $__t('Calories') }}</th>
-					<th class="allow-grouping">{{ $__t('Last purchased') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Last price') }}</th>
-					<th class="allow-grouping">{{ $__t('Min. stock amount') }}</th>
+					<th data-filter-name="calories">{{ $__t('Calories') }}</th>
+					<th class="allow-grouping" data-filter-name="last-purchased">{{ $__t('Last purchased') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="last-price">{{ $__t('Last price') }}</th>
+					<th class="allow-grouping" data-filter-name="min-stock">{{ $__t('Min. stock amount') }}</th>
 					<th>{{ $__t('Product description') }}</th>
 					<th class="allow-grouping">{{ $__t('Parent product') }}</th>
-					<th class="allow-grouping">{{ $__t('Default location') }}</th>
+					<th class="allow-grouping" data-filter-name="default-location">{{ $__t('Default location') }}</th>
 					<th>{{ $__t('Product picture') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Average price') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif allow-grouping">{{ $__t('Default store') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="average-price">{{ $__t('Average price') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif allow-grouping" data-filter-name="default-store">{{ $__t('Default store') }}</th>
 
 					@include('components.userfields_thead', array(
 					'userfields' => $userfields

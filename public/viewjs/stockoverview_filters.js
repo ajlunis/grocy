@@ -502,23 +502,20 @@ class StockOverviewFilters {
              return;
          }
 
-         var logicDiv = $('<div class="mt-2 small d-flex align-items-center justify-content-end"></div>');
+         var wrapper = $('<div class="mt-2 btn-group btn-group-toggle btn-group-sm w-100" data-toggle="buttons"></div>');
          var name = 'logic-' + filterId;
-         var idOr = 'logic-' + filterId + '-or';
-         var idAnd = 'logic-' + filterId + '-and';
-         var idExact = 'logic-' + filterId + '-exact';
 
-         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">' + __t('Any') + '</label></div>');
-         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">' + __t('All') + '</label></div>');
+         wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="OR" checked>' + __t('Any') + '</label>');
+         wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="AND">' + __t('All') + '</label>');
 
          if (allowExactMatch) {
-             logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idExact + '" value="AND_EXACT"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Only') + '</label></div>');
+             wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="AND_EXACT">' + __t('Only') + '</label>');
          }
 
-         container.append(logicDiv);
+         container.append(wrapper);
 
          var self = this;
-         logicDiv.find('input[type="radio"]').on('change', function() {
+         wrapper.find('input[type="radio"]').on('change', function() {
              var val = $(this).val();
 
              // For Status filter: Enforce mutual exclusivity if switching to AND or AND_EXACT
@@ -552,33 +549,33 @@ class StockOverviewFilters {
     }
 
     loadAvailableFilters() {
-         this.addAvailableFilter('amount', __t('Amount'), 'number', 3);
-         this.addAvailableFilter('value', __t('Value'), 'number-currency', 4);
-         this.addAvailableFilter('calories', __t('Calories'), 'number', 10);
-         this.addAvailableFilter('last-purchased', __t('Last purchased'), 'date', 11);
-         this.addAvailableFilter('last-price', __t('Last price'), 'number-currency', 12);
-         this.addAvailableFilter('min-stock', __t('Min. stock amount'), 'number', 13);
-         this.addAvailableFilter('average-price', __t('Average price'), 'number-currency', 18);
-         this.addAvailableFilter('default-location', __t('Default location'), 'multiselect-dynamic', 16);
-         this.addAvailableFilter('default-store', __t('Default store'), 'multiselect-dynamic', 19);
-
          var self = this;
+
          // Use DataTables API to iterate columns to ensure correct index mapping
          this.table.columns().every(function(index) {
              var header = $(this.header());
-             var name = header.attr('data-userfield-name');
-             var type = header.attr('data-userfield-type');
+             var userfieldName = header.attr('data-userfield-name');
+             var userfieldType = header.attr('data-userfield-type');
+             var filterName = header.attr('data-filter-name');
              var caption = header.text().trim();
 
-             if (name && type) {
+             if (userfieldName && userfieldType) {
                  self.availableFilters.push({
-                     id: 'userfield-' + name,
+                     id: 'userfield-' + userfieldName,
                      caption: caption,
-                     type: self.mapUserfieldTypeToFilterType(type),
+                     type: self.mapUserfieldTypeToFilterType(userfieldType),
                      columnIndex: index,
                      isUserfield: true,
-                     origType: type
+                     origType: userfieldType
                  });
+             } else if (filterName) {
+                 // Dynamic Built-in Filters
+                 var type = 'number'; // Default
+                 if (filterName === 'value' || filterName === 'last-price' || filterName === 'average-price') type = 'number-currency';
+                 if (filterName === 'last-purchased') type = 'date';
+                 if (filterName === 'default-location' || filterName === 'default-store') type = 'multiselect-dynamic';
+
+                 self.addAvailableFilter(filterName, caption, type, index);
              }
          });
     }
@@ -980,12 +977,24 @@ class StockOverviewFilters {
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
-            container: 'body', // Fix layout issues
+            container: 'body', // Fix layout issues (overflowing cards)
             liveSearch: true,
             actionsBox: true,
             showTick: true,
             width: '100%',
-            style: 'btn-light'
+            style: 'btn-light',
+            // Ensure dropdown menu width is constrained when attached to body
+            dropdownAlignRight: 'auto'
+        });
+
+        // Add listener to constrain width on show
+        select.on('shown.bs.select', function() {
+            var menu = $('body').find('.dropdown-menu.show').last();
+            var button = $(this).parent().find('.dropdown-toggle');
+            if (menu.length && button.length) {
+                menu.css('min-width', button.outerWidth() + 'px');
+                menu.css('max-width', '400px'); // Reasonable max width for filters
+            }
         });
         select.selectpicker('render');
         select.selectpicker('selectAll');
