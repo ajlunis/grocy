@@ -977,24 +977,12 @@ class StockOverviewFilters {
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
-            container: 'body', // Fix layout issues (overflowing cards)
+            container: false, // Rely on CSS overflow:visible
             liveSearch: true,
             actionsBox: true,
             showTick: true,
             width: '100%',
-            style: 'btn-light',
-            // Ensure dropdown menu width is constrained when attached to body
-            dropdownAlignRight: 'auto'
-        });
-
-        // Add listener to constrain width on show
-        select.on('shown.bs.select', function() {
-            var menu = $('body').find('.dropdown-menu.show').last();
-            var button = $(this).parent().find('.dropdown-toggle');
-            if (menu.length && button.length) {
-                menu.css('min-width', button.outerWidth() + 'px');
-                menu.css('max-width', '400px'); // Reasonable max width for filters
-            }
+            style: 'btn-light'
         });
         select.selectpicker('render');
         select.selectpicker('selectAll');
