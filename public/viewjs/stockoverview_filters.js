@@ -245,9 +245,6 @@ class StockOverviewFilters {
                      // Adjust selected count to ignore '__grocy_not_set__' if present
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
 
-                     // Adjust selected count to ignore '__grocy_not_set__' if present
-                     var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
-
                      // Determine Ignorable Values for Status filter
                      var ignorableValues = ['__grocy_not_set__'];
                      if (filter.id === 'filter-hidden-status') {
