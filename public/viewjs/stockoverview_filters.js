@@ -171,9 +171,7 @@ class StockOverviewFilters {
                      if (rowValues.includes(selectedValues[i])) return true;
                  }
                  return false;
-            } else if (logic === 'AND') {
-                 var exact = filter.container.find('.exact-match-checkbox').is(':checked');
-
+            } else if (logic === 'AND' || logic === 'AND_EXACT') {
                  // If filtering for "Not Set" in AND mode, the row must be empty
                  if (notSetSelected) {
                      if (!isRowEmpty) return false;
@@ -185,7 +183,7 @@ class StockOverviewFilters {
                      if (!rowValues.includes(selectedValues[i])) return false;
                  }
 
-                 if (exact) {
+                 if (logic === 'AND_EXACT') {
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
                      if (rowValues.length !== selectedCount) return false;
                  }
@@ -406,18 +404,22 @@ class StockOverviewFilters {
     }
 
     addLogicControls(container, filterId, allowExactMatch) {
+         // Do not show logic controls for single-value filters
+         if (filterId === 'filter-default-location' || filterId === 'filter-default-store') {
+             return;
+         }
+
          var logicDiv = $('<div class="mt-2 small d-flex align-items-center justify-content-end"></div>');
          var name = 'logic-' + filterId;
          var idOr = 'logic-' + filterId + '-or';
          var idAnd = 'logic-' + filterId + '-and';
+         var idExact = 'logic-' + filterId + '-exact';
 
-         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">OR</label></div>');
-         logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">AND</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">' + __t('Any') + '</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">' + __t('All') + '</label></div>');
 
          if (allowExactMatch) {
-             var idExact = 'logic-' + filterId + '-exact';
-             var exactDiv = $('<div class="form-check form-check-inline exact-match-container ml-2" style="display:none;"><input class="form-check-input exact-match-checkbox" type="checkbox" id="' + idExact + '"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Exact match') + '</label></div>');
-             logicDiv.append(exactDiv);
+             logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idExact + '" value="AND_EXACT"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Only') + '</label></div>');
          }
 
          container.append(logicDiv);
@@ -425,14 +427,9 @@ class StockOverviewFilters {
          var self = this;
          logicDiv.find('input[type="radio"]').on('change', function() {
              var val = $(this).val();
-             if (allowExactMatch) {
-                var exactDiv = logicDiv.find('.exact-match-container');
-                 if (val === 'AND') exactDiv.show();
-                 else exactDiv.hide();
-             }
 
-             // For Status filter: Enforce mutual exclusivity if switching to AND
-             if (filterId === 'filter-hidden-status' && val === 'AND') {
+             // For Status filter: Enforce mutual exclusivity if switching to AND or AND_EXACT
+             if (filterId === 'filter-hidden-status' && (val === 'AND' || val === 'AND_EXACT')) {
                  var el = container.find('select');
                  var currentVal = el.val() || [];
                  if (currentVal.includes('instockX') && currentVal.includes('outofstock')) {
@@ -445,12 +442,6 @@ class StockOverviewFilters {
              // Trigger filter update
              self.table.draw();
          });
-
-         if (allowExactMatch) {
-             logicDiv.find('.exact-match-checkbox').on('change', function() {
-                 self.table.draw();
-             });
-         }
     }
 
 
@@ -870,7 +861,12 @@ class StockOverviewFilters {
 
         container.append(select);
 
-        this.addLogicControls(container, filterDef.id, true);
+        // Hide logic controls for Default Location and Default Store
+        // For Product Group, it's already handled (permanent filter), but if it were dynamic:
+        var hideLogic = (filterDef.id === 'filter-default-location' || filterDef.id === 'filter-default-store');
+        if (!hideLogic) {
+            this.addLogicControls(container, filterDef.id, true);
+        }
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
