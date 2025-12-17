@@ -245,7 +245,25 @@ class StockOverviewFilters {
                      // Adjust selected count to ignore '__grocy_not_set__' if present
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
 
-                     if (uniqueRowValues.size !== selectedCount) return false;
+                     // Adjust selected count to ignore '__grocy_not_set__' if present
+                     var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
+
+                     // Determine Ignorable Values for Status filter
+                     var ignorableValues = ['__grocy_not_set__'];
+                     if (filter.id === 'filter-hidden-status') {
+                         ignorableValues.push('instockX');
+                         ignorableValues.push('outofstock');
+                     }
+
+                     // Check each row value
+                     var iterator = uniqueRowValues.values();
+                     for (var val of iterator) {
+                         if (selectedValues.includes(val)) continue;
+                         if (ignorableValues.includes(val)) continue;
+                         return false; // Found a non-selected, non-ignorable value -> Mismatch
+                     }
+
+                     return true;
                  }
 
                  return true;
@@ -389,13 +407,28 @@ class StockOverviewFilters {
 
         var self = this;
         element.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+            var currentVal = element.val() || [];
+
+            // Location: If IsOutOfStock is selected, hide logic controls and force OR
+            if (columnName === 'hidden-location') {
+                var logicContainer = container.find('.small.d-flex.align-items-center');
+                if (currentVal.includes('IsOutOfStock')) {
+                    logicContainer.addClass('d-none');
+                    // Force OR logic if not already set
+                    var radioOr = logicContainer.find('input[value="OR"]');
+                    if (!radioOr.prop('checked')) {
+                        radioOr.prop('checked', true).trigger('change');
+                    }
+                } else {
+                    logicContainer.removeClass('d-none');
+                }
+            }
 
             // Status Mutual Exclusivity Logic
             if (columnName === 'hidden-status') {
                  var logic = container.find('input[name="logic-' + filterObj.id + '"]:checked').val();
 
                  if (logic === 'AND') {
-                     var currentVal = element.val() || [];
                      var lastVal = element.data('lastVal') || [];
 
                      // Determine what was added
@@ -420,6 +453,11 @@ class StockOverviewFilters {
 
             self.table.draw();
         });
+
+        // Trigger initial check for Location logic visibility
+        if (columnName === 'hidden-location') {
+             element.trigger('changed.bs.select');
+        }
     }
 
     addLogicControls(container, filterId, allowExactMatch) {
