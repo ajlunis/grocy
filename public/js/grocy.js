@@ -589,6 +589,10 @@ $(document).on("hidden.bs.modal", function(e)
 		$("body").addClass("modal-open");
 		$("body").css("overflow", "hidden");
 	}
+	else
+	{
+		$("body").css("overflow", "");
+	}
 });
 $("body").children().each(function(index, child)
 {

@@ -265,7 +265,7 @@
 <div class="row">
 	<div class="col">
 		<table id="stock-overview-table"
-			class="table table-sm table-striped nowrap w-100">
+			class="table table-sm table-striped table-bordered nowrap w-100">
 			<thead>
 				<tr>
 					<th class="border-right"><a class="text-muted change-table-columns-visibility-button"
