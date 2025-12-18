@@ -123,12 +123,14 @@
     /* Fix Any/All/Only alignment in filters */
     #table-filter-row .form-check-inline,
     .stock-overview-filter .form-check-inline {
-        align-items: baseline !important;
+        display: flex !important;
+        align-items: center !important;
     }
 
     #table-filter-row .form-check-input,
     .stock-overview-filter .form-check-input {
-        margin-top: 0.25rem !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 </style>
 @endpush

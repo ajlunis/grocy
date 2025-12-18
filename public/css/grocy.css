@@ -299,8 +299,8 @@ a:not([href]) {
 }
 
 .dropdown-menu {
-	max-height: 100vh;
-	overflow-y: auto;
+	/* max-height: 100vh; */
+	/* overflow-y: auto; */
 }
 
 .btn.dropdown-toggle:after {
@@ -565,10 +565,4 @@ html {
 .input-group > .dropdown.bootstrap-select .dropdown-toggle {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-}
-
-/* Fix double scrollbars for bootstrap-select (which has an .inner scroller) */
-.dropdown-menu:has(.inner) {
-    overflow-y: hidden !important;
-    max-height: none !important;
 }
