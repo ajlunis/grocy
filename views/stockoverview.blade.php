@@ -121,10 +121,12 @@
     }
 
     /* Fix Any/All/Only alignment in filters */
+    #table-filter-row .form-check-inline,
     .stock-overview-filter .form-check-inline {
         align-items: baseline !important;
     }
 
+    #table-filter-row .form-check-input,
     .stock-overview-filter .form-check-input {
         margin-top: 0.25rem !important;
     }

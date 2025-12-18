@@ -566,3 +566,9 @@ html {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
+
+/* Fix double scrollbars for bootstrap-select (which has an .inner scroller) */
+.dropdown-menu:has(.inner) {
+    overflow-y: hidden !important;
+    max-height: none !important;
+}
