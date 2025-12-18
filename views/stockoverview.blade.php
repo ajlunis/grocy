@@ -113,6 +113,21 @@
     body.night-mode .stock-overview-filter .card-header .btn-link {
         color: #dc3545 !important;
     }
+
+    /* Fix double scrollbar on Add Filter dropdown (overrides global grocy.css) */
+    #add-filter-button-wrapper .dropdown-menu {
+        overflow-y: hidden !important;
+        max-height: none !important;
+    }
+
+    /* Fix Any/All/Only alignment in filters */
+    .stock-overview-filter .form-check-inline {
+        align-items: baseline !important;
+    }
+
+    .stock-overview-filter .form-check-input {
+        margin-top: 0.25rem !important;
+    }
 </style>
 @endpush
 

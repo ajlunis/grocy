@@ -605,7 +605,7 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-sm btn-outline-info" data-width="auto" data-dropdown-align-right="true" title=""></select>');
+        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-sm btn-outline-info" data-width="auto" data-dropdown-align-right="true" data-container="false" title=""></select>');
 
         var hasUserfields = false;
         this.availableFilters.forEach(function(f) {
