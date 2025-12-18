@@ -344,7 +344,7 @@ class StockOverviewFilters {
     }
 
     checkCheckbox(filter, rawValue) {
-        var val = filter.element.val();
+        var val = filter.element.filter(':checked').val();
         if (val === 'all') return true;
 
         var boolVal = (rawValue == "1");
@@ -357,7 +357,7 @@ class StockOverviewFilters {
     }
 
     checkSetNotSet(filter, rawValue) {
-        var val = filter.element.val();
+        var val = filter.element.filter(':checked').val();
         if (val === 'all') return true;
 
         if (val === 'set') return (rawValue && rawValue.length > 0);
@@ -893,31 +893,27 @@ class StockOverviewFilters {
     }
 
     createCheckboxFilterUI(container) {
-        var select = $('<select class="selectpicker w-100">' +
-            '<option value="all">' + __t('All') + '</option>' +
-            '<option value="checked">' + __t('Checked') + '</option>' +
-            '<option value="unchecked">' + __t('Unchecked') + '</option>' +
-            '</select>');
-        container.append(select);
-        select.selectpicker({
-            container: false,
-            style: 'btn-light'
-        });
-        return select;
+        var wrapper = $('<div class="btn-group btn-group-toggle w-100" data-toggle="buttons"></div>');
+        var name = 'checkbox-filter-' + Date.now(); // Unique name per instance
+
+        wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="all" checked>' + __t('All') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="checked">' + __t('Checked') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="unchecked">' + __t('Unchecked') + '</label>');
+
+        container.append(wrapper);
+        return wrapper.find('input');
     }
 
     createSetNotSetFilterUI(container) {
-        var select = $('<select class="selectpicker w-100">' +
-            '<option value="all">' + __t('All') + '</option>' +
-            '<option value="set">' + __t('Set') + '</option>' +
-            '<option value="not-set">' + __t('Not set') + '</option>' +
-            '</select>');
-        container.append(select);
-        select.selectpicker({
-            container: false,
-            style: 'btn-light'
-        });
-        return select;
+        var wrapper = $('<div class="btn-group btn-group-toggle w-100" data-toggle="buttons"></div>');
+        var name = 'set-notset-filter-' + Date.now(); // Unique name per instance
+
+        wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="all" checked>' + __t('All') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="set">' + __t('Set') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="not-set">' + __t('Not Set') + '</label>');
+
+        container.append(wrapper);
+        return wrapper.find('input');
     }
 
     createMultiselectDynamicUI(container, filterDef, containerId) {
