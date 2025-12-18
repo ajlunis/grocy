@@ -502,20 +502,23 @@ class StockOverviewFilters {
              return;
          }
 
-         var wrapper = $('<div class="mt-2 btn-group btn-group-toggle btn-group-sm w-100" data-toggle="buttons"></div>');
+         var logicDiv = $('<div class="mt-2 small d-flex align-items-center justify-content-end"></div>');
          var name = 'logic-' + filterId;
+         var idOr = 'logic-' + filterId + '-or';
+         var idAnd = 'logic-' + filterId + '-and';
+         var idExact = 'logic-' + filterId + '-exact';
 
-         wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="OR" checked>' + __t('Any') + '</label>');
-         wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="AND">' + __t('All') + '</label>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">' + __t('Any') + '</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">' + __t('All') + '</label></div>');
 
          if (allowExactMatch) {
-             wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="AND_EXACT">' + __t('Only') + '</label>');
+             logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idExact + '" value="AND_EXACT"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Only') + '</label></div>');
          }
 
-         container.append(wrapper);
+         container.append(logicDiv);
 
          var self = this;
-         wrapper.find('input[type="radio"]').on('change', function() {
+         logicDiv.find('input[type="radio"]').on('change', function() {
              var val = $(this).val();
 
              // For Status filter: Enforce mutual exclusivity if switching to AND or AND_EXACT
