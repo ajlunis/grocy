@@ -395,6 +395,7 @@ class StockOverviewFilters {
         // Ensure width is auto to allow flexbox resizing
         element.data('width', 'auto');
         element.data('style', 'btn-light rounded-right border-left-0');
+        element.data('selected-text-format', 'count > 1');
 
         element.selectpicker('render');
         if (columnName === 'hidden-status') {
@@ -981,7 +982,8 @@ class StockOverviewFilters {
             actionsBox: true,
             showTick: true,
             width: '100%',
-            style: 'btn-light'
+            style: 'btn-light',
+            selectedTextFormat: 'count > 1'
         });
         select.selectpicker('render');
         select.selectpicker('selectAll');
