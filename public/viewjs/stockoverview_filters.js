@@ -396,6 +396,7 @@ class StockOverviewFilters {
         element.data('width', 'auto');
         element.data('style', 'btn-light rounded-right border-left-0');
         element.data('selected-text-format', 'count > 1');
+        element.data('container', false);
 
         element.selectpicker('render');
         if (columnName === 'hidden-status') {
@@ -733,6 +734,10 @@ class StockOverviewFilters {
         container.append(card);
 
         $('#table-filter-row').append(container);
+
+        if (!$('#table-filter-row').hasClass('show')) {
+            $('#table-filter-row').collapse('show');
+        }
 
         // Initialize any selectpickers in the new container
         container.find('.selectpicker').selectpicker();
