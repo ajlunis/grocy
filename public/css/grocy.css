@@ -299,8 +299,6 @@ a:not([href]) {
 }
 
 .dropdown-menu {
-	/* max-height: 100vh; */
-	/* overflow-y: auto; */
 }
 
 .btn.dropdown-toggle:after {

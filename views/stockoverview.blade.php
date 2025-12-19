@@ -125,6 +125,7 @@
     .stock-overview-filter .form-check-inline {
         display: flex !important;
         align-items: center !important;
+        margin-top: 0 !important; /* Override grocy.css mobile margin */
     }
 
     #table-filter-row .form-check-input,
