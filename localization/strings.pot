@@ -2482,3 +2482,51 @@ msgstr ""
 
 msgid "Links without a protocol (http:// or https://) are considered relative URLs."
 msgstr ""
+
+msgid "Add filter"
+msgstr ""
+
+msgid "Select a filter to add"
+msgstr ""
+
+msgid "Standard"
+msgstr ""
+
+msgid "Not set"
+msgstr ""
+
+msgid "Before"
+msgstr ""
+
+msgid "After"
+msgstr ""
+
+msgid "Presets"
+msgstr ""
+
+msgid "In the last week"
+msgstr ""
+
+msgid "In the last month"
+msgstr ""
+
+msgid "In the last year"
+msgstr ""
+
+msgid "Over a year ago"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Max"
+msgstr ""
+
+msgid "Out of stock"
+msgstr ""
+
+msgid "No Group"
+msgstr ""
