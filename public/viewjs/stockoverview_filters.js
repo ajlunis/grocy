@@ -573,6 +573,11 @@ class StockOverviewFilters {
                      origType: userfieldType
                  });
              } else if (filterName) {
+                 // Ignore hidden columns that are used for permanent filters
+                 if (filterName === 'hidden-location' || filterName === 'hidden-status' || filterName === 'hidden-product-group') {
+                     return;
+                 }
+
                  // Dynamic Built-in Filters
                  var type = 'number'; // Default
                  if (filterName === 'value' || filterName === 'last-price' || filterName === 'average-price') type = 'number-currency';
@@ -970,7 +975,7 @@ class StockOverviewFilters {
 
         // Hide logic controls for Default Location and Default Store
         // For Product Group, it's already handled (permanent filter), but if it were dynamic:
-        var hideLogic = (filterDef.id === 'default-location' || filterDef.id === 'default-store');
+        var hideLogic = (filterDef.id === 'default-location' || filterDef.id === 'default-store' || filterDef.origType === 'preset-list');
         if (!hideLogic) {
             this.addLogicControls(container, filterDef.id, true);
         }
