@@ -184,6 +184,27 @@
             word-wrap: break-word;
         }
     }
+        /* Fix 1: Min/Max Vertical Alignment (No Wrapping) */
+        .stock-overview-filter .card-body > .d-flex {
+            align-items: center !important; /* Force vertical centering */
+            flex-wrap: nowrap !important;   /* Prevent wrapping as requested */
+        }
+        
+        /* Remove stray margins that cause height jumps */
+        .stock-overview-filter .card-body > .d-flex .input-group,
+        .stock-overview-filter .card-body > .d-flex span {
+            margin-bottom: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        /* Fix 2: Calendar Picker Overflow */
+        .bootstrap-datetimepicker-widget.dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            max-width: 90vw !important;
+            width: auto !important;
+        }
+	
 </style>
 @endpush
 
