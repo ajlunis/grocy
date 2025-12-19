@@ -133,6 +133,34 @@
         margin-top: 0 !important;
         margin-bottom: 0 !important;
     }
+
+    /* FIX: Search Bar Height Mismatch */
+    #table-filter-row .input-group-barcode-scanner {
+        align-items: stretch !important;
+    }
+
+    /* FIX: Mobile Dropdown Overflow */
+    /* Target dropdowns in the filter row and dynamic cards */
+    #table-filter-row .dropdown-menu,
+    .stock-overview-filter .dropdown-menu {
+        white-space: normal !important;   /* Allow text to wrap */
+        max-width: 100% !important;       /* Constrain to parent (button) width */
+        min-width: 100% !important;       /* Ensure it fills the button width */
+    }
+
+    /* Ensure the text inside wraps */
+    #table-filter-row .dropdown-menu .dropdown-item,
+    .stock-overview-filter .dropdown-menu .dropdown-item {
+        white-space: normal !important;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
+
+    /* Inner text span fix */
+    #table-filter-row .dropdown-menu .dropdown-item .text,
+    .stock-overview-filter .dropdown-menu .dropdown-item .text {
+        white-space: normal !important;
+    }
 </style>
 @endpush
 
