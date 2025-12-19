@@ -161,6 +161,29 @@
     .stock-overview-filter .dropdown-menu .dropdown-item .text {
         white-space: normal !important;
     }
+
+    /* Fix 'Add Filter' dropdown horizontal overflow on mobile */
+    @media (max-width: 768px) {
+        #add-filter-button-wrapper .dropdown-menu {
+            /* Reset positioning constraints */
+            left: auto !important;
+            right: 0 !important;
+            transform: none !important; /* Stop JS from calculating left/top transform */
+            top: 100% !important;       /* Force it below the button */
+
+            /* Sizing */
+            min-width: 300px !important; /* Ensure it's not too narrow */
+            max-width: 90vw !important;  /* Ensure it fits on screen */
+            width: auto !important;
+
+            white-space: normal !important;
+        }
+
+        #add-filter-button-wrapper .dropdown-menu .dropdown-item {
+            white-space: normal !important;
+            word-wrap: break-word;
+        }
+    }
 </style>
 @endpush
 
