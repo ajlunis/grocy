@@ -45,6 +45,94 @@
     .stock-overview-filter .card-body {
         overflow: visible !important;
     }
+
+    /* Light Mode Scoped Styles */
+    body:not(.night-mode) .stock-overview-filter .card {
+        background-color: #f0f0f0;
+    }
+
+    body:not(.night-mode) .stock-overview-filter .card .card-header {
+        background-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Night Mode Scoped Styles */
+    body.night-mode .stock-overview-filter .card {
+        background-color: #181818;
+        border: 1px solid #000000;
+    }
+
+    /* Add Filter Button Styling */
+    #add-filter-button-wrapper .dropdown {
+        width: auto !important;
+    }
+
+    #add-filter-button-wrapper .dropdown-toggle {
+        width: 34px !important;
+        padding-left: 0 !important;
+        padding-right: 3px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    #add-filter-button-wrapper .dropdown-toggle::after,
+    #add-filter-button-wrapper .btn.dropdown-toggle::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    #add-filter-button-wrapper .filter-option {
+        display: none !important;
+    }
+
+    #add-filter-button-wrapper .dropdown-toggle i {
+        color: inherit !important;
+    }
+
+    /* Override bootstrap-select placeholder color to match btn-outline-info */
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder {
+        color: #17a2b8 !important;
+    }
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:hover,
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:focus,
+    #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:active {
+        color: #ffffff !important;
+    }
+
+    /* Night mode overrides for the placeholder */
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder {
+        color: #1ed1ee !important;
+    }
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:hover,
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:focus,
+    body.night-mode #add-filter-button-wrapper .dropdown-toggle.bs-placeholder:active {
+        color: #e1e1e1 !important;
+    }
+
+    /* Force trash icon to be red in Night Mode */
+    body.night-mode .stock-overview-filter .card-header .btn-link {
+        color: #dc3545 !important;
+    }
+
+    /* Fix double scrollbar on Add Filter dropdown (overrides global grocy.css) */
+    #add-filter-button-wrapper .dropdown-menu {
+        overflow-y: hidden !important;
+        max-height: none !important;
+    }
+
+    /* Fix Any/All/Only alignment in filters */
+    #table-filter-row .form-check-inline,
+    .stock-overview-filter .form-check-inline {
+        display: flex !important;
+        align-items: center !important;
+        margin-top: 0 !important; /* Override grocy.css mobile margin */
+    }
+
+    #table-filter-row .form-check-input,
+    .stock-overview-filter .form-check-input {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
 </style>
 @endpush
 
@@ -116,6 +204,8 @@
 				data-status-filter="belowminstockamount"
 				class="normal-message status-filter-message responsive-button"></div>
 			<div class="float-right mt-1 @if($embedded) pr-5 @endif">
+				<div class="d-inline-block position-relative mr-1"
+					id="add-filter-button-wrapper"></div>
 				<a class="btn btn-sm btn-outline-info d-md-none"
 					data-toggle="collapse"
 					href="#table-filter-row"
@@ -195,7 +285,7 @@
 <div class="row">
 	<div class="col">
 		<table id="stock-overview-table"
-			class="table table-sm table-striped nowrap w-100">
+			class="table table-sm table-striped table-bordered nowrap w-100">
 			<thead>
 				<tr>
 					<th class="border-right"><a class="text-muted change-table-columns-visibility-button"
@@ -206,8 +296,8 @@
 					</th>
 					<th>{{ $__t('Product') }}</th>
 					<th class="allow-grouping">{{ $__t('Product group') }}</th>
-					<th>{{ $__t('Amount') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Value') }}</th>
+					<th data-filter-name="amount">{{ $__t('Amount') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="value">{{ $__t('Value') }}</th>
 					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) d-none @endif allow-grouping">{{ $__t('Next due date') }}</th>
 					<th class="d-none" id="col-hidden-location"
 						data-filter-name="hidden-location">Hidden location</th>
@@ -216,16 +306,16 @@
 					<th class="d-none" id="col-hidden-product-group"
 						data-filter-name="hidden-product-group">Hidden product group</th>
 					<th>{{ $__t('Calories') }} ({{ $__t('Per stock quantity unit') }})</th>
-					<th>{{ $__t('Calories') }}</th>
-					<th class="allow-grouping">{{ $__t('Last purchased') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Last price') }}</th>
-					<th class="allow-grouping">{{ $__t('Min. stock amount') }}</th>
+					<th data-filter-name="calories">{{ $__t('Calories') }}</th>
+					<th class="allow-grouping" data-filter-name="last-purchased">{{ $__t('Last purchased') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="last-price">{{ $__t('Last price') }}</th>
+					<th class="allow-grouping" data-filter-name="min-stock">{{ $__t('Min. stock amount') }}</th>
 					<th>{{ $__t('Product description') }}</th>
 					<th class="allow-grouping">{{ $__t('Parent product') }}</th>
-					<th class="allow-grouping">{{ $__t('Default location') }}</th>
+					<th class="allow-grouping" data-filter-name="default-location">{{ $__t('Default location') }}</th>
 					<th>{{ $__t('Product picture') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif">{{ $__t('Average price') }}</th>
-					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif allow-grouping">{{ $__t('Default store') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif" data-filter-name="average-price">{{ $__t('Average price') }}</th>
+					<th class="@if(!GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING) d-none @endif allow-grouping" data-filter-name="default-store">{{ $__t('Default store') }}</th>
 
 					@include('components.userfields_thead', array(
 					'userfields' => $userfields
@@ -238,19 +328,6 @@
 				<tr id="product-{{ $currentStockEntry->product_id }}-row"
 					class="@if(GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING && $currentStockEntry->best_before_date < date('Y-m-d 23:59:59', strtotime('-1 days')) && $currentStockEntry->amount > 0) @if($currentStockEntry->due_type == 1) table-secondary @else table-danger @endif @elseif(GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING && $currentStockEntry->best_before_date < date('Y-m-d 23:59:59', strtotime('+' . $nextXDays . ' days')) && $currentStockEntry->amount > 0) table-warning @elseif ($currentStockEntry->product_missing) table-info @endif">
 					<td class="fit-content border-right">
-						@if(GROCY_FEATURE_FLAG_STOCK_PRODUCT_OPENED_TRACKING)
-						<a class="btn btn-success btn-sm product-open-button @if($currentStockEntry->amount_aggregated < $currentStockEntry->quick_open_amount || $currentStockEntry->amount_aggregated == $currentStockEntry->amount_opened_aggregated || $currentStockEntry->enable_tare_weight_handling == 1 || $currentStockEntry->disable_open == 1) disabled @endif"
-							href="#"
-							data-toggle="tooltip"
-							data-placement="left"
-							title="{{ $__t('Mark %1$s of %2$s as open', $currentStockEntry->quick_open_amount_qu_consume . ' ' . $currentStockEntry->qu_consume_name, $currentStockEntry->product_name) }}"
-							data-product-id="{{ $currentStockEntry->product_id }}"
-							data-product-name="{{ $currentStockEntry->product_name }}"
-							data-product-qu-name="{{ $currentStockEntry->qu_stock_name }}"
-							data-open-amount="{{ $currentStockEntry->quick_open_amount }}">
-							<i class="fa-solid fa-box-open"></i> <span class="locale-number locale-number-quantity-amount">{{ $currentStockEntry->quick_open_amount_qu_consume }}</span>
-						</a>
-						@endif
 						<div class="dropdown d-inline-block">
 							<button class="btn btn-sm btn-light text-secondary"
 								type="button"

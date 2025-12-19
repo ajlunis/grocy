@@ -119,55 +119,6 @@ $(document).on('click', '.product-consume-button', function(e)
 	);
 });
 
-$(document).on('click', '.product-open-button', function(e)
-{
-	e.preventDefault();
-
-	Grocy.FrontendHelpers.BeginUiBusy();
-
-	var productId = $(e.currentTarget).attr('data-product-id');
-	var productName = $(e.currentTarget).attr('data-product-name');
-	var productQuName = $(e.currentTarget).attr('data-product-qu-name');
-	var amount = Number.parseFloat($(e.currentTarget).attr('data-open-amount'));
-	var button = $(e.currentTarget);
-
-	Grocy.Api.Post('stock/products/' + productId + '/open', { 'amount': amount, 'allow_subproduct_substitution': true },
-		function(bookingResponse)
-		{
-			Grocy.Api.Get('stock/products/' + productId,
-				function(result)
-				{
-					if (result.stock_amount == result.stock_amount_opened)
-					{
-						button.addClass("disabled");
-					}
-
-					Grocy.FrontendHelpers.EndUiBusy();
-					toastr.success(__t('Marked %1$s of %2$s as opened', amount.toLocaleString({ minimumFractionDigits: 0, maximumFractionDigits: Grocy.UserSettings.stock_decimal_places_amounts }) + " " + productQuName, productName) + '<br><a class="btn btn-secondary btn-sm mt-2" href="#" onclick="UndoStockTransaction(\'' + bookingResponse[0].transaction_id + '\')"><i class="fa-solid fa-undo"></i> ' + __t("Undo") + '</a>');
-
-					if (result.product.move_on_open == 1 && result.default_consume_location != null)
-					{
-						toastr.info('<span>' + __t("Moved to %1$s", result.default_consume_location.name) + "</span> <i class='fa-solid fa-exchange-alt'></i>");
-					}
-
-					RefreshStatistics();
-					RefreshProductRow(productId);
-				},
-				function(xhr)
-				{
-					Grocy.FrontendHelpers.EndUiBusy();
-					console.error(xhr);
-				}
-			);
-		},
-		function(xhr)
-		{
-			Grocy.FrontendHelpers.EndUiBusy();
-			console.error(xhr);
-		}
-	);
-});
-
 function RefreshStatistics()
 {
 	Grocy.Api.Get('stock',
@@ -287,17 +238,10 @@ function RefreshProductRow(productId)
 			if (result.stock_amount_aggregated == 0)
 			{
 				$(".product-consume-button[data-product-id='" + productId + "']").addClass("disabled");
-				$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
 			}
 			else
 			{
 				$(".product-consume-button[data-product-id='" + productId + "']").removeClass("disabled");
-				$(".product-open-button[data-product-id='" + productId + "']").removeClass("disabled");
-			}
-
-			if (result.product.disable_open == 1)
-			{
-				$(".product-open-button[data-product-id='" + productId + "']").addClass("disabled");
 			}
 
 			$('#product-' + productId + '-next-due-date').text(result.next_due_date);

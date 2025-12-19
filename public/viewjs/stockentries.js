@@ -221,7 +221,8 @@ function RefreshStockEntryRow(stockRowId)
 				$('#stock-' + stockRowId + '-due-date').text(result.best_before_date);
 				$('#stock-' + stockRowId + '-due-date-timeago').attr('datetime', result.best_before_date + ' 23:59:59');
 
-				$(".stock-consume-button").attr('data-location-id', result.location_id);
+				$('#stock-' + stockRowId + '-row .stock-consume-button').attr('data-location-id', result.location_id);
+				$('#stock-' + stockRowId + '-row .stock-consume-button').attr('data-consume-amount', result.amount);
 
 				var locationName = "";
 				Grocy.Api.Get("objects/locations/" + result.location_id,

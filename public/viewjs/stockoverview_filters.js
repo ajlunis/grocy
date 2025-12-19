@@ -64,6 +64,11 @@ class StockOverviewFilters {
                 if (filter.isPermanent) {
                     if (filter.id === 'filter-hidden-status') {
                          filter.element.selectpicker('val', ['instockX']);
+                    } else if (filter.id === 'filter-hidden-location') {
+                         // Select all except "Out of Stock"
+                         var allOptions = filter.element.find('option').map(function() { return $(this).val(); }).get();
+                         var defaults = allOptions.filter(v => v && v !== 'IsOutOfStock');
+                         filter.element.selectpicker('val', defaults);
                     } else {
                          filter.element.selectpicker('selectAll');
                     }
@@ -101,6 +106,10 @@ class StockOverviewFilters {
         var rowData = settings.aoData[dataIndex]._aData;
         var cellHtml = rowData[filter.columnIndex];
 
+        if (typeof cellHtml === 'undefined') {
+            return true;
+        }
+
         // Parse the HTML string to get text content
         // We use a temporary DIV to let the browser handle parsing (stripping tags, decoding entities)
         var tempDiv = document.createElement('div');
@@ -111,7 +120,15 @@ class StockOverviewFilters {
         var userfieldRaw = tempDiv.querySelector('.userfield-raw-value');
 
         var rawValue = "";
-        if (customSort) {
+        // Special extraction for Checkboxes: look for the check icon in the HTML
+        if (filter.type === 'checkbox') {
+             if (cellHtml.indexOf('fa-check') !== -1) {
+                 rawValue = "1";
+             } else {
+                 rawValue = "0";
+             }
+        }
+        else if (customSort) {
             rawValue = customSort.textContent;
         } else if (userfieldRaw) {
             rawValue = userfieldRaw.textContent;
@@ -171,9 +188,7 @@ class StockOverviewFilters {
                      if (rowValues.includes(selectedValues[i])) return true;
                  }
                  return false;
-            } else if (logic === 'AND') {
-                 var exact = filter.container.find('.exact-match-checkbox').is(':checked');
-
+            } else if (logic === 'AND' || logic === 'AND_EXACT') {
                  // If filtering for "Not Set" in AND mode, the row must be empty
                  if (notSetSelected) {
                      if (!isRowEmpty) return false;
@@ -185,7 +200,7 @@ class StockOverviewFilters {
                      if (!rowValues.includes(selectedValues[i])) return false;
                  }
 
-                 if (exact) {
+                 if (logic === 'AND_EXACT') {
                      var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
                      if (rowValues.length !== selectedCount) return false;
                  }
@@ -218,7 +233,7 @@ class StockOverviewFilters {
                      if (rawValue === val) return true;
                 }
                 return false;
-             } else if (logic === 'AND') {
+             } else if (logic === 'AND' || logic === 'AND_EXACT') {
                  // For AND logic, all selected values must be present in the rawValue
                  for(var i=0; i<selectedValues.length; i++) {
                      var val = selectedValues[i];
@@ -231,6 +246,35 @@ class StockOverviewFilters {
                      var matchVal = "xx" + val + "xx";
                      if (rawValue.indexOf(matchVal) === -1 && rawValue !== val) return false;
                  }
+
+                 if (logic === 'AND_EXACT') {
+                     // Robust parsing for Regex/Permanent filters (Location/Status)
+                     // Data format is "xxVal1xx  xxVal2xx" with potential whitespace/newlines/duplicates
+                     var cleanRaw = rawValue.replace(/\s+/g, '');
+                     var parts = cleanRaw.split('xx').filter(p => p !== "");
+                     var uniqueRowValues = new Set(parts);
+
+                     // Adjust selected count to ignore '__grocy_not_set__' if present
+                     var selectedCount = selectedValues.filter(v => v !== '__grocy_not_set__').length;
+
+                     // Determine Ignorable Values for Status filter
+                     var ignorableValues = ['__grocy_not_set__'];
+                     if (filter.id === 'filter-hidden-status') {
+                         ignorableValues.push('instockX');
+                         ignorableValues.push('outofstock');
+                     }
+
+                     // Check each row value
+                     var iterator = uniqueRowValues.values();
+                     for (var val of iterator) {
+                         if (selectedValues.includes(val)) continue;
+                         if (ignorableValues.includes(val)) continue;
+                         return false; // Found a non-selected, non-ignorable value -> Mismatch
+                     }
+
+                     return true;
+                 }
+
                  return true;
              }
         }
@@ -239,14 +283,34 @@ class StockOverviewFilters {
 
     checkNumber(filter, rawValue) {
         var container = filter.container;
-        var minVal = parseFloat(container.find('.filter-min-value').val());
-        var maxVal = parseFloat(container.find('.filter-max-value').val());
+        var minInput = container.find('.filter-min-value').val();
+        var maxInput = container.find('.filter-max-value').val();
 
-        var cellValue = parseFloat(rawValue);
+        var minVal = parseFloat(minInput);
+        var maxVal = parseFloat(maxInput);
+
+        // Clean currency symbols and handle localized decimals if needed
+        // Assuming rawValue from userfield-raw-value or custom-sort is already standard float format (dot decimal)
+        // If it's coming from visible text, it might need cleanup
+        var cleanRaw = rawValue.replace(/[^0-9.\-]/g, '');
+        var cellValue = parseFloat(cleanRaw);
+
+        // Treat empty/NaN as 0 for comparison if filtering, OR handle "not set" logic explicitly?
+        // Usually, empty number fields are stored as NULL or 0.
         if (isNaN(cellValue)) cellValue = 0;
 
-        if (!isNaN(minVal) && cellValue < minVal) return false;
-        if (!isNaN(maxVal) && cellValue > maxVal) return false;
+        // If filtering for Not Set (conceptually), usually that means value is 0 or empty
+        // But here we are range filtering.
+
+        // If the user entered a Min value
+        if (!isNaN(minVal)) {
+             if (cellValue < minVal) return false;
+        }
+
+        // If the user entered a Max value
+        if (!isNaN(maxVal)) {
+             if (cellValue > maxVal) return false;
+        }
 
         return true;
     }
@@ -256,12 +320,17 @@ class StockOverviewFilters {
          var operator = container.find('.filter-operator').val();
          var valueStr = container.find('.filter-value').val(); // Localized string from input
 
+         // Clean up rawValue if it contains whitespace
+         rawValue = rawValue ? rawValue.trim() : "";
+
          if (operator === 'empty') return !rawValue || rawValue === "";
 
          if (!valueStr) return true;
 
-         // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD
-         var cellDate = moment(rawValue);
+         // rawValue is expected to be ISO string YYYY-MM-DD HH:mm:ss or YYYY-MM-DD from userfield-raw-value
+         // If it's not (e.g. from table text), it might be localized.
+         // We try to parse as ISO first.
+         var cellDate = moment(rawValue, [moment.ISO_8601, "YYYY-MM-DD", "YYYY-MM-DD HH:mm:ss"]);
          var filterDate = moment(valueStr, filter.dateFormat);
 
          if (!cellDate.isValid()) return false;
@@ -275,7 +344,7 @@ class StockOverviewFilters {
     }
 
     checkCheckbox(filter, rawValue) {
-        var val = filter.element.val();
+        var val = filter.element.filter(':checked').val();
         if (val === 'all') return true;
 
         var boolVal = (rawValue == "1");
@@ -288,7 +357,7 @@ class StockOverviewFilters {
     }
 
     checkSetNotSet(filter, rawValue) {
-        var val = filter.element.val();
+        var val = filter.element.filter(':checked').val();
         if (val === 'all') return true;
 
         if (val === 'set') return (rawValue && rawValue.length > 0);
@@ -326,6 +395,7 @@ class StockOverviewFilters {
         // Ensure width is auto to allow flexbox resizing
         element.data('width', 'auto');
         element.data('style', 'btn-light rounded-right border-left-0');
+        element.data('selected-text-format', 'count > 1');
 
         element.selectpicker('render');
         if (columnName === 'hidden-status') {
@@ -362,7 +432,7 @@ class StockOverviewFilters {
 
         // Add Logic Controls for Status and Location
         if (columnName === 'hidden-location' || columnName === 'hidden-status') {
-            this.addLogicControls(container, filterObj.id, false); // false = no exact match for regex columns
+            this.addLogicControls(container, filterObj.id, true); // true = allow "Only" (exact match)
         }
 
         this.filters.push(filterObj);
@@ -372,13 +442,30 @@ class StockOverviewFilters {
 
         var self = this;
         element.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+            var currentVal = element.val() || [];
+
+            // Location: If IsOutOfStock is selected, disable AND/ONLY logic controls and force OR
+            if (columnName === 'hidden-location') {
+                var logicContainer = container.find('.small.d-flex.align-items-center');
+                var logicRadios = logicContainer.find('input[value="AND"], input[value="AND_EXACT"]');
+                var radioOr = logicContainer.find('input[value="OR"]');
+
+                if (currentVal.includes('IsOutOfStock')) {
+                    logicRadios.prop('disabled', true);
+                    // Force OR logic if not already set
+                    if (!radioOr.prop('checked')) {
+                        radioOr.prop('checked', true).trigger('change');
+                    }
+                } else {
+                    logicRadios.prop('disabled', false);
+                }
+            }
 
             // Status Mutual Exclusivity Logic
             if (columnName === 'hidden-status') {
                  var logic = container.find('input[name="logic-' + filterObj.id + '"]:checked').val();
 
                  if (logic === 'AND') {
-                     var currentVal = element.val() || [];
                      var lastVal = element.data('lastVal') || [];
 
                      // Determine what was added
@@ -403,21 +490,30 @@ class StockOverviewFilters {
 
             self.table.draw();
         });
+
+        // Trigger initial check for Location logic visibility
+        if (columnName === 'hidden-location') {
+             element.trigger('changed.bs.select');
+        }
     }
 
     addLogicControls(container, filterId, allowExactMatch) {
+         // Do not show logic controls for single-value filters
+         if (filterId === 'default-location' || filterId === 'default-store') {
+             return;
+         }
+
          var logicDiv = $('<div class="mt-2 small d-flex align-items-center justify-content-end"></div>');
          var name = 'logic-' + filterId;
          var idOr = 'logic-' + filterId + '-or';
          var idAnd = 'logic-' + filterId + '-and';
+         var idExact = 'logic-' + filterId + '-exact';
 
-         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">OR</label></div>');
-         logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">AND</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idOr + '" value="OR" checked><label class="form-check-label font-weight-normal" for="' + idOr + '">' + __t('Any') + '</label></div>');
+         logicDiv.append('<div class="form-check form-check-inline mr-2"><input class="form-check-input" type="radio" name="' + name + '" id="' + idAnd + '" value="AND"><label class="form-check-label font-weight-normal" for="' + idAnd + '">' + __t('All') + '</label></div>');
 
          if (allowExactMatch) {
-             var idExact = 'logic-' + filterId + '-exact';
-             var exactDiv = $('<div class="form-check form-check-inline exact-match-container ml-2" style="display:none;"><input class="form-check-input exact-match-checkbox" type="checkbox" id="' + idExact + '"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Exact match') + '</label></div>');
-             logicDiv.append(exactDiv);
+             logicDiv.append('<div class="form-check form-check-inline mr-0"><input class="form-check-input" type="radio" name="' + name + '" id="' + idExact + '" value="AND_EXACT"><label class="form-check-label font-weight-normal" for="' + idExact + '">' + __t('Only') + '</label></div>');
          }
 
          container.append(logicDiv);
@@ -425,14 +521,9 @@ class StockOverviewFilters {
          var self = this;
          logicDiv.find('input[type="radio"]').on('change', function() {
              var val = $(this).val();
-             if (allowExactMatch) {
-                var exactDiv = logicDiv.find('.exact-match-container');
-                 if (val === 'AND') exactDiv.show();
-                 else exactDiv.hide();
-             }
 
-             // For Status filter: Enforce mutual exclusivity if switching to AND
-             if (filterId === 'filter-hidden-status' && val === 'AND') {
+             // For Status filter: Enforce mutual exclusivity if switching to AND or AND_EXACT
+             if (filterId === 'filter-hidden-status' && (val === 'AND' || val === 'AND_EXACT')) {
                  var el = container.find('select');
                  var currentVal = el.val() || [];
                  if (currentVal.includes('instockX') && currentVal.includes('outofstock')) {
@@ -445,12 +536,6 @@ class StockOverviewFilters {
              // Trigger filter update
              self.table.draw();
          });
-
-         if (allowExactMatch) {
-             logicDiv.find('.exact-match-checkbox').on('change', function() {
-                 self.table.draw();
-             });
-         }
     }
 
 
@@ -468,30 +553,39 @@ class StockOverviewFilters {
     }
 
     loadAvailableFilters() {
-         this.addAvailableFilter('amount', __t('Amount'), 'number', 3);
-         this.addAvailableFilter('value', __t('Value'), 'number-currency', 4);
-         this.addAvailableFilter('calories', __t('Calories'), 'number', 10);
-         this.addAvailableFilter('last-purchased', __t('Last purchased'), 'date', 11);
-         this.addAvailableFilter('last-price', __t('Last price'), 'number-currency', 12);
-         this.addAvailableFilter('min-stock', __t('Min. stock amount'), 'number', 13);
-         this.addAvailableFilter('average-price', __t('Average price'), 'number-currency', 18);
-         this.addAvailableFilter('default-location', __t('Default location'), 'multiselect-dynamic', 16);
-         this.addAvailableFilter('default-store', __t('Default store'), 'multiselect-dynamic', 19);
-
          var self = this;
-         $('#stock-overview-table thead th[data-userfield-name]').each(function(i, th) {
-             var name = $(th).data('userfield-name');
-             var type = $(th).data('userfield-type');
-             var caption = $(th).text();
 
-             self.availableFilters.push({
-                 id: 'userfield-' + name,
-                 caption: caption,
-                 type: self.mapUserfieldTypeToFilterType(type),
-                 columnIndex: self.table.column(th).index(),
-                 isUserfield: true,
-                 origType: type
-             });
+         // Use DataTables API to iterate columns to ensure correct index mapping
+         this.table.columns().every(function(index) {
+             var header = $(this.header());
+             var userfieldName = header.attr('data-userfield-name');
+             var userfieldType = header.attr('data-userfield-type');
+             var filterName = header.attr('data-filter-name');
+             var caption = header.text().trim();
+
+             if (userfieldName && userfieldType) {
+                 self.availableFilters.push({
+                     id: 'userfield-' + userfieldName,
+                     caption: caption,
+                     type: self.mapUserfieldTypeToFilterType(userfieldType),
+                     columnIndex: index,
+                     isUserfield: true,
+                     origType: userfieldType
+                 });
+             } else if (filterName) {
+                 // Ignore hidden columns that are used for permanent filters
+                 if (filterName === 'hidden-location' || filterName === 'hidden-status' || filterName === 'hidden-product-group') {
+                     return;
+                 }
+
+                 // Dynamic Built-in Filters
+                 var type = 'number'; // Default
+                 if (filterName === 'value' || filterName === 'last-price' || filterName === 'average-price') type = 'number-currency';
+                 if (filterName === 'last-purchased') type = 'date';
+                 if (filterName === 'default-location' || filterName === 'default-store') type = 'multiselect-dynamic';
+
+                 self.addAvailableFilter(filterName, caption, type, index);
+             }
          });
     }
 
@@ -517,39 +611,38 @@ class StockOverviewFilters {
     }
 
     initAddFilterButton() {
-        var container = $('<div class="col-12 col-md-6 col-xl-3 mb-2" id="add-filter-container"></div>');
-        var group = $('<div class="input-group"></div>');
+        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-sm btn-outline-info" data-width="auto" data-dropdown-align-right="true" data-container="false" title=""></select>');
 
-        var prepend = $('<div class="input-group-prepend"><span class="input-group-text"><i class="fa-solid fa-plus"></i>&nbsp;' + __t('Add filter') + '</span></div>');
-
-        var select = $('<select class="selectpicker" data-live-search="true" data-style="btn-light rounded-right border-left-0" data-width="auto"></select>');
-        select.append('<option value="">' + __t('Select a filter to add') + '</option>');
-
-        var stdGroup = $('<optgroup label="' + __t('Standard') + '"></optgroup>');
-        var ufGroup = $('<optgroup label="' + __t('Userfields') + '"></optgroup>');
-
+        var hasUserfields = false;
         this.availableFilters.forEach(function(f) {
-            var opt = $('<option></option>').val(f.id).text(f.caption);
-            if (f.isUserfield) ufGroup.append(opt);
-            else stdGroup.append(opt);
+            if (f.isUserfield) hasUserfields = true;
         });
 
-        select.append(stdGroup);
-        if(ufGroup.children().length > 0) select.append(ufGroup);
+        var self = this;
+        this.availableFilters.forEach(function(f) {
+            if (!f.isUserfield) {
+                select.append($('<option></option>').val(f.id).text(f.caption));
+            }
+        });
 
-        group.append(prepend);
-        group.append(select);
-        container.append(group);
+        if (hasUserfields) {
+            select.append('<option data-divider="true"></option>');
+            this.availableFilters.forEach(function(f) {
+                if (f.isUserfield) {
+                    select.append($('<option></option>').val(f.id).text(f.caption));
+                }
+            });
+        }
 
-        $('#table-filter-row').append(container);
+        $('#add-filter-button-wrapper').append(select);
 
         // Explicitly initialize
         select.selectpicker('render');
+        select.val('');
+        select.selectpicker('refresh');
 
-        // Match the style of other input group filters
-        var wrapper = select.parent('.dropdown');
-        wrapper.css('flex-grow', '1');
-        wrapper.find('.btn.dropdown-toggle').addClass('rounded-0 rounded-right');
+        this.addFilterSelect = select;
+        this.fixAddFilterButtonVisuals();
 
         var self = this;
         select.on('changed.bs.select', function() {
@@ -557,13 +650,28 @@ class StockOverviewFilters {
             if (val) {
                  self.addFilter(val);
                  // Reset value and refresh
-                 $(this).val('');
-                 self.updateAddFilterAvailability();
-                 $(this).selectpicker('refresh');
+                 // Use setTimeout to ensure the UI update loop finishes before we reset
+                 setTimeout(function() {
+                     select.val('').selectpicker('refresh');
+                     self.updateAddFilterAvailability();
+                     self.fixAddFilterButtonVisuals();
+                 }, 50);
             }
         });
+    }
 
-        this.addFilterSelect = select;
+    fixAddFilterButtonVisuals() {
+        if (!this.addFilterSelect) return;
+        var btn = this.addFilterSelect.parent().find('.dropdown-toggle');
+
+        // Ensure the visual icon element exists and is appended, NOT replacing content
+        if (btn.find('.custom-add-filter-icon').length === 0) {
+            var iconHtml = '<span class="custom-add-filter-icon">' +
+                '<i class="fa-solid fa-filter"></i>' +
+                '<i class="fa-solid fa-plus" style="position: absolute; font-size: 0.7em; bottom: 22%; right: 10%; line-height: 1;"></i>' +
+                '</span>';
+            btn.append(iconHtml).addClass('position-relative').css('overflow', 'visible');
+        }
     }
 
     updateAddFilterAvailability() {
@@ -579,6 +687,7 @@ class StockOverviewFilters {
             }
         });
         this.addFilterSelect.selectpicker('refresh');
+        this.fixAddFilterButtonVisuals();
     }
 
     addFilter(filterId) {
@@ -623,7 +732,7 @@ class StockOverviewFilters {
         card.append(body);
         container.append(card);
 
-        $('#add-filter-container').before(container);
+        $('#table-filter-row').append(container);
 
         // Initialize any selectpickers in the new container
         container.find('.selectpicker').selectpicker();
@@ -793,31 +902,27 @@ class StockOverviewFilters {
     }
 
     createCheckboxFilterUI(container) {
-        var select = $('<select class="selectpicker w-100">' +
-            '<option value="all">' + __t('All') + '</option>' +
-            '<option value="checked">' + __t('Checked') + '</option>' +
-            '<option value="unchecked">' + __t('Unchecked') + '</option>' +
-            '</select>');
-        container.append(select);
-        select.selectpicker({
-            container: false,
-            style: 'btn-light'
-        });
-        return select;
+        var wrapper = $('<div class="btn-group btn-group-toggle w-100" data-toggle="buttons"></div>');
+        var name = 'checkbox-filter-' + Date.now(); // Unique name per instance
+
+        wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="all" checked>' + __t('All') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="checked">' + __t('Checked') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="unchecked">' + __t('Unchecked') + '</label>');
+
+        container.append(wrapper);
+        return wrapper.find('input');
     }
 
     createSetNotSetFilterUI(container) {
-        var select = $('<select class="selectpicker w-100">' +
-            '<option value="all">' + __t('All') + '</option>' +
-            '<option value="set">' + __t('Set') + '</option>' +
-            '<option value="not-set">' + __t('Not set') + '</option>' +
-            '</select>');
-        container.append(select);
-        select.selectpicker({
-            container: false,
-            style: 'btn-light'
-        });
-        return select;
+        var wrapper = $('<div class="btn-group btn-group-toggle w-100" data-toggle="buttons"></div>');
+        var name = 'set-notset-filter-' + Date.now(); // Unique name per instance
+
+        wrapper.append('<label class="btn btn-outline-secondary active w-100"><input type="radio" name="' + name + '" value="all" checked>' + __t('All') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="set">' + __t('Set') + '</label>');
+        wrapper.append('<label class="btn btn-outline-secondary w-100"><input type="radio" name="' + name + '" value="not-set">' + __t('Not Set') + '</label>');
+
+        container.append(wrapper);
+        return wrapper.find('input');
     }
 
     createMultiselectDynamicUI(container, filterDef, containerId) {
@@ -830,7 +935,16 @@ class StockOverviewFilters {
         colData.each(function(val, index) {
             var temp = document.createElement('div');
             temp.innerHTML = val;
-            var text = temp.textContent.trim();
+
+            // Prefer extracting from raw value hidden span if available
+            var userfieldRaw = temp.querySelector('.userfield-raw-value');
+            var text = "";
+
+            if (userfieldRaw) {
+                text = userfieldRaw.textContent.trim();
+            } else {
+                text = temp.textContent.trim();
+            }
 
             if (!text) hasEmptyValues = true;
 
@@ -843,9 +957,13 @@ class StockOverviewFilters {
             }
         });
 
-        select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not set')));
+        // Default Location is mandatory (NOT NULL in DB), so "Not set" is invalid.
+        // Default Store is optional, so "Not set" is valid.
+        if (filterDef.id !== 'default-location') {
+             select.append($('<option></option>').val('__grocy_not_set__').text(__t('Not Set'))); // Capitalized Set
+        }
 
-        if (hasEmptyValues) {
+        if (hasEmptyValues && filterDef.id !== 'default-location') {
              select.append($('<option data-divider="true"></option>'));
         }
 
@@ -855,16 +973,22 @@ class StockOverviewFilters {
 
         container.append(select);
 
-        this.addLogicControls(container, filterDef.id, true);
+        // Hide logic controls for Default Location and Default Store
+        // For Product Group, it's already handled (permanent filter), but if it were dynamic:
+        var hideLogic = (filterDef.id === 'default-location' || filterDef.id === 'default-store' || filterDef.origType === 'preset-list');
+        if (!hideLogic) {
+            this.addLogicControls(container, filterDef.id, true);
+        }
 
         // Fix for dynamic selectpickers inside cards/containers
         select.selectpicker({
-            container: false,
+            container: false, // Rely on CSS overflow:visible
             liveSearch: true,
             actionsBox: true,
             showTick: true,
             width: '100%',
-            style: 'btn-light'
+            style: 'btn-light',
+            selectedTextFormat: 'count > 1'
         });
         select.selectpicker('render');
         select.selectpicker('selectAll');
