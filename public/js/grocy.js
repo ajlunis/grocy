@@ -579,9 +579,28 @@ $("iframe").on("load", function()
 $(document).on("shown.bs.modal", function(e)
 {
 	ResizeResponsiveEmbeds();
+
+	var modal = $(e.target);
+	var confirmButton = modal.find(".bootbox-accept");
+	if (confirmButton.length > 0)
+	{
+		confirmButton.focus();
+
+		modal.on("keydown.bootbox-confirm", function(e)
+		{
+			if (e.key === "Enter")
+			{
+				e.preventDefault();
+				confirmButton.trigger("click");
+			}
+		});
+	}
 });
 $(document).on("hidden.bs.modal", function(e)
 {
+	var modal = $(e.target);
+	modal.off("keydown.bootbox-confirm");
+
 	$("body").removeClass("fullscreen-card");
   
 	if ($(".modal.show").length)
