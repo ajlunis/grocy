@@ -19,7 +19,6 @@ class StockOverviewFilters {
         // Convert existing filters using a CSS class fix for input-group integration
         this.convertExistingFilter('#location-filter', 'hidden-location', 'multiselect', __t('Location'));
         this.convertExistingFilter('#product-group-filter', 'hidden-product-group', 'multiselect', __t('Product Group'), __t('No Group'));
-        this.convertExistingFilter('#status-filter', 'hidden-status', 'multiselect', __t('Status'));
 
         this.handleUrlParams();
 
@@ -38,7 +37,14 @@ class StockOverviewFilters {
             $("#location-filter").selectpicker('val', GetUriParam("location"));
         }
         if (typeof GetUriParam("status") !== "undefined") {
-            $("#status-filter").selectpicker('val', GetUriParam("status"));
+            this.addFilter('filter-hidden-status');
+            var self = this;
+            setTimeout(function() {
+                var filter = self.filters.find(f => f.id === 'filter-hidden-status');
+                if(filter) {
+                    filter.element.selectpicker('val', GetUriParam("status"));
+                }
+            }, 100);
         }
     }
 
@@ -575,7 +581,7 @@ class StockOverviewFilters {
                  });
              } else if (filterName) {
                  // Ignore hidden columns that are used for permanent filters
-                 if (filterName === 'hidden-location' || filterName === 'hidden-status' || filterName === 'hidden-product-group') {
+                 if (filterName === 'hidden-location' || filterName === 'hidden-product-group') {
                      return;
                  }
 
@@ -584,10 +590,18 @@ class StockOverviewFilters {
                  if (filterName === 'value' || filterName === 'last-price' || filterName === 'average-price') type = 'number-currency';
                  if (filterName === 'last-purchased') type = 'date';
                  if (filterName === 'default-location' || filterName === 'default-store') type = 'multiselect-dynamic';
+                 if (filterName === 'hidden-status') type = 'status-filter';
 
                  self.addAvailableFilter(filterName, caption, type, index);
              }
          });
+
+         // Fix caption for Status filter (as the column header is "Hidden status")
+         var statusFilter = this.availableFilters.find(f => f.id === 'hidden-status');
+         if (statusFilter) {
+             statusFilter.caption = __t('Status');
+             statusFilter.id = 'filter-hidden-status'; // Align with expected ID in addFilter/logic
+         }
     }
 
     addAvailableFilter(id, caption, type, colIndex) {
@@ -728,6 +742,11 @@ class StockOverviewFilters {
             element = this.createSetNotSetFilterUI(body);
         } else if (filterDef.type === 'multiselect-dynamic' || filterDef.type === 'userfield-multiselect') {
             element = this.createMultiselectDynamicUI(body, filterDef, container.attr('id'));
+        } else if (filterDef.type === 'status-filter') {
+            element = this.createStatusFilterUI(body, filterDef);
+            // Fixup filter definition to match logic expectations
+            filterDef.type = 'multiselect'; // Treated as multiselect for checking logic
+            extraProps.id = 'filter-hidden-status';
         }
 
         card.append(body);
@@ -928,6 +947,59 @@ class StockOverviewFilters {
 
         container.append(wrapper);
         return wrapper.find('input');
+    }
+
+    createStatusFilterUI(container, filterDef) {
+        var select = $('<select class="selectpicker w-100" multiple data-actions-box="true" data-width="100%"></select>');
+
+        if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING) {
+            select.append($('<option></option>').val('duesoon').text(__t('Due soon')));
+            select.append($('<option></option>').val('overdue').text(__t('Overdue')));
+            select.append($('<option></option>').val('expired').text(__t('Expired')));
+        }
+        select.append($('<option></option>').val('belowminstockamount').text(__t('Below min. stock amount')));
+
+        container.append(select);
+
+        // Add logic controls
+        this.addLogicControls(container, 'filter-hidden-status', true);
+
+        select.selectpicker({
+            container: false,
+            liveSearch: true,
+            actionsBox: true,
+            showTick: true,
+            width: '100%',
+            style: 'btn-light',
+            selectedTextFormat: 'count > 1'
+        });
+        select.selectpicker('render');
+
+        // Manual Deselect All to mimic default state
+        select.selectpicker('deselectAll');
+
+        var self = this;
+        select.on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+             var currentVal = select.val() || [];
+             var lastVal = select.data('lastVal') || [];
+
+             var logic = container.find('input[name="logic-filter-hidden-status"]:checked').val();
+
+             if (logic === 'AND') {
+                 // Determine what was added
+                 var added = currentVal.filter(x => !lastVal.includes(x));
+
+                 if (added.includes('instockX') || added.includes('instock')) { // Note: 'instockX' is internal, but check logic just in case
+                     // Not relevant here as we don't have In/Out stock options in this specific list
+                 }
+             }
+
+             // Update lastVal for next event
+             select.data('lastVal', currentVal);
+             self.table.draw();
+        });
+
+        return select;
     }
 
     createMultiselectDynamicUI(container, filterDef, containerId) {

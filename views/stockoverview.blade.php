@@ -336,22 +336,6 @@
 			</select>
 		</div>
 	</div>
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Status') }}</span>
-			</div>
-			<select class="custom-control custom-select"
-				id="status-filter">
-				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
-				<option value="duesoon">{{ $__t('Due soon') }}</option>
-				<option value="overdue">{{ $__t('Overdue') }}</option>
-				<option value="expired">{{ $__t('Expired') }}</option>
-				@endif
-				<option value="belowminstockamount">{{ $__t('Below min. stock amount') }}</option>
-			</select>
-		</div>
-	</div>
 </div>
 
 <div class="row">

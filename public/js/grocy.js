@@ -590,8 +590,12 @@ $(document).on("shown.bs.modal", function(e)
 		{
 			if (e.key === "Enter")
 			{
-				e.preventDefault();
-				confirmButton.trigger("click");
+				// Only trigger click if the cancel button is NOT focused
+				if (!$(document.activeElement).hasClass("bootbox-cancel"))
+				{
+					e.preventDefault();
+					confirmButton.trigger("click");
+				}
 			}
 		});
 	}

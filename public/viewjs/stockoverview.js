@@ -40,7 +40,19 @@ stockOverviewTable.columns.adjust().draw();
 $(".status-filter-message").on("click", function()
 {
 	var value = $(this).data("status-filter");
-	$("#status-filter").selectpicker('val', value);
+
+	// Add the filter if it doesn't exist
+	if (typeof StockFilters !== 'undefined') {
+		StockFilters.addFilter('filter-hidden-status');
+
+		// Wait for UI to render
+		setTimeout(function() {
+			var filter = StockFilters.filters.find(f => f.id === 'filter-hidden-status');
+			if(filter) {
+				filter.element.selectpicker('val', value);
+			}
+		}, 50);
+	}
 });
 
 $("#search").on("keyup", Delay(function()
