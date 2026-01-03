@@ -372,7 +372,7 @@ class StockOverviewFilters {
 
         if (columnName !== 'hidden-location' && columnName !== 'hidden-status' && element.find('option[value="__grocy_not_set__"]').length === 0) {
              var label = nullOptionLabel || __t('Not set');
-             if (nullOptionLabel) {
+             if (nullOptionLabel && element.find('option').length > 0) {
                  element.prepend('<option data-divider="true"></option>');
              }
              element.prepend('<option value="__grocy_not_set__">' + label + '</option>');
