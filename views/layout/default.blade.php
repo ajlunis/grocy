@@ -91,18 +91,16 @@
 
 	@stack('pageStyles')
 
-	@if(boolval($userSettings['show_clock_in_header']))
 	<style>
-		@media (max-width: 500px) {
+		@media (max-width: {{ boolval($userSettings['show_clock_in_header']) ? '500px' : '360px' }}) {
 			.logo-full { display: none !important; }
 			.logo-icon { display: block !important; }
 		}
-		@media (min-width: 501px) {
+		@media (min-width: {{ boolval($userSettings['show_clock_in_header']) ? '501px' : '361px' }}) {
 			.logo-full { display: block !important; }
 			.logo-icon { display: none !important; }
 		}
 	</style>
-	@endif
 
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
 	@php include GROCY_DATAPATH . '/custom_css.html' @endphp
