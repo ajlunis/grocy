@@ -97,3 +97,15 @@ $(document).on("change", "#show-clock-in-header", function()
 	Grocy.UserSettings.show_clock_in_header = $(this).is(":checked");
 	UpdateResponsiveLogo();
 });
+
+$("#sub-nav-manage-master-data").on("click", function(e)
+{
+	if ($("body").hasClass("sidenav-toggled"))
+	{
+		$("#sidenavToggler").click();
+	}
+	else
+	{
+		e.preventDefault();
+	}
+});

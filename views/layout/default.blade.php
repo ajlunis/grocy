@@ -380,7 +380,8 @@
 					data-placement="right"
 					title="{{ $__t('Manage master data') }}">
 					<a class="nav-link discrete-link @if(in_array($viewName, $masterDataViews)) active-page @endif"
-						href="#">
+						href="#"
+						id="sub-nav-manage-master-data">
 						<i class="fa-solid fa-fw fa-table"></i>
 						<span class="nav-link-text">{{ $__t('Manage master data') }}</span>
 					</a>
