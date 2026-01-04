@@ -109,3 +109,14 @@ $("#sub-nav-manage-master-data").on("click", function(e)
 		e.preventDefault();
 	}
 });
+
+$(window).on("resize", function()
+{
+	// If screen width is less than 992px (Bootstrap lg breakpoint),
+	// automatically expand the sidebar (remove 'sidenav-toggled')
+	// to prevent the mobile menu from showing icon-only buttons
+	if ($(window).width() < 992)
+	{
+		$("body").removeClass("sidenav-toggled");
+	}
+});
