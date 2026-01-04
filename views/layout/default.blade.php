@@ -135,8 +135,8 @@
 		class="navbar navbar-expand-lg navbar-light fixed-top">
 		<a class="navbar-brand py-0"
 			href="{{ $U('/') }}">
-			<img src="{{ $U('/img/logo.svg?v=', true) }}{{ $version }}"
-				width="114"
+			<img src="{{ $U('/img/icon.svg?v=', true) }}{{ $version }}"
+				width="30"
 				height="30">
 		</a>
 		<span id="clock-container"
@@ -671,7 +671,11 @@
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item discrete-link show-as-dialog-link"
 							data-dialog-type="wider"
-							href="{{ $U('/about?embedded') }}"><i class="fa-solid fa-fw fa-info"></i>&nbsp;{{ $__t('About Grocy') }}</a>
+							href="{{ $U('/about?embedded') }}"><i class="fa-solid fa-fw fa-info"></i>&nbsp;
+							<img src="{{ $U('/img/logo.svg?v=', true) }}{{ $version }}"
+								width="114"
+								height="30">
+						</a>
 					</div>
 				</li>
 			</ul>
