@@ -100,6 +100,10 @@
 			.logo-full { display: block !important; }
 			.logo-icon { display: none !important; }
 		}
+
+		@media (max-width: 420px) {
+			#clock-container { display: none !important; }
+		}
 	</style>
 
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
