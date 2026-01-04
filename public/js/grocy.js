@@ -926,3 +926,66 @@ setTimeout(function()
 {
 	Grocy.FormFocusDelay = 0;
 }, 1000);
+// Global event listener for Bootbox modals to enhance keyboard navigation
+$(document).on("shown.bs.modal", ".bootbox", function(e)
+{
+	var modal = $(e.target);
+	var buttons = modal.find(".modal-footer .btn");
+	var acceptButton = modal.find(".bootbox-accept");
+
+	// 1. Focus "Yes" (accept) button by default
+	if (acceptButton.length)
+	{
+		acceptButton.trigger("focus");
+	}
+	else if (buttons.length)
+	{
+		// Fallback for alerts or custom dialogs
+		buttons.last().trigger("focus");
+	}
+
+	// 2. Arrow keys to switch options
+	// Only needed if we have more than one button
+	if (buttons.length > 1)
+	{
+		modal.on("keydown", function(k)
+		{
+			// Handle ArrowLeft (37) and ArrowRight (39)
+			if (k.key === "ArrowLeft" || k.key === "ArrowRight")
+			{
+				k.preventDefault(); // Prevent scrolling
+
+				// Find currently focused button index
+				var focused = $(document.activeElement);
+				var currentIndex = buttons.index(focused);
+
+				// If focus is lost or not on a button, reset to accept button or first
+				if (currentIndex === -1)
+				{
+					if (acceptButton.length)
+					{
+						acceptButton.trigger("focus");
+					}
+					else
+					{
+						buttons.first().trigger("focus");
+					}
+					return;
+				}
+
+				// Calculate next index
+				var nextIndex;
+				if (k.key === "ArrowRight")
+				{
+					nextIndex = (currentIndex + 1) % buttons.length;
+				}
+				else // ArrowLeft
+				{
+					nextIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+				}
+
+				buttons.eq(nextIndex).trigger("focus");
+			}
+		});
+	}
+});
