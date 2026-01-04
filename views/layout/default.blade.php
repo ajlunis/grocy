@@ -92,15 +92,6 @@
 	@stack('pageStyles')
 
 	<style>
-		@media (max-width: {{ boolval($userSettings['show_clock_in_header']) ? '500px' : '360px' }}) {
-			.logo-full { display: none !important; }
-			.logo-icon { display: block !important; }
-		}
-		@media (min-width: {{ boolval($userSettings['show_clock_in_header']) ? '501px' : '361px' }}) {
-			.logo-full { display: block !important; }
-			.logo-icon { display: none !important; }
-		}
-
 		@media (max-width: 420px) {
 			#clock-container { display: none !important; }
 		}
