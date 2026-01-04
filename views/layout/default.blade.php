@@ -96,13 +96,6 @@
 			#clock-container { display: none !important; }
 		}
 
-		@media (min-width: 992px) {
-			.nav-stock-actions {
-				position: absolute;
-				left: 50%;
-				transform: translateX(-50%);
-			}
-		}
 	</style>
 
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
@@ -169,7 +162,7 @@
 
 		@if(GROCY_AUTHENTICATED)
 		@if(GROCY_FEATURE_FLAG_STOCK)
-		<ul class="navbar-nav mx-auto flex-row nav-stock-actions pr-3">
+		<ul class="navbar-nav flex-row flex-grow-1 justify-content-center">
 			<li class="nav-item permission-STOCK_PURCHASE">
 				<a class="nav-link discrete-link px-2"
 					href="{{ $U('/purchase') }}"
