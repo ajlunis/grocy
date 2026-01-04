@@ -91,6 +91,17 @@
 
 	@stack('pageStyles')
 
+	<style>
+		@media (max-width: 500px) {
+			.logo-full { display: none !important; }
+			.logo-icon { display: block !important; }
+		}
+		@media (min-width: 501px) {
+			.logo-full { display: block !important; }
+			.logo-icon { display: none !important; }
+		}
+	</style>
+
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
 	@php include GROCY_DATAPATH . '/custom_css.html' @endphp
 	@endif
@@ -133,11 +144,16 @@
 	@if(!$embedded)
 	<nav id="mainNav"
 		class="navbar navbar-expand-lg navbar-light fixed-top">
-		<a class="navbar-brand py-0"
+		<a class="navbar-brand py-0 mr-3"
 			href="{{ $U('/') }}">
+			<img src="{{ $U('/img/logo.svg?v=', true) }}{{ $version }}"
+				width="114"
+				height="30"
+				class="logo-full">
 			<img src="{{ $U('/img/icon.svg?v=', true) }}{{ $version }}"
 				width="30"
-				height="30">
+				height="30"
+				class="logo-icon d-none">
 		</a>
 		<span id="clock-container"
 			class="text-muted font-italic d-none">
@@ -150,7 +166,7 @@
 
 		@if(GROCY_AUTHENTICATED)
 		@if(GROCY_FEATURE_FLAG_STOCK)
-		<ul class="navbar-nav mx-auto flex-row">
+		<ul class="navbar-nav ml-auto flex-row">
 			<li class="nav-item permission-STOCK_PURCHASE">
 				<a class="nav-link discrete-link px-2"
 					href="{{ $U('/purchase') }}"
@@ -671,11 +687,7 @@
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item discrete-link show-as-dialog-link"
 							data-dialog-type="wider"
-							href="{{ $U('/about?embedded') }}"><i class="fa-solid fa-fw fa-info"></i>&nbsp;
-							<img src="{{ $U('/img/logo.svg?v=', true) }}{{ $version }}"
-								width="114"
-								height="30">
-						</a>
+							href="{{ $U('/about?embedded') }}"><i class="fa-solid fa-fw fa-info"></i>&nbsp;{{ $__t('About Grocy') }}</a>
 					</div>
 				</li>
 			</ul>
