@@ -218,10 +218,6 @@
 			<h2 class="title mr-2 order-0">
 				@yield('title')
 			</h2>
-			<h2 class="mb-0 mr-auto order-3 order-md-1 width-xs-sm-100">
-				<span id="info-current-stock"
-					class="text-muted small"></span>
-			</h2>
 			<button class="btn btn-outline-dark d-md-none mt-2 float-right order-1 order-md-3"
 				type="button"
 				data-toggle="collapse"
@@ -259,23 +255,38 @@
 				@endif
 			</div>
 		</div>
-		<div class="border-top border-bottom my-2 py-1">
-			@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
-			<div id="info-expired-products"
-				data-status-filter="expired"
-				class="error-message status-filter-message responsive-button mr-2"></div>
-			<div id="info-overdue-products"
-				data-status-filter="overdue"
-				class="secondary-message status-filter-message responsive-button mr-2"></div>
-			<div id="info-duesoon-products"
-				data-next-x-days="{{ $nextXDays }}"
-				data-status-filter="duesoon"
-				class="warning-message status-filter-message responsive-button mr-2"></div>
-			@endif
-			<div id="info-missing-products"
-				data-status-filter="belowminstockamount"
-				class="normal-message status-filter-message responsive-button"></div>
-			<div class="float-right mt-1 @if($embedded) pr-5 @endif">
+		<div class="border-top border-bottom my-2 py-1 d-flex flex-wrap align-items-center">
+			<div class="d-flex align-items-center mr-2 order-1 order-md-1">
+				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
+				<div id="info-expired-products"
+					data-status-filter="expired"
+					class="error-message status-filter-message responsive-button mr-2"></div>
+				<div id="info-overdue-products"
+					data-status-filter="overdue"
+					class="secondary-message status-filter-message responsive-button mr-2"></div>
+				<div id="info-duesoon-products"
+					data-next-x-days="{{ $nextXDays }}"
+					data-status-filter="duesoon"
+					class="warning-message status-filter-message responsive-button mr-2"></div>
+				@endif
+				<div id="info-missing-products"
+					data-status-filter="belowminstockamount"
+					class="normal-message status-filter-message responsive-button"></div>
+			</div>
+
+			<div class="order-3 order-md-2 mt-1 mt-md-0 w-100 w-md-auto">
+				<select class="custom-control custom-select"
+					id="status-filter">
+					@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
+					<option value="duesoon" style="background-color: #fffaeb; color: #7c5e10;">{{ $__t('Due soon') }}</option>
+					<option value="overdue" style="background-color: #e1e4e8; color: #4e575f;">{{ $__t('Overdue') }}</option>
+					<option value="expired" style="background-color: #ffeeee; color: #780a0a;">{{ $__t('Expired') }}</option>
+					@endif
+					<option value="belowminstockamount" style="background-color: #e0e8f9; color: #2d3a8c;">{{ $__t('Below min. stock amount') }}</option>
+				</select>
+			</div>
+
+			<div class="float-right mt-1 ml-auto order-2 order-md-3 @if($embedded) pr-5 @endif">
 				<div class="d-inline-block position-relative mr-1"
 					id="add-filter-button-wrapper"></div>
 				<a class="btn btn-sm btn-outline-info d-md-none"
@@ -296,8 +307,10 @@
 </div>
 <div class="form-row collapse d-md-flex show"
 	id="table-filter-row">
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group input-group-barcode-scanner">
+	<div class="col-12 col-md-6 col-xl-3 mb-2 d-flex flex-column flex-md-row align-items-center">
+		<span id="info-current-stock"
+			class="text-muted small mb-2 mb-md-0 mr-md-2 text-nowrap"></span>
+		<div class="input-group input-group-barcode-scanner flex-grow-1">
 			<div class="input-group-prepend">
 				<span class="input-group-text"><i class="fa-solid fa-search"></i></span>
 			</div>
@@ -306,6 +319,19 @@
 				class="form-control barcodescanner-input"
 				data-target="@stockoverview-search"
 				placeholder="{{ $__t('Search') }}">
+		</div>
+	</div>
+	<div class="col-12 col-md-6 col-xl-3 mb-2">
+		<div class="input-group">
+			<div class="input-group-prepend">
+				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product Group') }}</span>
+			</div>
+			<select class="custom-control custom-select"
+				id="product-group-filter">
+				@foreach($productGroups as $productGroup)
+				<option value="{{ $productGroup->name }}">{{ $productGroup->name }}</option>
+				@endforeach
+			</select>
 		</div>
 	</div>
 	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
@@ -324,33 +350,6 @@
 	</div>
 	@endif
 	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product Group') }}</span>
-			</div>
-			<select class="custom-control custom-select"
-				id="product-group-filter">
-				@foreach($productGroups as $productGroup)
-				<option value="{{ $productGroup->name }}">{{ $productGroup->name }}</option>
-				@endforeach
-			</select>
-		</div>
-	</div>
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Status') }}</span>
-			</div>
-			<select class="custom-control custom-select"
-				id="status-filter">
-				@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
-				<option value="duesoon">{{ $__t('Due soon') }}</option>
-				<option value="overdue">{{ $__t('Overdue') }}</option>
-				<option value="expired">{{ $__t('Expired') }}</option>
-				@endif
-				<option value="belowminstockamount">{{ $__t('Below min. stock amount') }}</option>
-			</select>
-		</div>
 	</div>
 </div>
 

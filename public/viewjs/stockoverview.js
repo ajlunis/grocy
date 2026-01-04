@@ -154,10 +154,10 @@ function RefreshStatistics()
 			var expiredProducts = result.expired_products.filter(x => !BoolVal(x.product.hide_on_stock_overview));
 			var missingProducts = result.missing_products.filter(x => !BoolVal(x.product.hide_on_stock_overview));
 
-			$("#info-duesoon-products").html('<span class="d-block d-md-none">' + dueProducts.length + ' <i class="fa-solid fa-clock"></i></span><span class="d-none d-md-block">' + __n(dueProducts.length, '%s product is due', '%s products are due') + ' ' + __n(nextXDays, 'within the next day', 'within the next %s days') + '</span>');
-			$("#info-overdue-products").html('<span class="d-block d-md-none">' + overdueProducts.length + ' <i class="fa-solid fa-times-circle"></i></span><span class="d-none d-md-block">' + __n(overdueProducts.length, '%s product is overdue', '%s products are overdue') + '</span>');
-			$("#info-expired-products").html('<span class="d-block d-md-none">' + expiredProducts.length + ' <i class="fa-solid fa-times-circle"></i></span><span class="d-none d-md-block">' + __n(expiredProducts.length, '%s product is expired', '%s products are expired') + '</span>');
-			$("#info-missing-products").html('<span class="d-block d-md-none">' + missingProducts.length + ' <i class="fa-solid fa-exclamation-circle"></i></span><span class="d-none d-md-block">' + __n(missingProducts.length, '%s product is below defined min. stock amount', '%s products are below defined min. stock amount') + '</span>');
+			$("#info-duesoon-products").html('<span class="d-block">' + dueProducts.length + ' <i class="fa-solid fa-clock"></i></span>');
+			$("#info-overdue-products").html('<span class="d-block">' + overdueProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>');
+			$("#info-expired-products").html('<span class="d-block">' + expiredProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>');
+			$("#info-missing-products").html('<span class="d-block">' + missingProducts.length + ' <i class="fa-solid fa-exclamation-circle"></i></span>');
 		},
 		function(xhr)
 		{
