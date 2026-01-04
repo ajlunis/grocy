@@ -161,7 +161,7 @@
 
 		@if(GROCY_AUTHENTICATED)
 		@if(GROCY_FEATURE_FLAG_STOCK)
-		<ul class="navbar-nav ml-auto flex-row mr-3">
+		<ul class="navbar-nav mx-auto flex-row">
 			<li class="nav-item permission-STOCK_PURCHASE">
 				<a class="nav-link discrete-link px-2"
 					href="{{ $U('/purchase') }}"
