@@ -91,6 +91,7 @@
 
 	@stack('pageStyles')
 
+	@if(boolval($userSettings['show_clock_in_header']))
 	<style>
 		@media (max-width: 500px) {
 			.logo-full { display: none !important; }
@@ -101,6 +102,7 @@
 			.logo-icon { display: none !important; }
 		}
 	</style>
+	@endif
 
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
 	@php include GROCY_DATAPATH . '/custom_css.html' @endphp
@@ -166,7 +168,7 @@
 
 		@if(GROCY_AUTHENTICATED)
 		@if(GROCY_FEATURE_FLAG_STOCK)
-		<ul class="navbar-nav ml-auto flex-row">
+		<ul class="navbar-nav ml-auto flex-row mr-3">
 			<li class="nav-item permission-STOCK_PURCHASE">
 				<a class="nav-link discrete-link px-2"
 					href="{{ $U('/purchase') }}"
