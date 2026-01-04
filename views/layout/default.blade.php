@@ -471,6 +471,8 @@
 			</ul>
 
 			<ul class="navbar-nav ml-auto">
+				<div class="nav-item-divider d-lg-none"></div>
+
 				@if(GROCY_AUTHENTICATED && !GROCY_IS_EMBEDDED_INSTALL && !GROCY_DISABLE_AUTH)
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle discrete-link @if(!empty(GROCY_USER_PICTURE_FILE_NAME)) py-0 @endif"
