@@ -379,14 +379,12 @@
 					data-toggle="tooltip"
 					data-placement="right"
 					title="{{ $__t('Manage master data') }}">
-					<a class="nav-link nav-link-collapse discrete-link @if(in_array($viewName, $masterDataViews)) active-page @endif"
-						data-toggle="collapse"
-						href="#sub-nav-manage-master-data">
+					<a class="nav-link discrete-link @if(in_array($viewName, $masterDataViews)) active-page @endif"
+						href="#">
 						<i class="fa-solid fa-fw fa-table"></i>
 						<span class="nav-link-text">{{ $__t('Manage master data') }}</span>
 					</a>
-					<ul id="sub-nav-manage-master-data"
-						class="sidenav-second-level collapse show">
+					<ul class="sidenav-second-level">
 						<li class="@if($viewName == 'products') active-page @endif">
 							<a class="nav-link discrete-link"
 								href="{{ $U('/products') }}">
