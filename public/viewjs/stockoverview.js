@@ -1,4 +1,3 @@
-﻿
 
 var stockOverviewTable = $('#stock-overview-table').DataTable({
 	'order': [[5, 'asc']],
@@ -129,8 +128,16 @@ function UpdateFilteredStatistics()
 	// Calculate Value
 	if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 	{
-		var valueColumnIndex = stockOverviewTable.column('value:name').index();
-		if (valueColumnIndex !== undefined)
+		var valueColumnIndex = -1;
+		stockOverviewTable.columns().header().each(function(header, index)
+		{
+			if ($(header).attr('data-filter-name') === 'value')
+			{
+				valueColumnIndex = index;
+			}
+		});
+
+		if (valueColumnIndex !== -1)
 		{
 			filteredData.each(function(rowData)
 			{
@@ -145,14 +152,6 @@ function UpdateFilteredStatistics()
 					{
 						valueSum += parseFloat(valueMatch[1]);
 					}
-					else
-					{
-						// Fallback: try parsing the whole cell text if cleaner
-						var plainText = valueCell.replace(/<[^>]*>?/gm, '');
-						// Remove currency symbols or non-numeric chars except dot/comma if needed?
-						// Usually Grocy stores raw values in custom-sort spans.
-						// If that fails, it might be 0 or empty.
-					}
 				}
 				else if (typeof valueCell === 'number')
 				{
@@ -163,8 +162,16 @@ function UpdateFilteredStatistics()
 	}
 
 	// Calculate Quantity (Amount)
-	var amountColumnIndex = stockOverviewTable.column('amount:name').index();
-	if (amountColumnIndex !== undefined)
+	var amountColumnIndex = -1;
+	stockOverviewTable.columns().header().each(function(header, index)
+	{
+		if ($(header).attr('data-filter-name') === 'amount')
+		{
+			amountColumnIndex = index;
+		}
+	});
+
+	if (amountColumnIndex !== -1)
 	{
 		filteredData.each(function(rowData)
 		{

@@ -780,3 +780,45 @@ body.night-mode .bootstrap-select .dropdown-menu li.selected a.status-expired sp
         font-size: 1.1rem;  /* Slight reduction */
     }
 }
+
+/* Further constrain the badge width to avoid overlap with caret */
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner .status-badge {
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Ensure the outer container doesn't force extra width */
+.bootstrap-select .dropdown-toggle .filter-option {
+    padding-right: 0;
+}
+
+/* Adjust mobile status button padding */
+@media (max-width: 768px) {
+    .status-filter-message {
+        padding: 8px 12px; /* Further reduced from 10px 15px */
+        font-size: 1rem;
+    }
+}
+
+/* Further constrain the badge width to avoid overlap with caret */
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner .status-badge {
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Ensure the outer container doesn't force extra width */
+.bootstrap-select .dropdown-toggle .filter-option {
+    padding-right: 0;
+}
+
+/* Adjust mobile status button padding */
+@media (max-width: 768px) {
+    .status-filter-message {
+        padding: 8px 12px; /* Further reduced from 10px 15px */
+        font-size: 1rem;
+    }
+}
