@@ -131,15 +131,21 @@ function UpdateFilteredStatistics()
 		// We use the data-filter-name attribute which is 'value' for the Value column
 		var valueColumnIndex = stockOverviewTable.column('value:name').index();
 
-		filteredData.each(function(rowData)
+		if (valueColumnIndex !== undefined)
 		{
-			var valueCell = rowData[valueColumnIndex];
-			var valueMatch = valueCell.match(/<span class="custom-sort d-none">([\d\.-]+)<\/span>/);
-			if (valueMatch && valueMatch[1])
+			filteredData.each(function(rowData)
 			{
-				valueSum += parseFloat(valueMatch[1]);
-			}
-		});
+				var valueCell = rowData[valueColumnIndex];
+				if (typeof valueCell === 'string')
+				{
+					var valueMatch = valueCell.match(/<span class="custom-sort d-none">([\d\.-]+)<\/span>/);
+					if (valueMatch && valueMatch[1])
+					{
+						valueSum += parseFloat(valueMatch[1]);
+					}
+				}
+			});
+		}
 	}
 
 	var text = __n(productCount, '%s Product', '%s Products');

@@ -666,3 +666,69 @@ body.night-mode .dropdown-item.status-belowminstockamount {
     background-color: #17a2b8;
     color: #fff;
 }
+
+
+/* Status Filter Badge Styling for Bootstrap-Select */
+.bootstrap-select .dropdown-menu li a span.text {
+    width: 100%;
+}
+
+.status-badge {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: normal;
+    text-align: left;
+    border-radius: 0.25rem;
+}
+
+/* Ensure the status filter container sits nicely on desktop */
+@media (min-width: 768px) {
+    .status-filter-container {
+        width: auto !important;
+        margin-left: 0.5rem;
+    }
+}
+
+/* Colors for the badges inside the dropdown */
+.status-badge.status-expired {
+    background-color: #ffeeee;
+    color: #780a0a;
+}
+body.night-mode .status-badge.status-expired {
+    background-color: #e4606d;
+    color: #fff;
+}
+
+.status-badge.status-overdue {
+    background-color: #e1e4e8;
+    color: #4e575f;
+}
+body.night-mode .status-badge.status-overdue {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.status-badge.status-duesoon {
+    background-color: #fffaeb;
+    color: #7c5e10;
+}
+body.night-mode .status-badge.status-duesoon {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-badge.status-belowminstockamount {
+    background-color: #e0e8f9;
+    color: #2d3a8c;
+}
+body.night-mode .status-badge.status-belowminstockamount {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Fix Input Group Height Alignment by overriding flex-end globally for this specific row */
+#table-filter-row .input-group {
+    align-items: stretch !important;
+}
