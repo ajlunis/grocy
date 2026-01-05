@@ -124,34 +124,73 @@ function UpdateFilteredStatistics()
 	var filteredData = stockOverviewTable.rows({ filter: 'applied' }).data();
 	var productCount = filteredData.length;
 	var valueSum = 0;
+	var amountSum = 0;
 
+	// Calculate Value
 	if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 	{
-		// Find the index of the 'value' column dynamically
-		// We use the data-filter-name attribute which is 'value' for the Value column
 		var valueColumnIndex = stockOverviewTable.column('value:name').index();
-
 		if (valueColumnIndex !== undefined)
 		{
 			filteredData.each(function(rowData)
 			{
 				var valueCell = rowData[valueColumnIndex];
+				// Handle both string (HTML) and potential raw number/float if data source varies
 				if (typeof valueCell === 'string')
 				{
+					// Extract value from <span id="product-X-value">...</span> or direct text
+					// The "Value" column usually contains <span class="custom-sort d-none">12.34</span>...
 					var valueMatch = valueCell.match(/<span class="custom-sort d-none">([\d\.-]+)<\/span>/);
 					if (valueMatch && valueMatch[1])
 					{
 						valueSum += parseFloat(valueMatch[1]);
 					}
+					else
+					{
+						// Fallback: try parsing the whole cell text if cleaner
+						var plainText = valueCell.replace(/<[^>]*>?/gm, '');
+						// Remove currency symbols or non-numeric chars except dot/comma if needed?
+						// Usually Grocy stores raw values in custom-sort spans.
+						// If that fails, it might be 0 or empty.
+					}
+				}
+				else if (typeof valueCell === 'number')
+				{
+					valueSum += valueCell;
 				}
 			});
 		}
 	}
 
+	// Calculate Quantity (Amount)
+	var amountColumnIndex = stockOverviewTable.column('amount:name').index();
+	if (amountColumnIndex !== undefined)
+	{
+		filteredData.each(function(rowData)
+		{
+			var amountCell = rowData[amountColumnIndex];
+			if (typeof amountCell === 'string')
+			{
+				// Amount column also uses <span class="custom-sort d-none">...</span>
+				var amountMatch = amountCell.match(/<span class="custom-sort d-none">([\d\.-]+)<\/span>/);
+				if (amountMatch && amountMatch[1])
+				{
+					amountSum += parseFloat(amountMatch[1]);
+				}
+			}
+			else if (typeof amountCell === 'number')
+			{
+				amountSum += amountCell;
+			}
+		});
+	}
+
 	var text = __n(productCount, '%s Product', '%s Products');
+	text += ", " + __n(amountSum, '%s Quantity', '%s Quantity');
+
 	if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
 	{
-		text += ", " + __t('%s total value', valueSum.toLocaleString(undefined, { style: "currency", currency: Grocy.Currency }));
+		text += ", " + __t('%s Value', valueSum.toLocaleString(undefined, { style: "currency", currency: Grocy.Currency }));
 	}
 
 	$("#info-current-stock").val(text);

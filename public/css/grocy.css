@@ -732,3 +732,51 @@ body.night-mode .status-badge.status-belowminstockamount {
 #table-filter-row .input-group {
     align-items: stretch !important;
 }
+
+/* Fix status dropdown color fill and checkmark visibility */
+.bootstrap-select .dropdown-toggle .filter-option {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Ensure badges inside the dropdown toggle fill the space */
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner .status-badge {
+    margin: -6px -12px; /* Negative margins to counteract padding if needed */
+    padding: 6px 12px;
+    width: calc(100% + 24px);
+    border-radius: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Adjust dropdown item styling to prevent checkmark overlap */
+.bootstrap-select .dropdown-menu li a {
+    padding-right: 40px !important; /* Make space for checkmark */
+    position: relative;
+}
+
+/* Ensure checkmark is visible on top of background colors */
+.bootstrap-select .dropdown-menu li.selected a span.check-mark {
+    z-index: 10;
+    color: inherit; /* Or force a contrasting color if background is dark */
+}
+
+/* Specific colors for checkmarks if needed */
+.bootstrap-select .dropdown-menu li.selected a.status-expired span.check-mark { color: #780a0a; }
+body.night-mode .bootstrap-select .dropdown-menu li.selected a.status-expired span.check-mark { color: #fff; }
+
+/* Status Button Mobile Sizing Tweaks */
+@media (max-width: 768px) {
+    .status-filter-message {
+        padding: 10px 15px; /* Reduced from 15px 20px */
+        font-size: 1.1rem;  /* Slight reduction */
+    }
+}
