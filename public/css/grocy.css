@@ -625,3 +625,44 @@ body.night-mode .dropdown-item.table-secondary {
     background-color: #6c757d;
     color: #fff;
 }
+
+/* Exact colors for Status Dropdown Options */
+/* Expired (Red) */
+.dropdown-item.status-expired, .dropdown-item.status-expired:hover {
+    background-color: #ffeeee;
+    color: #780a0a;
+}
+body.night-mode .dropdown-item.status-expired {
+    background-color: #e4606d;
+    color: #fff;
+}
+
+/* Overdue (Grey/Secondary) */
+.dropdown-item.status-overdue, .dropdown-item.status-overdue:hover {
+    background-color: #e1e4e8;
+    color: #4e575f;
+}
+body.night-mode .dropdown-item.status-overdue {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* Due Soon (Yellow/Warning) */
+.dropdown-item.status-duesoon, .dropdown-item.status-duesoon:hover {
+    background-color: #fffaeb;
+    color: #7c5e10;
+}
+body.night-mode .dropdown-item.status-duesoon {
+    background-color: #ffc107;
+    color: #000;
+}
+
+/* Below Min Stock (Blue/Normal) */
+.dropdown-item.status-belowminstockamount, .dropdown-item.status-belowminstockamount:hover {
+    background-color: #e0e8f9;
+    color: #2d3a8c;
+}
+body.night-mode .dropdown-item.status-belowminstockamount {
+    background-color: #17a2b8;
+    color: #fff;
+}

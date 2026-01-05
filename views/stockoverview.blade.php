@@ -278,11 +278,11 @@
 				<select class="custom-control custom-select"
 					id="status-filter">
 					@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
-					<option value="duesoon" class="table-warning">{{ $__t('Due soon') }}</option>
-					<option value="overdue" class="table-danger">{{ $__t('Overdue') }}</option>
-					<option value="expired" class="table-danger">{{ $__t('Expired') }}</option>
+					<option value="expired" class="status-expired">{{ $__t('Expired') }}</option>
+					<option value="overdue" class="status-overdue">{{ $__t('Overdue') }}</option>
+					<option value="duesoon" class="status-duesoon">{{ $__t('Due soon') }}</option>
 					@endif
-					<option value="belowminstockamount" class="table-info">{{ $__t('Below min. stock amount') }}</option>
+					<option value="belowminstockamount" class="status-belowminstockamount">{{ $__t('Below min. stock amount') }}</option>
 				</select>
 			</div>
 
@@ -316,7 +316,8 @@
 				<input type="text"
 					id="info-current-stock"
 					class="form-control"
-					readonly>
+					readonly
+					style="pointer-events: none;">
 			</div>
 		</div>
 		<div class="col-12 col-md-6 mb-2">
