@@ -274,19 +274,19 @@
 					class="normal-message status-filter-message responsive-button"></div>
 			</div>
 
-			<div class="order-3 order-md-2 mt-1 mt-md-0 w-100 w-md-auto">
+			<div class="order-3 order-md-1 mt-1 mt-md-0 w-100 status-filter-container">
 				<select class="custom-control custom-select"
 					id="status-filter">
 					@if (GROCY_FEATURE_FLAG_STOCK_BEST_BEFORE_DATE_TRACKING)
-					<option value="duesoon" style="background-color: #fffaeb; color: #7c5e10;">{{ $__t('Due soon') }}</option>
-					<option value="overdue" style="background-color: #e1e4e8; color: #4e575f;">{{ $__t('Overdue') }}</option>
-					<option value="expired" style="background-color: #ffeeee; color: #780a0a;">{{ $__t('Expired') }}</option>
+					<option value="duesoon" class="table-warning">{{ $__t('Due soon') }}</option>
+					<option value="overdue" class="table-danger">{{ $__t('Overdue') }}</option>
+					<option value="expired" class="table-danger">{{ $__t('Expired') }}</option>
 					@endif
-					<option value="belowminstockamount" style="background-color: #e0e8f9; color: #2d3a8c;">{{ $__t('Below min. stock amount') }}</option>
+					<option value="belowminstockamount" class="table-info">{{ $__t('Below min. stock amount') }}</option>
 				</select>
 			</div>
 
-			<div class="float-right mt-1 ml-auto order-2 order-md-3 @if($embedded) pr-5 @endif">
+			<div class="float-right mt-1 ml-auto order-2 order-md-2 @if($embedded) pr-5 @endif">
 				<div class="d-inline-block position-relative mr-1"
 					id="add-filter-button-wrapper"></div>
 				<a class="btn btn-sm btn-outline-info d-md-none"
@@ -305,51 +305,62 @@
 		</div>
 	</div>
 </div>
-<div class="form-row collapse d-md-flex show"
+<div class="collapse d-md-block show"
 	id="table-filter-row">
-	<div class="col-12 col-md-6 col-xl-3 mb-2 d-flex flex-column flex-md-row align-items-center">
-		<span id="info-current-stock"
-			class="text-muted small mb-2 mb-md-0 mr-md-2 text-nowrap"></span>
-		<div class="input-group input-group-barcode-scanner flex-grow-1">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+	<div class="form-row">
+		<div class="col-12 col-md-6 mb-2">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"><i class="fa-solid fa-chart-pie"></i></span>
+				</div>
+				<input type="text"
+					id="info-current-stock"
+					class="form-control"
+					readonly>
 			</div>
-			<input type="text"
-				id="search"
-				class="form-control barcodescanner-input"
-				data-target="@stockoverview-search"
-				placeholder="{{ $__t('Search') }}">
+		</div>
+		<div class="col-12 col-md-6 mb-2">
+			<div class="input-group input-group-barcode-scanner">
+				<div class="input-group-prepend">
+					<span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+				</div>
+				<input type="text"
+					id="search"
+					class="form-control barcodescanner-input"
+					data-target="@stockoverview-search"
+					placeholder="{{ $__t('Search') }}">
+			</div>
 		</div>
 	</div>
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product Group') }}</span>
+	<div class="form-row">
+		<div class="col-12 col-md-6 mb-2">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Product Group') }}</span>
+				</div>
+				<select class="custom-control custom-select"
+					id="product-group-filter">
+					@foreach($productGroups as $productGroup)
+					<option value="{{ $productGroup->name }}">{{ $productGroup->name }}</option>
+					@endforeach
+				</select>
 			</div>
-			<select class="custom-control custom-select"
-				id="product-group-filter">
-				@foreach($productGroups as $productGroup)
-				<option value="{{ $productGroup->name }}">{{ $productGroup->name }}</option>
-				@endforeach
-			</select>
 		</div>
-	</div>
-	@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
-		<div class="input-group">
-			<div class="input-group-prepend">
-				<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Location') }}</span>
+		@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
+		<div class="col-12 col-md-6 mb-2">
+			<div class="input-group">
+				<div class="input-group-prepend">
+					<span class="input-group-text"><i class="fa-solid fa-filter"></i>&nbsp;{{ $__t('Location') }}</span>
+				</div>
+				<select class="custom-control custom-select"
+					id="location-filter">
+					@foreach($locations as $location)
+					<option value="{{ $location->name }}">{{ $location->name }}</option>
+					@endforeach
+				</select>
 			</div>
-			<select class="custom-control custom-select"
-				id="location-filter">
-				@foreach($locations as $location)
-				<option value="{{ $location->name }}">{{ $location->name }}</option>
-				@endforeach
-			</select>
 		</div>
-	</div>
-	@endif
-	<div class="col-12 col-md-6 col-xl-3 mb-2">
+		@endif
 	</div>
 </div>
 

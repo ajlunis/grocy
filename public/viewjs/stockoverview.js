@@ -119,32 +119,45 @@ $(document).on('click', '.product-consume-button', function(e)
 	);
 });
 
+function UpdateFilteredStatistics()
+{
+	var filteredData = stockOverviewTable.rows({ filter: 'applied' }).data();
+	var productCount = filteredData.length;
+	var valueSum = 0;
+
+	if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
+	{
+		// Find the index of the 'value' column dynamically
+		// We use the data-filter-name attribute which is 'value' for the Value column
+		var valueColumnIndex = stockOverviewTable.column('value:name').index();
+
+		filteredData.each(function(rowData)
+		{
+			var valueCell = rowData[valueColumnIndex];
+			var valueMatch = valueCell.match(/<span class="custom-sort d-none">([\d\.-]+)<\/span>/);
+			if (valueMatch && valueMatch[1])
+			{
+				valueSum += parseFloat(valueMatch[1]);
+			}
+		});
+	}
+
+	var text = __n(productCount, '%s Product', '%s Products');
+	if (Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
+	{
+		text += ", " + __t('%s total value', valueSum.toLocaleString(undefined, { style: "currency", currency: Grocy.Currency }));
+	}
+
+	$("#info-current-stock").val(text);
+}
+
+stockOverviewTable.on('draw', function()
+{
+	UpdateFilteredStatistics();
+});
+
 function RefreshStatistics()
 {
-	Grocy.Api.Get('stock',
-		function(result)
-		{
-			if (!Grocy.FeatureFlags.GROCY_FEATURE_FLAG_STOCK_PRICE_TRACKING)
-			{
-				$("#info-current-stock").text(__n(result.filter(x => !BoolVal(x.product.hide_on_stock_overview)).length, '%s Product', '%s Products'));
-			}
-			else
-			{
-				var valueSum = 0;
-				result.forEach(element =>
-				{
-					valueSum += element.value;
-				});
-
-				$("#info-current-stock").text(__n(result.filter(x => !BoolVal(x.product.hide_on_stock_overview)).length, '%s Product', '%s Products') + ", " + __t('%s total value', valueSum.toLocaleString(undefined, { style: "currency", currency: Grocy.Currency })));
-			}
-		},
-		function(xhr)
-		{
-			console.error(xhr);
-		}
-	);
-
 	var nextXDays = $("#info-duesoon-products").data("next-x-days");
 	Grocy.Api.Get('stock/volatile?due_soon_days=' + nextXDays,
 		function(result)
@@ -154,10 +167,19 @@ function RefreshStatistics()
 			var expiredProducts = result.expired_products.filter(x => !BoolVal(x.product.hide_on_stock_overview));
 			var missingProducts = result.missing_products.filter(x => !BoolVal(x.product.hide_on_stock_overview));
 
-			$("#info-duesoon-products").html('<span class="d-block">' + dueProducts.length + ' <i class="fa-solid fa-clock"></i></span>');
-			$("#info-overdue-products").html('<span class="d-block">' + overdueProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>');
-			$("#info-expired-products").html('<span class="d-block">' + expiredProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>');
-			$("#info-missing-products").html('<span class="d-block">' + missingProducts.length + ' <i class="fa-solid fa-exclamation-circle"></i></span>');
+			$("#info-duesoon-products").html('<span class="d-block">' + dueProducts.length + ' <i class="fa-solid fa-clock"></i></span>')
+				.attr('data-toggle', 'tooltip').attr('title', __n(dueProducts.length, '%s product is due', '%s products are due') + ' ' + __n(nextXDays, 'within the next day', 'within the next %s days'));
+
+			$("#info-overdue-products").html('<span class="d-block">' + overdueProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>')
+				.attr('data-toggle', 'tooltip').attr('title', __n(overdueProducts.length, '%s product is overdue', '%s products are overdue'));
+
+			$("#info-expired-products").html('<span class="d-block">' + expiredProducts.length + ' <i class="fa-solid fa-times-circle"></i></span>')
+				.attr('data-toggle', 'tooltip').attr('title', __n(expiredProducts.length, '%s product is expired', '%s products are expired'));
+
+			$("#info-missing-products").html('<span class="d-block">' + missingProducts.length + ' <i class="fa-solid fa-exclamation-circle"></i></span>')
+				.attr('data-toggle', 'tooltip').attr('title', __n(missingProducts.length, '%s product is below defined min. stock amount', '%s products are below defined min. stock amount'));
+
+			$('[data-toggle="tooltip"]').tooltip();
 		},
 		function(xhr)
 		{
