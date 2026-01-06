@@ -547,13 +547,6 @@ html {
 	opacity: 0.5;
 }
 
-@media (max-width: 768px) {
-
-	#table-filter-row div:not(:first-of-type) {
-		margin-top: 8px;
-	}
-}
-
 /* Fix for bootstrap-select inside input-group */
 .input-group > .dropdown.bootstrap-select {
     flex: 1 1 auto;
