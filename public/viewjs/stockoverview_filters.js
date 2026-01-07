@@ -28,6 +28,10 @@ class StockOverviewFilters {
 
         this.setupDataTableSearch();
 
+        // Initialize dynamic filter row container
+        if ($('#dynamic-filter-row').length === 0) {
+            $('#table-filter-row').append('<div class="form-row" id="dynamic-filter-row"></div>');
+        }
     }
 
     handleUrlParams() {
@@ -299,9 +303,6 @@ class StockOverviewFilters {
         // Usually, empty number fields are stored as NULL or 0.
         if (isNaN(cellValue)) cellValue = 0;
 
-        // If filtering for Not Set (conceptually), usually that means value is 0 or empty
-        // But here we are range filtering.
-
         // If the user entered a Min value
         if (!isNaN(minVal)) {
              if (cellValue < minVal) return false;
@@ -372,7 +373,8 @@ class StockOverviewFilters {
 
         if (columnName !== 'hidden-location' && columnName !== 'hidden-status' && element.find('option[value="__grocy_not_set__"]').length === 0) {
              var label = nullOptionLabel || __t('Not set');
-             if (nullOptionLabel) {
+             // Only add divider if there are strictly existing option elements (not empty or just whitespace)
+             if (nullOptionLabel && element.children('option').length > 0) {
                  element.prepend('<option data-divider="true"></option>');
              }
              element.prepend('<option value="__grocy_not_set__">' + label + '</option>');
@@ -380,7 +382,7 @@ class StockOverviewFilters {
 
         if (columnName === 'hidden-location' && element.find('option[value="IsOutOfStock"]').length === 0) {
             element.prepend('<option data-divider="true"></option>');
-            element.prepend('<option value="IsOutOfStock">' + __t('Out of Stock') + '</option>');
+            element.prepend('<option value="IsOutOfStock">' + __t('Out of stock') + '</option>');
         }
 
         element.off('change');
@@ -733,7 +735,8 @@ class StockOverviewFilters {
         card.append(body);
         container.append(card);
 
-        $('#table-filter-row').append(container);
+        // Append to the dynamic filter row
+        $('#dynamic-filter-row').append(container);
 
         if (!$('#table-filter-row').hasClass('show')) {
             $('#table-filter-row').collapse('show');

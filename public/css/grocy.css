@@ -547,13 +547,6 @@ html {
 	opacity: 0.5;
 }
 
-@media (max-width: 768px) {
-
-	#table-filter-row div:not(:first-of-type) {
-		margin-top: 8px;
-	}
-}
-
 /* Fix for bootstrap-select inside input-group */
 .input-group > .dropdown.bootstrap-select {
     flex: 1 1 auto;
@@ -563,4 +556,114 @@ html {
 .input-group > .dropdown.bootstrap-select .dropdown-toggle {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+}
+
+/* Status Filter Badge Styling for Bootstrap-Select */
+.status-filter-container .bootstrap-select .dropdown-menu li a span.text {
+    width: 100%;
+}
+
+.status-badge {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: normal;
+    text-align: left;
+    border-radius: 0.25rem;
+}
+
+/* Ensure the status filter container sits nicely on desktop */
+@media (min-width: 768px) {
+    .status-filter-container {
+        width: auto !important;
+        margin-left: 0.5rem;
+    }
+}
+
+/* Colors for the badges inside the dropdown */
+.status-badge.status-expired {
+    background-color: #ffeeee;
+    color: #780a0a;
+}
+body.night-mode .status-badge.status-expired {
+    background-color: #e4606d;
+    color: #fff;
+}
+
+.status-badge.status-overdue {
+    background-color: #e1e4e8;
+    color: #4e575f;
+}
+body.night-mode .status-badge.status-overdue {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.status-badge.status-duesoon {
+    background-color: #fffaeb;
+    color: #7c5e10;
+}
+body.night-mode .status-badge.status-duesoon {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-badge.status-belowminstockamount {
+    background-color: #e0e8f9;
+    color: #2d3a8c;
+}
+body.night-mode .status-badge.status-belowminstockamount {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Fix Input Group Height Alignment by overriding flex-end globally for this specific row */
+#table-filter-row .input-group {
+    align-items: stretch !important;
+}
+
+/* Fix status dropdown color fill and checkmark visibility */
+.bootstrap-select .dropdown-toggle .filter-option {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding-right: 0; /* Ensure outer container doesn't force extra width */
+}
+
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Ensure badges inside the dropdown toggle fill the space */
+.bootstrap-select .dropdown-toggle .filter-option-inner-inner .status-badge {
+    width: 95%;
+    margin: 0;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Adjust dropdown item styling to prevent checkmark overlap */
+.bootstrap-select .dropdown-menu li a {
+    padding-right: 40px !important; /* Make space for checkmark */
+    position: relative;
+}
+
+/* Ensure checkmark is visible on top of background colors */
+.bootstrap-select .dropdown-menu li.selected a span.check-mark {
+    z-index: 10;
+    color: inherit;
+}
+
+/* Status Button Mobile Sizing Tweaks */
+@media (max-width: 768px) {
+    .status-filter-message {
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
 }

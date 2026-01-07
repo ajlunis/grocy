@@ -2530,3 +2530,12 @@ msgstr ""
 
 msgid "No Group"
 msgstr ""
+
+msgid "Out of Stock"
+msgstr ""
+
+msgid "Any"
+msgstr ""
+
+msgid "Only"
+msgstr ""

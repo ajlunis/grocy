@@ -91,6 +91,13 @@
 
 	@stack('pageStyles')
 
+	<style>
+		@media (max-width: 420px) {
+			#clock-container { display: none !important; }
+		}
+
+	</style>
+
 	@if(file_exists(GROCY_DATAPATH . '/custom_css.html'))
 	@php include GROCY_DATAPATH . '/custom_css.html' @endphp
 	@endif
@@ -133,11 +140,16 @@
 	@if(!$embedded)
 	<nav id="mainNav"
 		class="navbar navbar-expand-lg navbar-light fixed-top">
-		<a class="navbar-brand py-0"
+		<a class="navbar-brand py-0 mr-3"
 			href="{{ $U('/') }}">
 			<img src="{{ $U('/img/logo.svg?v=', true) }}{{ $version }}"
 				width="114"
-				height="30">
+				height="30"
+				class="logo-full">
+			<img src="{{ $U('/img/icon.svg?v=', true) }}{{ $version }}"
+				width="30"
+				height="30"
+				class="logo-icon d-none">
 		</a>
 		<span id="clock-container"
 			class="text-muted font-italic d-none">
@@ -149,6 +161,45 @@
 		</span>
 
 		@if(GROCY_AUTHENTICATED)
+		@if(GROCY_FEATURE_FLAG_STOCK)
+		<ul class="navbar-nav flex-row flex-grow-1 justify-content-center">
+			<li class="nav-item permission-STOCK_PURCHASE">
+				<a class="nav-link discrete-link px-2"
+					href="{{ $U('/purchase') }}"
+					data-toggle="tooltip"
+					title="{{ $__t('Purchase') }}">
+					<i class="fa-solid fa-cart-plus fa-lg"></i>
+				</a>
+			</li>
+			<li class="nav-item permission-STOCK_CONSUME">
+				<a class="nav-link discrete-link px-2"
+					href="{{ $U('/consume') }}"
+					data-toggle="tooltip"
+					title="{{ $__t('Consume') }}">
+					<i class="fa-solid fa-utensils fa-lg"></i>
+				</a>
+			</li>
+			@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
+			<li class="nav-item permission-STOCK_TRANSFER">
+				<a class="nav-link discrete-link px-2"
+					href="{{ $U('/transfer') }}"
+					data-toggle="tooltip"
+					title="{{ $__t('Transfer') }}">
+					<i class="fa-solid fa-exchange-alt fa-lg"></i>
+				</a>
+			</li>
+			@endif
+			<li class="nav-item permission-STOCK_INVENTORY">
+				<a class="nav-link discrete-link px-2"
+					href="{{ $U('/inventory') }}"
+					data-toggle="tooltip"
+					title="{{ $__t('Inventory') }}">
+					<i class="fa-solid fa-list fa-lg"></i>
+				</a>
+			</li>
+		</ul>
+		@endif
+
 		<button class="navbar-toggler navbar-toggler-right"
 			type="button"
 			data-toggle="collapse"
@@ -273,51 +324,6 @@
 				</li>
 				@endif
 
-				@if(GROCY_FEATURE_FLAG_STOCK)
-				<div class="nav-item-divider"></div>
-				<li class="nav-item nav-item-sidebar permission-STOCK_PURCHASE @if($viewName == 'purchase') active-page @endif"
-					data-toggle="tooltip"
-					data-placement="right"
-					title="{{ $__t('Purchase') }}">
-					<a class="nav-link discrete-link"
-						href="{{ $U('/purchase') }}">
-						<i class="fa-solid fa-fw fa-cart-plus"></i>
-						<span class="nav-link-text">{{ $__t('Purchase') }}</span>
-					</a>
-				</li>
-				<li class="nav-item nav-item-sidebar permission-STOCK_CONSUME @if($viewName == 'consume') active-page @endif"
-					data-toggle="tooltip"
-					data-placement="right"
-					title="{{ $__t('Consume') }}">
-					<a class="nav-link discrete-link"
-						href="{{ $U('/consume') }}">
-						<i class="fa-solid fa-fw fa-utensils"></i>
-						<span class="nav-link-text">{{ $__t('Consume') }}</span>
-					</a>
-				</li>
-				@if(GROCY_FEATURE_FLAG_STOCK_LOCATION_TRACKING)
-				<li class="nav-item nav-item-sidebar permission-STOCK_TRANSFER @if($viewName == 'transfer') active-page @endif"
-					data-toggle="tooltip"
-					data-placement="right"
-					title="{{ $__t('Transfer') }}">
-					<a class="nav-link discrete-link"
-						href="{{ $U('/transfer') }}">
-						<i class="fa-solid fa-fw fa-exchange-alt"></i>
-						<span class="nav-link-text">{{ $__t('Transfer') }}</span>
-					</a>
-				</li>
-				@endif
-				<li class="nav-item nav-item-sidebar permission-STOCK_INVENTORY @if($viewName == 'inventory') active-page @endif"
-					data-toggle="tooltip"
-					data-placement="right"
-					title="{{ $__t('Inventory') }}">
-					<a class="nav-link discrete-link"
-						href="{{ $U('/inventory') }}">
-						<i class="fa-solid fa-fw fa-list"></i>
-						<span class="nav-link-text">{{ $__t('Inventory') }}</span>
-					</a>
-				</li>
-				@endif
 				@if(GROCY_FEATURE_FLAG_CHORES)
 				<li class="nav-item nav-item-sidebar permission-CHORE_TRACK_EXECUTION @if($viewName == 'choretracking') active-page @endif"
 					data-toggle="tooltip"
@@ -373,14 +379,13 @@
 					data-toggle="tooltip"
 					data-placement="right"
 					title="{{ $__t('Manage master data') }}">
-					<a class="nav-link nav-link-collapse discrete-link @if(!in_array($viewName, $masterDataViews)) collapsed @else active-page @endif"
-						data-toggle="collapse"
-						href="#sub-nav-manage-master-data">
+					<a class="nav-link discrete-link @if(in_array($viewName, $masterDataViews)) active-page @endif"
+						href="#"
+						id="sub-nav-manage-master-data">
 						<i class="fa-solid fa-fw fa-table"></i>
 						<span class="nav-link-text">{{ $__t('Manage master data') }}</span>
 					</a>
-					<ul id="sub-nav-manage-master-data"
-						class="sidenav-second-level collapse @if(in_array($viewName, $masterDataViews)) show @endif">
+					<ul class="sidenav-second-level">
 						<li class="@if($viewName == 'products') active-page @endif">
 							<a class="nav-link discrete-link"
 								href="{{ $U('/products') }}">
@@ -467,6 +472,8 @@
 			</ul>
 
 			<ul class="navbar-nav ml-auto">
+				<div class="nav-item-divider d-lg-none"></div>
+
 				@if(GROCY_AUTHENTICATED && !GROCY_IS_EMBEDDED_INSTALL && !GROCY_DISABLE_AUTH)
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle discrete-link @if(!empty(GROCY_USER_PICTURE_FILE_NAME)) py-0 @endif"
