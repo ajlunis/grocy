@@ -215,11 +215,11 @@
 				<li class="nav-item nav-item-sidebar @if($viewName == 'stockoverview') active-page @endif"
 					data-toggle="tooltip"
 					data-placement="right"
-					title="{{ $__t('Stock overview') }}">
+					title="{{ $__t('Stock') }}">
 					<a class="nav-link discrete-link"
 						href="{{ $U('/stockoverview') }}">
 						<i class="fa-solid fa-fw fa-box"></i>
-						<span class="nav-link-text">{{ $__t('Stock overview') }}</span>
+						<span class="nav-link-text">{{ $__t('Stock') }}</span>
 					</a>
 				</li>
 				@endif
