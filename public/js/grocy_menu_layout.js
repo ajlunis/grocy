@@ -30,7 +30,10 @@ $(".navbar-sidenav .nav-link-collapse").click(function(e)
 
 if (window.localStorage.getItem("sidebar_state") === "collapsed")
 {
-	$("#sidenavToggler").click();
+	if ($(window).width() >= 992)
+	{
+		$("#sidenavToggler").click();
+	}
 }
 
 // Make sure the current active menu item is visible

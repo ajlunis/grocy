@@ -91,7 +91,7 @@
 			@endif
 		</div>
 
-		<h4 class="mt-5">{{ $__t('Stock overview') }}</h4>
+		<h4 class="mt-5">{{ $__t('Stock') }}</h4>
 		@include('components.numberpicker', array(
 		'id' => 'stock_due_soon_days',
 		'additionalAttributes' => 'data-setting-key="stock_due_soon_days"',

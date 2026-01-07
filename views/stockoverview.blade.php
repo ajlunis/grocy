@@ -2,7 +2,7 @@
 
 @extends('layout.default')
 
-@section('title', $__t('Stock overview'))
+@section('title', $__t('Stock'))
 
 @push('pageScripts')
 <script src="{{ $U('/viewjs/purchase.js?v=', true) }}{{ $version }}"></script>
@@ -11,6 +11,10 @@
 
 @push('pageStyles')
 <style>
+	.status-filter-container .bootstrap-select > .dropdown-toggle {
+		width: 245px !important;
+	}
+
 	.input-group-barcode-scanner {
 		position: relative;
 	}
